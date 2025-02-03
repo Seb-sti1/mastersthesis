@@ -14,6 +14,6 @@ environmental features previously detected with the drone and associated to the 
 This is the source files of my Master's thesis for my MSc Eng in Autonomous Systems
 at [Danmarks Tekniske Universitet](https://www.dtu.dk/english/).
 
-It was supervised by [Søren Hansen](https://orbit.dtu.dk/en/persons/s%C3%B8ren-hansen) and co-supervised
-by [Alexandre Chapoutot](https://perso.ensta-paris.fr/~chapoutot/)
+It was supervised by [Søren HANSEN](https://orbit.dtu.dk/en/persons/s%C3%B8ren-hansen) and co-supervised
+by [Alexandre CHAPOUTOT](https://perso.ensta-paris.fr/~chapoutot/)
 and [Thibault TORALBA](http://u2is.ensta-paris.fr/members/toralba/index.php?lang=fr).
