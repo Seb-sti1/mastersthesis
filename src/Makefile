@@ -10,4 +10,4 @@ $(DOCNAME):
 	pdflatex $(DOCNAME).tex
 
 clean:
-	rm *.blg *.bbl *.aux *.log
+	rm  *.acr *.acn *.alg *.glg *.glo *.gls *.ist *.out *.toc *.blg *.bbl *.aux *.log
