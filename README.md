@@ -9,10 +9,17 @@ topological map with identified paths, intersections, and potential targets. The
 instructions (e.g., “reach a target”) and navigate using this topological map. It utilizes onboard sensors to match
 environmental features previously detected with the drone and associated to the topological map.
 
+## Build latex document
+
+```sh
+docker build -t sebsti1/latex
+docker run -v /path/to/mastersthesis:/app/ --name latex sebsti1/latex make
+```
+
 ## Acknowledgements
 
-This is the source files of my Master's thesis for my MSc Eng in Autonomous Systems
-at [Danmarks Tekniske Universitet](https://www.dtu.dk/english/).
+This is the source files of my Master's thesis for my M.Sc. Eng in Autonomous Systems
+at the [Danmarks Tekniske Universitet](https://www.dtu.dk/english/).
 
 It was supervised by [Søren HANSEN](https://orbit.dtu.dk/en/persons/s%C3%B8ren-hansen) and co-supervised
 by [Alexandre CHAPOUTOT](https://perso.ensta-paris.fr/~chapoutot/)
