@@ -308,3 +308,6 @@ TSWLatexianTemp*
 
 .idea/
 *.pdf
+*.jpg
+*.png
+datasets/**
