@@ -16,6 +16,6 @@ RUN apt update && \
     apt -y install --no-install-recommends texlive-fonts-extra texlive-science lmodern texlive-fonts-recommended && \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app/src
+RUN mkdir -p /app/latex
 
-WORKDIR /app/src
+WORKDIR /app/latex
