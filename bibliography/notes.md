@@ -22,7 +22,6 @@
   * [Forest trails](#forest-trails)
     * [A Machine Learning Approach to Visual Perception of Forest Trails for Mobile Robots](#a-machine-learning-approach-to-visual-perception-of-forest-trails-for-mobile-robots)
     * [Appearance Contrast for Fast, Robust Trail-Following](#appearance-contrast-for-fast-robust-trail-following)
-    * [A Trail-Following Robot Which Uses Appearance and Structural Cues](#a-trail-following-robot-which-uses-appearance-and-structural-cues)
 <!-- TOC -->
 
 # Aero-terrestrial collaboration
@@ -330,10 +329,3 @@ objects that should be avoided.
 
 > [!TIP]
 > \[Forest trails segmentation]  \[Image] \[Lidar] \[only FPV]
-
-### A Trail-Following Robot Which Uses Appearance and Structural Cues
-
-> [!NOTE]
-> http://nameless.cis.udel.edu/pubs/2012/RLK12/fsr2012_published.pdf
-
-
