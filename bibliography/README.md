@@ -9,30 +9,33 @@ See my [notes](notes.md).
 
 ### To read/sort
 
-- 2D Topological Map Building by UAVs for Ground Robot Navigation https://ieeexplore.ieee.org/document/9739395
-- A Trail-Following Robot which uses appearance abd structural Cues
-  http://nameless.cis.udel.edu/pubs/2012/RLK12/fsr2012_published.pdf
-- LSS https://arxiv.org/pdf/2008.05711
-- ViKiNG https://arxiv.org/pdf/2202.11271  https://sites.google.com/view/viking-release
-- https://arxiv.org/pdf/2004.04697 20 21 24 25
 - Tracking Natural Trails with Swarm-based Visual Saliency
   https://onlinelibrary.wiley.com/doi/full/10.1002/rob.21423
-- BEV-SLAM: Building a Globally-Consistent World Map Using Monocular Vision
-  https://personalpages.surrey.ac.uk/r.bowden/publications/2022/Ross_IROS2022pp.pdf
-- Topology control algorithms in multi-unmanned aerial vehicle networks: An extensive survey
-  https://www.sciencedirect.com/science/article/pii/S1084804522001370
-- Topological map construction and scene recognition for vehicle localization
-  https://link.springer.com/article/10.1007/s10514-017-9638-9
-- Topology-based UAV path planning for multi-view stereo 3D reconstruction of complex structures
-  https://link.springer.com/article/10.1007/s40747-022-00831-5
 - Compact and Efficient Topological Mapping for Large-Scale Environment with Pruned Voronoi Diagram
   https://www.mdpi.com/2504-446X/6/7/183
+- A Trail-Following Robot which uses appearance abd structural Cues
+  http://nameless.cis.udel.edu/pubs/2012/RLK12/fsr2012_published.pdf
 - An effective approach to unmanned aerial vehicle navigation using visual topological map in outdoor and indoor
   environments
   https://www.sciencedirect.com/science/article/pii/S0140366419307868
-- A Trail-Following Robot Which Uses Appearance and Structural Cues
-  http://nameless.cis.udel.edu/pubs/2012/RLK12/fsr2012_published.pdf
+- LSS https://arxiv.org/pdf/2008.05711
+- ViKiNG https://arxiv.org/pdf/2202.11271  https://sites.google.com/view/viking-release
+- https://arxiv.org/pdf/2004.04697 20 21 24 25
 - Similarity of images
+    - https://github.com/lbrejon/Compute-similarity-between-images-using-CNN?tab=readme-ov-file
+    - https://pubs.aip.org/aip/acp/article-abstract/3092/1/040015/3270019/Similar-image-retrieval-using-convolutional-neural?redirectedFrom=fulltext
+    - https://deeplobe.ai/image-similarity-using-deep-cnn-theory-to-code/
+    - https://medium.com/@f.a.reid/image-similarity-using-feature-embeddings-357dc01514f8
+
+### Not really aiming for
+
+- BEV-SLAM: Building a Globally-Consistent World Map Using Monocular Vision
+  https://personalpages.surrey.ac.uk/r.bowden/publications/2022/Ross_IROS2022pp.pdf
+- Topology-based UAV path planning for multi-view stereo 3D reconstruction of complex structures
+  https://link.springer.com/article/10.1007/s40747-022-00831-5
+- Topological map construction and scene recognition for vehicle localization
+  https://link.springer.com/article/10.1007/s10514-017-9638-9
+
 
 #### With Helicopter
 
@@ -63,6 +66,8 @@ See my [notes](notes.md).
 - https://github.com/alicevision/Meshroom
 
 ## Debug
+
+labelme (to label images) https://github.com/wkentaro/labelme
 
 makefile and latex https://tex.stackexchange.com/questions/40738/how-to-properly-make-a-latex-project
 

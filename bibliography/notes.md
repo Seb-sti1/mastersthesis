@@ -2,6 +2,7 @@
 * [Aero-terrestrial collaboration](#aero-terrestrial-collaboration)
   * [For global planning](#for-global-planning)
     * [Active Autonomous Aerial Exploration for Ground Robot Path Planning](#active-autonomous-aerial-exploration-for-ground-robot-path-planning)
+    * [2D Topological Map Building by UAVs for Ground Robot Navigation](#2d-topological-map-building-by-uavs-for-ground-robot-navigation)
   * [For local planning](#for-local-planning)
     * [Dual-BEV Nav: Dual-layer BEV-based Heuristic Path Planning for Robotic Navigation in Unstructured Outdoor Environments](#dual-bev-nav-dual-layer-bev-based-heuristic-path-planning-for-robotic-navigation-in-unstructured-outdoor-environments)
       * [LBPM](#lbpm)
@@ -82,6 +83,37 @@ number = {2},
 pages = {664-671},
 keywords = {Three-dimensional displays;Path planning;Time factors;Cameras;Robot vision systems;Training;Search and rescue robots;motion and path planning;visual-based navigation},
 doi = {10.1109/LRA.2017.2651163}
+}
+```
+
+</details>
+
+### 2D Topological Map Building by UAVs for Ground Robot Navigation
+
+> [!NOTE]
+> https://ieeexplore.ieee.org/document/9739395
+
+> [!TIP]
+> \[Exploration] \[Collaboration] \[3D Topological Map] \[Octomap]
+
+
+
+
+<details>
+
+<summary>BibTex</summary>
+
+```latex
+@INPROCEEDINGS{9739395,
+author={Wang, Yuqian and Zhang, Xuetao and Liu, Yisha and Zhuang, Yan},
+booktitle={2021 IEEE International Conference on Robotics and Biomimetics (ROBIO)},
+title={2D Topological Map Building by UAVs for Ground Robot Navigation},
+year={2021},
+volume={},
+number={},
+pages={663-668},
+keywords={Solid modeling;Three-dimensional displays;Navigation;Buildings;Skeleton;Path planning;Topology},
+doi={10.1109/ROBIO54168.2021.9739395}
 }
 ```
 
@@ -329,3 +361,10 @@ objects that should be avoided.
 
 > [!TIP]
 > \[Forest trails segmentation]  \[Image] \[Lidar] \[only FPV]
+
+- CIE-Lab used
+- textons generated from the input image using [^5] method
+- Then triangles are scored using a likelihood function
+- Add lidar info to enhance results
+
+[^5]: https://ieeexplore.ieee.org/document/4651086
