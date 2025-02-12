@@ -1,6 +1,7 @@
 """
-
-https://github.com/facebookresearch/segment-anything?tab=readme-ov-file#getting-started
+This is a small script to test the segment_anything functionalities.
+This is barely more than https://github.com/facebookresearch/segment-anything?tab=readme-ov-file#getting-started.
+Regarding `sam_vit_b_01ec64.pth` it can be found at https://github.com/facebookresearch/segment-anything?tab=readme-ov-file#model-checkpoints
 """
 
 import os
