@@ -13,21 +13,13 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
+from scripts import load_files, resize_images
+
 DATASET_PATH = os.path.join(os.path.dirname(__file__), "..", "datasets", "aukerman")
 PATCH_SIZE = 306
 IMAGE_SIZE = (4896, 3672)
 
 net = torch.hub.load('milesial/Pytorch-UNet', 'unet_carvana', pretrained=True, scale=0.5)
-
-
-def load_images(folder_path: str) -> Iterator[np.ndarray]:
-    for img_path in sorted(filter(lambda p: p.endswith(".JPG"), os.listdir(folder_path))):
-        yield cv2.imread(os.path.join(folder_path, img_path))
-
-
-def resize_images(images: Iterator[np.ndarray]) -> Iterator[np.ndarray]:
-    for img in images:
-        yield cv2.resize(img, (IMAGE_SIZE[0] // 8, IMAGE_SIZE[1] // 8))
 
 
 def split_image(image: np.ndarray, patch_size: int) -> Iterator[np.ndarray]:
@@ -38,7 +30,9 @@ def split_image(image: np.ndarray, patch_size: int) -> Iterator[np.ndarray]:
 
 
 if __name__ == "__main__":
-    for img in tqdm(resize_images(load_images(DATASET_PATH))):
+    for img in tqdm(resize_images(load_files(DATASET_PATH,
+                                             lambda p: p.endswith(".JPG")),
+                                  max_width=600, max_height=600)):
         # assert img.shape[0] % PATCH_SIZE == 0 and img.shape[1] % PATCH_SIZE == 0, \
         #     f"{img.shape} is not a multiple of {PATCH_SIZE}"
 

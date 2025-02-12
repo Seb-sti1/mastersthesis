@@ -11,7 +11,7 @@ import numpy as np
 from segment_anything import SamPredictor, sam_model_registry
 from tqdm import tqdm
 
-from scripts.u_net_segmentation_test import load_images, resize_images
+from scripts import load_files, resize_images
 
 DATASET_PATH = os.path.join(os.path.dirname(__file__), "..", "datasets", "aukerman")
 
@@ -38,7 +38,9 @@ if __name__ == "__main__":
     sam = sam_model_registry["vit_b"](checkpoint=os.path.join(os.path.dirname(__file__), "sam_vit_b_01ec64.pth"))
     predictor = SamPredictor(sam)
 
-    for img in tqdm(resize_images(load_images(DATASET_PATH))):
+    for img in tqdm(resize_images(load_files(DATASET_PATH,
+                                             lambda p: p.endswith(".JPG")),
+                                  max_width=600, max_height=600)):
         valid = False
 
         while not valid:
