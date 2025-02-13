@@ -35,6 +35,8 @@ See my [notes](notes.md).
   https://link.springer.com/article/10.1007/s40747-022-00831-5
 - Topological map construction and scene recognition for vehicle localization
   https://link.springer.com/article/10.1007/s10514-017-9638-9
+- BEVContrast: Self-Supervision in BEV Space for Automotive Lidar Point Clouds
+  https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10550628
 
 ### With Helicopter
 
@@ -62,11 +64,13 @@ See my [notes](notes.md).
     - Geoportail :
       https://remonterletemps.ign.fr/telecharger/?lon=1.889434&lat=48.860337&z=13.4&layer=pva&couleur=C&year=2013
     - Google Maps : https://maps.app.goo.gl/zCesePWSyXjnszSf7
-- https://github.com/alicevision/Meshroom
+
+## Tools
+
+- Meshroom https://github.com/alicevision/Meshroom
+- Labelme https://github.com/wkentaro/labelme
 
 ## Debug
-
-labelme (to label images) https://github.com/wkentaro/labelme
 
 makefile and latex https://tex.stackexchange.com/questions/40738/how-to-properly-make-a-latex-project
 

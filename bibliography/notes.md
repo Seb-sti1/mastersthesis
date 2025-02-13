@@ -16,6 +16,7 @@
     * [A Collaborative Aerial-Ground Robotic System for Fast Exploration](#a-collaborative-aerial-ground-robotic-system-for-fast-exploration)
 * [Terrain classification/segmentation with BEV](#terrain-classificationsegmentation-with-bev)
   * [General terrain](#general-terrain)
+    * [Fast color/texture segmentation for outdoor robots](#fast-colortexture-segmentation-for-outdoor-robots)
     * [Visual Terrain Classification by Flying Robots](#visual-terrain-classification-by-flying-robots)
     * [Experimental Analysis of Overhead Data Processing To Support Long Range Navigation](#experimental-analysis-of-overhead-data-processing-to-support-long-range-navigation)
     * [A two-stage level set evolution scheme for man-made objects detection in aerial images](#a-two-stage-level-set-evolution-scheme-for-man-made-objects-detection-in-aerial-images)
@@ -96,8 +97,13 @@ doi = {10.1109/LRA.2017.2651163}
 > [!TIP]
 > \[Exploration] \[Collaboration] \[3D Topological Map] \[Octomap]
 
-
-
+- Use of a 3D TSDF to stores the "distance" to the obstacle (is it a weight from 1 (far in front) to 0 (surface of
+  object) to -1 (far behind))
+- Updating a cell to a new values ("Weighting") is done by doing a weighted average of the previous weight and distance
+  and new weight and distance.
+- Grouping points in sensor data ("Merging") is done by grouped ray-casting
+- ESDF from TSDF using wave propagation
+- Then ESDF is used to generate the 2D topology map
 
 <details>
 
@@ -276,6 +282,17 @@ Seems like it won't help for the case with a Tundra/Barakuda and the case at han
 # Terrain classification/segmentation with BEV
 
 ## General terrain
+
+### Fast color/texture segmentation for outdoor robots
+
+> [!NOTE]
+> https://ieeexplore.ieee.org/document/4651086
+> https://github.com/tbjszhu/
+
+
+
+
+
 
 ### Visual Terrain Classification by Flying Robots
 
