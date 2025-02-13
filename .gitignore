@@ -311,3 +311,4 @@ TSWLatexianTemp*
 *.jpg
 *.png
 datasets/**
+*.pth
