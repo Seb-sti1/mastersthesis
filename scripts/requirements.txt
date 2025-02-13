@@ -9,3 +9,5 @@ pycocotools
 matplotlib
 onnxruntime
 onnx
+scikit-learn
+POT[all]
