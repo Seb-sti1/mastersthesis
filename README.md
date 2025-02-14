@@ -34,14 +34,14 @@ docker run -v /path/to/mastersthesis:/app/latex --name latex sebsti1/latex make
 ```sh
 python3.11 -m venv .venv
 source .venv/bin/activate
-cd scripts && pip install -r requirements.txt
+pip install -r scripts/requirements.txt
 ```
 
 #### Run scripts
 
 ```sh
 # (after sourcing the virtual environment)
-python3.11 scripts/your_script.py
+python -m scripts.a_script
 ```
 
 ## Acknowledgements
