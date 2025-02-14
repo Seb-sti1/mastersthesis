@@ -58,3 +58,10 @@ def show_images(images: list[np.ndarray], grid_size: Tuple[int, int], title: str
         ax.axis('off')  # Turn off axes for empty subplots
     plt.tight_layout()
     plt.show()
+
+
+def get_dataset_by_name(name: str) -> str:
+    path = os.path.join(os.path.dirname(__file__), "..", "datasets", name)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Dataset {name} not found at {path}")
+    return path

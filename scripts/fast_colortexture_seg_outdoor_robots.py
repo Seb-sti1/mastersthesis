@@ -4,7 +4,6 @@ It based on https://ieeexplore.ieee.org/document/4651086
 This was written with the help of https://github.com/tbjszhu/.
 """
 import logging
-import os
 
 import cv2
 import numpy as np
@@ -14,9 +13,9 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
-from scripts import resize_images, load_files, show_image, show_images
+from scripts import resize_images, load_files, show_image, show_images, get_dataset_by_name
 
-DATASET_PATH = os.path.join(os.path.dirname(__file__), "..", "datasets", "aukerman")
+DATASET_PATH = get_dataset_by_name("aukerman")
 logger = logging.getLogger(__name__)
 
 

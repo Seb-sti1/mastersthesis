@@ -5,7 +5,6 @@ from BEV images of different datasets
 Current results: The pretrained model doesn't give any results on the dataset aukerman.
 """
 
-import os
 from typing import Iterator
 
 import cv2
@@ -13,9 +12,9 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from scripts import load_files, resize_images
+from scripts import load_files, resize_images, get_dataset_by_name
 
-DATASET_PATH = os.path.join(os.path.dirname(__file__), "..", "datasets", "aukerman")
+DATASET_PATH = get_dataset_by_name("aukerman")
 PATCH_SIZE = 306
 IMAGE_SIZE = (4896, 3672)
 

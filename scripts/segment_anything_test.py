@@ -11,9 +11,9 @@ import numpy as np
 from segment_anything import SamPredictor, sam_model_registry
 from tqdm import tqdm
 
-from scripts import load_files, resize_images
+from scripts import load_files, resize_images, get_dataset_by_name
 
-DATASET_PATH = os.path.join(os.path.dirname(__file__), "..", "datasets", "aukerman")
+DATASET_PATH = get_dataset_by_name("aukerman")
 
 
 class DetectClick:
