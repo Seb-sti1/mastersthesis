@@ -3,11 +3,23 @@ opencv-python
 numpy
 tqdm
 torch
+matplotlib
+scipy
+
+# segment_anything_test.py
 torchvision
 git+https://github.com/facebookresearch/segment-anything.git
 pycocotools
-matplotlib
 onnxruntime
 onnx
+
+# fast_colortexture_seg_outdoor_robots.py
 scikit-learn
 POT[all]
+
+# detectree_test.py
+detectree
+
+# for benchmarking
+psutil
+pycuda
