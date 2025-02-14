@@ -2,11 +2,14 @@
 This file defined helper functions
 """
 import os
+import threading
+import time
 from pathlib import Path
 from typing import Iterator, Tuple, Callable, Optional, Dict
 
 import cv2
 import numpy as np
+import psutil
 from matplotlib import pyplot as plt
 
 
@@ -82,3 +85,34 @@ def get_dataset_by_name(name: str) -> str:
     if not os.path.exists(path):
         raise FileNotFoundError(f"Dataset {name} not found at {path}")
     return path
+
+
+class RamMonitor:
+    def __init__(self):
+        self.thread = None
+        self.max_ram = 0
+        self.sum_ram = 0
+        self.count = 0
+        self._stop_event = threading.Event()
+
+    def monitor_ram(self):
+        while not self._stop_event.is_set():
+            current_ram = psutil.Process().memory_info().rss / (1024 * 1024)  # MB
+            self.max_ram = max(self.max_ram, current_ram)
+            self.sum_ram += current_ram
+            self.count += 1
+            time.sleep(1)
+
+    def start(self):
+        self.thread = threading.Thread(target=self.monitor_ram)
+        self.thread.start()
+
+    def stop(self):
+        self._stop_event.set()
+        self.thread.join()
+
+    def get_max_ram(self):
+        return self.max_ram
+
+    def get_average_ram(self):
+        return self.sum_ram / self.count
