@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from scripts import load_files, resize_images, get_dataset_by_name
+from scripts import load_files, get_dataset_by_name
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 PATCH_SIZE = 306
@@ -29,9 +29,9 @@ def split_image(image: np.ndarray, patch_size: int) -> Iterator[np.ndarray]:
 
 
 if __name__ == "__main__":
-    for img in tqdm(resize_images(load_files(DATASET_PATH,
-                                             lambda p: p.endswith(".JPG")),
-                                  max_width=600, max_height=600)):
+    for img in tqdm(load_files(DATASET_PATH,
+                               lambda p: p.endswith(".JPG"),
+                               max_width=600, max_height=600)):
         # assert img.shape[0] % PATCH_SIZE == 0 and img.shape[1] % PATCH_SIZE == 0, \
         #     f"{img.shape} is not a multiple of {PATCH_SIZE}"
 

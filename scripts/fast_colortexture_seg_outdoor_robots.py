@@ -13,7 +13,7 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
-from scripts import resize_images, load_files, show_image, show_images, get_dataset_by_name
+from scripts import load_files, show_image, show_images, get_dataset_by_name
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 logger = logging.getLogger(__name__)
@@ -84,10 +84,10 @@ def main(n_clusters_desc: int, n_clusters_hist: int,
     colors = (cmap(np.arange(max(n_clusters_desc, n_clusters_hist)))[:, :3] * 255).astype(np.uint8)
     edge = neighbor_size // 2
 
-    for img in tqdm(resize_images(load_files(DATASET_PATH,
-                                             lambda p: p.endswith(".JPG")),
-                                  max_width=1000,
-                                  max_height=1000)):
+    for img in tqdm(load_files(DATASET_PATH,
+                               lambda p: p.endswith(".JPG"),
+                               max_width=1000,
+                               max_height=1000)):
         h, w, _ = img.shape
 
         # === compute color/texture descriptors
