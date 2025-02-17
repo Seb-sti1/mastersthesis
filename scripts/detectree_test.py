@@ -25,14 +25,17 @@ def hash_int(s: str) -> int:
     return int(hashlib.sha256(s.encode('utf-8')).hexdigest(), 16) % 10 ** 8
 
 
+def make_predictions(img: np.array) -> np.array:
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
+        cv2.imwrite(temp_file.name, img)
+        return dtr.Classifier().predict_img(temp_file.name)
+
+
 def classify(max_image_size: int) -> None:
     for path, img in load_paths_and_files(DATASET_PATH, lambda x: x.endswith(".JPG"),
                                           max_width=max_image_size,
                                           max_height=max_image_size):
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
-            cv2.imwrite(temp_file.name, img)
-            y_pred = dtr.Classifier().predict_img(temp_file.name)
-
+        y_pred = make_predictions(img)
         show_images([y_pred, img], (1, 2), title=f"Image: {path.name}")
         input("Press Enter to continue...")
 
@@ -70,7 +73,7 @@ def main(args=None) -> None:
     parser.add_argument("--benchmark", "-b", action='store_true', default=False,
                         help="Run benchmark test")
     parser.add_argument("--max-image-size",
-                        type=int, default=20,
+                        type=int, default=256,
                         help="Maximum size of the image's width or height")
     args = parser.parse_args()
 

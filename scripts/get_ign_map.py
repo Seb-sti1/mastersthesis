@@ -4,7 +4,7 @@ top-left and bottom-right corners (GNSS coordinates).
 """
 
 import math
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Callable
 
 import cv2
 import numpy as np
@@ -39,7 +39,17 @@ def get_tile(col: int, row: int, zoom: int) -> Optional[np.ndarray]:
     return None
 
 
-def get_map(top_left: Tuple[float, float], bot_right: Tuple[float, float], zoom: int = 18) -> Optional[np.ndarray]:
+def get_map(top_left: Tuple[float, float], bot_right: Tuple[float, float],
+            zoom: int = 18, transform: Optional[Callable[[np.ndarray], np.ndarray]] = None) -> Optional[np.ndarray]:
+    """
+    Get a map from IGN servers.
+    :param top_left: The top left GNSS coordinates
+    :param bot_right: The bottom right GNSS coordinates
+    :param zoom: The zoom level
+    :param transform: A function to apply to the downloaded tiles (e.g. to apply a color transformation). Default is None.
+    :return: The full map as a numpy array
+    """
+
     tl_col, tl_row = gps_to_wmts(*top_left, zoom)
     br_col, br_row = gps_to_wmts(*bot_right, zoom)
 
@@ -54,16 +64,28 @@ def get_map(top_left: Tuple[float, float], bot_right: Tuple[float, float], zoom:
             if tile_img is not None:
                 x_offset = (col - tl_col) * TILE_SIZE
                 y_offset = (row - tl_row) * TILE_SIZE
-                map_img[y_offset:y_offset + TILE_SIZE, x_offset:x_offset + TILE_SIZE] = tile_img
+
+                if transform is not None:
+                    tile_img = transform(tile_img)
+
+                    # edge case for grayscale images
+                    if len(tile_img.shape) == 2:
+                        map_img[y_offset:y_offset + TILE_SIZE,
+                        x_offset:x_offset + TILE_SIZE, 0] = tile_img
+                        continue
+                map_img[y_offset:y_offset + TILE_SIZE,
+                x_offset:x_offset + TILE_SIZE] = tile_img
 
     return map_img
 
 
-tr = (48.869344, 1.881983)
-br = (48.852348, 1.9083)
+def main():
+    tr = (48.869344, 1.881983)
+    br = (48.852348, 1.9083)
 
-map = get_map(tr, br)
-cv2.imwrite("ign_map.jpg", map)
+    map = get_map(tr, br)
+    cv2.imwrite("ign_map.jpg", map)
 
-# latitude = 48.864561
-# longitude = 1.892660
+
+if __name__ == "__main__":
+    main()
