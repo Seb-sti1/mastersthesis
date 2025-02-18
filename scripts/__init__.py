@@ -13,6 +13,13 @@ import psutil
 from matplotlib import pyplot as plt
 
 
+def get_dataset_by_name(name: str) -> str:
+    path = os.path.join(os.path.dirname(__file__), "..", "datasets", name)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Dataset {name} not found at {path}")
+    return path
+
+
 def resize_image(img: np.ndarray, max_width: Optional[int] = None, max_height: Optional[int] = None) -> np.ndarray:
     if max_width is None:
         max_width = 100_000
@@ -46,8 +53,13 @@ def load_files(folder_path: str, extension: Callable[[str], bool],
         yield img
 
 
+def get_color_map(n: int) -> np.ndarray:
+    cmap_desc = plt.get_cmap("hsv", n)
+    return (cmap_desc(np.arange(n))[:, :3] * 255).astype(np.uint8)
+
+
 def show_image(image: np.ndarray, title: str = "An image", clusters: Optional[Dict] = None, save=False) -> None:
-    plt.imshow(image)
+    plt.imshow(image, interpolation="nearest")
     plt.title(title)
     plt.axis('off')
     if clusters:
@@ -71,20 +83,13 @@ def show_images(images: list[np.ndarray], grid_size: Tuple[int, int], title: str
     axes = axes.flatten()  # Flatten the 2D axes array to make indexing easier
     for i, ax in enumerate(axes):
         if i < len(images):
-            ax.imshow(images[i])
+            ax.imshow(images[i], interpolation="nearest")
         ax.axis('off')  # Turn off axes for empty subplots
     plt.tight_layout()
     if save:
         plt.savefig(f"{title}.png")
     else:
         plt.show()
-
-
-def get_dataset_by_name(name: str) -> str:
-    path = os.path.join(os.path.dirname(__file__), "..", "datasets", name)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Dataset {name} not found at {path}")
-    return path
 
 
 class RamMonitor:

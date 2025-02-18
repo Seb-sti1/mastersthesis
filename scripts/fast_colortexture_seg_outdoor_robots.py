@@ -13,7 +13,7 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
-from scripts import load_files, show_image, show_images, get_dataset_by_name
+from scripts import show_image, show_images, get_dataset_by_name, load_files, get_color_map
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 logger = logging.getLogger(__name__)
@@ -76,18 +76,16 @@ def compute_histograms(clusters_desc: np.ndarray, n_clusters_desc: int, histogra
     return hist
 
 
-def main(n_clusters_desc: int, n_clusters_hist: int,
+def main(image_iterator, n_clusters_desc: int, n_clusters_hist: int,
          neighbor_size: int, histogram_window: int,
          emd_threshold: float, outlier_threshold: float):
     # colors to show clusters
-    cmap = plt.get_cmap("tab20", n_clusters_desc)
-    colors = (cmap(np.arange(max(n_clusters_desc, n_clusters_hist)))[:, :3] * 255).astype(np.uint8)
+    colors_desc = get_color_map(n_clusters_desc)
+    colors_hist = get_color_map(n_clusters_hist)
+
     edge = neighbor_size // 2
 
-    for img in tqdm(load_files(DATASET_PATH,
-                               lambda p: p.endswith(".JPG"),
-                               max_width=1000,
-                               max_height=1000)):
+    for img in tqdm(image_iterator):
         h, w, _ = img.shape
 
         # === compute color/texture descriptors
@@ -128,7 +126,6 @@ def main(n_clusters_desc: int, n_clusters_hist: int,
         clusters_hist = kmeans_hist.predict(histogram_list).reshape(histogram.shape[:2])
 
         # === merge clusters with too small earth mover's distance
-        clusters = clusters_hist.copy()
         distance_matrix = cdist(textons, textons)
         clusters_mapping = {i: i for i in range(n_clusters_hist)}
         clusters_emd_distance = np.zeros((n_clusters_hist, n_clusters_hist))  # only the superior triangle is filled
@@ -145,6 +142,7 @@ def main(n_clusters_desc: int, n_clusters_hist: int,
             show_image(clusters_emd_distance, "Histogram cluster EMD distances")
             logger.debug(f"{clusters_emd_distance}")
 
+        clusters = clusters_hist.copy()
         for i in range(n_clusters_hist):
             if clusters_mapping[i] != i:
                 clusters[clusters == i] = clusters_mapping[i]
@@ -153,19 +151,19 @@ def main(n_clusters_desc: int, n_clusters_hist: int,
             show_image(img, "Raw Image")
             show_image(img_lab, "LAB Image")
 
-            legend = {i: {'color': colors[i], 'name': str(i)} for i in range(n_clusters_desc)}
-            legend.update({-1: {'color': colors[-1], 'name': 'outliers'}})
-            show_image(colors[clusters_desc], "Clusters (before histogram)", legend)
+            legend = {i: {'color': colors_desc[i], 'name': str(i)} for i in range(n_clusters_desc)}
+            legend.update({-1: {'color': [0, 0, 0], 'name': 'outliers'}})
+            show_image(colors_desc[clusters_desc], "Clusters (before histogram)", legend)
 
-            legend = {i: {'color': colors[i], 'name': str(i)} for i in clusters_mapping.keys()}
-            show_image(colors[clusters_hist], "Clusters (before emd)", legend)
-            show_image(colors[clusters], "Clusters (final)", legend)
+            legend = {i: {'color': colors_hist[i], 'name': str(i)} for i in clusters_mapping.keys()}
+            show_image(colors_hist[clusters_hist], "Clusters (before emd)", legend)
+            show_image(colors_hist[clusters], "Clusters (final)", legend)
 
         # === display
         alpha = 0.4
         overlay = np.zeros_like(img)
         overlay[histogram_window // 2:-histogram_window // 2 - 1,
-        histogram_window // 2:-histogram_window // 2 - 1, :] = colors[clusters]
+        histogram_window // 2:-histogram_window // 2 - 1, :] = colors_hist[clusters]
         cv2.imshow("Clusters", cv2.addWeighted(img, 1 - alpha, overlay, alpha, 0))
         k = cv2.waitKey(0) & 0xFF
         if k == ord('q'):
@@ -176,12 +174,22 @@ def main(n_clusters_desc: int, n_clusters_hist: int,
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger.setLevel(logging.DEBUG)
-    # paper param 16, 8, 3, 6, 100, ?
-    hist_window = 16
+    hist_window = 32
     assert hist_window % 2 == 0, "Histogram window must be even"
     neighbor_size = 3
     assert neighbor_size % 2 == 1, "Neighbor size must be odd"
 
-    main(4, 6,
+    itera = load_files(DATASET_PATH,
+                       lambda p: p.endswith(".JPG"),
+                       max_width=1000,
+                       max_height=1000)
+    # itera = load_files(os.path.join(os.path.dirname(__file__), "..", "datasets"),
+    #                        lambda p: p == "texmos3.p512.tiff",
+    #                        max_width=1000,
+    #                        max_height=1000)
+
+    # paper param 16, 8, 3, 32, 100, ?
+    main(itera,
+         32, 16,
          neighbor_size, hist_window,
-         8, 175)
+         9, 200)
