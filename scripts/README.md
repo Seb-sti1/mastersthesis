@@ -28,6 +28,8 @@ python -m scripts.a_script
 
 ## List of scripts
 
+- Bird-eye view
+    - [using_zed.py](bev/using_zed.py)
 - Terrain segmentation
     - [detectree_test.py](terrain_segmentation/detectree_test.py)
     - [get_ign_map.py](terrain_segmentation/get_ign_map.py)
