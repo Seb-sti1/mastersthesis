@@ -8,7 +8,3 @@ RUN mkdir -p /app/
 WORKDIR /app
 COPY scripts/requirements_ros.txt /app
 RUN pip install -r ./requirements_ros.txt
-
-RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
-
-ENTRYPOINT ["/bin/bash"]
