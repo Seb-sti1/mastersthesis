@@ -14,18 +14,14 @@ environmental features previously detected with the drone and associated to the 
 - [Bibliography](bibliography): Currently containing notes on the articles that I have read (will be refactored).
 - [Datasets](datasets): An empty folder where the datasets should be stored. The list and links to the datasets used are
   specified in the [README.md](datasets/README.md).
+- [Docker](docker): Dockerfiles to simplify reproducibility.
 - [Latex](latex): The latex source files for all the related work of the Master's thesis.
 - [Scripts](scripts): Scripts to test/automate things. If some script become more than a test, it will be moved to a
   dedicated repository (the list will be made available below).
 
 ## Build latex & run scripts
 
-### Build latex
-
-```sh
-docker build -t sebsti1/latex
-docker run -v /path/to/mastersthesis:/app/latex --name latex sebsti1/latex make
-```
+See the [docker/README.md](docker/README.md) for more information.
 
 ### Run scripts
 
