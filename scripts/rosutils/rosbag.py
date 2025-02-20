@@ -1,55 +1,36 @@
 """
-This file is meant to contain utils function related to rosbag manipulations
+This file is for rosbag manipulations
 """
 
-import argparse
 from pathlib import Path
-from typing import Optional, List
+from typing import Callable, Dict, Any, Iterator
 
-import cv2
 import numpy as np
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from tqdm import tqdm
 
 import rosbag
-from scripts.utils import remove_special_characters
+
+bridge = CvBridge()
 
 
-def extract_images_from_bag(bag_file: Path, topics: List[str], output_dir: Optional[Path] = None) -> None:
-    """
-    Extracts images from a bag file and saves them to the output directory
-    :param bag_file: the bag file to extract from
-    :param topics: the topics list
-    :param output_dir: the output directory. By default, it creates a folder with the same name as the bag file.
-    :return:
-    """
-    if output_dir is None:
-        output_dir = bag_file.parent.joinpath(bag_file.stem)
+def msg2image(msg, t):
+    return bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
 
+
+def msg2calibration(msg, t):
+    return np.reshape(msg.K, (3, 3))
+
+
+def replay_bag(bag_file: Path, topics: Dict[str, Callable]) -> Iterator[Dict[str, Any]]:
     bag = rosbag.Bag(bag_file)
-    bridge = CvBridge()
-    count = 0
+    last_published = {t: None for t in topics.keys()}
+
     for topic, msg, t in tqdm(bag.read_messages(topics=topics)):
-        topic_dir = remove_special_characters(topic)
-        if not output_dir.joinpath(topic_dir).exists():
-            output_dir.joinpath(topic_dir).mkdir(parents=True)
-        cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-        save_path = str(output_dir.joinpath(topic_dir, f"frame_{count:06d}_{str(t.secs * int(1e9) + t.nsecs)}"))
-        if cv_image.dtype in [np.float32, np.uint16]:
-            np.save(save_path + ".npy", cv_image)
-        else:
-            cv2.imwrite(save_path + ".png", cv_image)
-        count += 1
+        last_published[topic] = topics[topic](msg, t)
+
+        if all(map(lambda x: x is not None, last_published.values())):
+            yield last_published
+            last_published = {t: None for t in topics.keys()}
     bag.close()
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract images from a ROS bag file')
-    parser.add_argument('bag_file', type=Path, help='The bag file to extract from')
-    parser.add_argument('topics', type=str, nargs='+', help='The topics to extract')
-    parser.add_argument('--output_dir', type=str, help='The output directory', default=None)
-    args = parser.parse_args()
-
-    extract_images_from_bag(Path(args.bag_file), args.topics,
-                            None if args.output_dir is None else Path(args.output_dir))

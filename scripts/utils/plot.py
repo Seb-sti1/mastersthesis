@@ -1,3 +1,6 @@
+"""
+This module contains utility functions for plotting data.
+"""
 from typing import Optional, Dict, Tuple
 
 import numpy as np
@@ -41,3 +44,13 @@ def show_images(images: list[np.ndarray], grid_size: Tuple[int, int], title: str
 def get_color_map(n: int) -> np.ndarray:
     cmap_desc = plt.get_cmap("hsv", n)
     return (cmap_desc(np.arange(n))[:, :3] * 255).astype(np.uint8)
+
+
+def plot_histogram(data: np.ndarray, bins: int = 30, title: str = "Histogram of Values") -> None:
+    values = data.flatten()
+    values = values[np.isfinite(values)]
+    plt.hist(values, bins=bins, edgecolor='black')
+    plt.xlabel("Value")
+    plt.ylabel("Frequency")
+    plt.title(title)
+    plt.show()
