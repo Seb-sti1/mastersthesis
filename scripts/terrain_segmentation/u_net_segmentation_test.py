@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from scripts import load_files, get_dataset_by_name
+from scripts.utils.datasets import load_files, get_dataset_by_name
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 PATCH_SIZE = 306

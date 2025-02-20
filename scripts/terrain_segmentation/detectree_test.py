@@ -14,7 +14,9 @@ import detectree as dtr
 import numpy as np
 from tqdm import tqdm
 
-from scripts import get_dataset_by_name, load_paths_and_files, show_images, RamMonitor
+from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files
+from scripts.utils.monitoring import RamMonitor
+from scripts.utils.plot import show_images
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 BENCHMARK_EXPORT_PATH = os.path.join(os.path.dirname(__file__), f"benchmark_results_{time.time()}.csv")
@@ -32,7 +34,7 @@ def make_predictions(img: np.array) -> np.array:
 
 
 def classify(max_image_size: int) -> None:
-    for path, img in load_paths_and_files(DATASET_PATH, lambda x: x.endswith(".JPG"),
+    for path, img in load_paths_and_files(DATASET_PATH,
                                           max_width=max_image_size,
                                           max_height=max_image_size):
         y_pred = make_predictions(img)
@@ -42,7 +44,7 @@ def classify(max_image_size: int) -> None:
 
 def benchmark(max_image_size: int, count_img: int) -> list[list[float | int]]:
     r = []
-    for path, img in load_paths_and_files(DATASET_PATH, lambda x: x.endswith(".JPG"),
+    for path, img in load_paths_and_files(DATASET_PATH,
                                           max_width=max_image_size,
                                           max_height=max_image_size):
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:

@@ -13,7 +13,8 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
-from scripts import show_image, show_images, get_dataset_by_name, load_files, get_color_map
+from scripts.utils.datasets import get_dataset_by_name, load_files
+from scripts.utils.plot import show_image, show_images, get_color_map
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 logger = logging.getLogger(__name__)

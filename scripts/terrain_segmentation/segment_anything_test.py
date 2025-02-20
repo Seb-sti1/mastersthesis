@@ -11,7 +11,7 @@ import numpy as np
 from segment_anything import SamPredictor, sam_model_registry
 from tqdm import tqdm
 
-from scripts import load_files, get_dataset_by_name
+from scripts.utils.datasets import load_files, get_dataset_by_name
 
 DATASET_PATH = get_dataset_by_name("aukerman")
 

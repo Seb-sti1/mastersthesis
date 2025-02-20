@@ -21,24 +21,8 @@ environmental features previously detected with the drone and associated to the 
 
 ## Build latex & run scripts
 
-See the [docker/README.md](docker/README.md) for more information.
-
-### Run scripts
-
-#### Env installation
-
-```sh
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r scripts/requirements.txt
-```
-
-#### Run scripts
-
-```sh
-# (after sourcing the virtual environment)
-python -m scripts.a_script
-```
+See the [docker/README.md](docker/README.md) for more information about the dependencies
+and [scripts/README.md](scripts/README.md) for the scripts.
 
 ## Acknowledgements
 

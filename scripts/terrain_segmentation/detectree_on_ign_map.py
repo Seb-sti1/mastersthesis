@@ -1,7 +1,11 @@
+"""
+This uses detectree model to segment IGN maps
+"""
+
 import cv2
 
-from scripts.detectree_test import make_predictions
-from scripts.get_ign_map import get_map
+from scripts.terrain_segmentation.detectree_test import make_predictions
+from scripts.terrain_segmentation.get_ign_map import get_map
 
 
 def main():
