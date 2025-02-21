@@ -38,3 +38,14 @@ To simplify reproducibility, a collection of Docker images are available to buil
 |---------------------------------------------------------------------------------|----------------------------------|
 | `docker build -t sebsti1/mt_ros -f docker/ros.Dockerfile .`                     | Build the image                  |
 | `docker run -v /path/to/mastersthesis:/app/ --name ros -it --rm sebsti1/mt_ros` | Run the image to run the scripts |
+
+## Graphical support
+
+To be able to open GUI from the docker, add
+`--device /dev/dri:/dev/dri --ipc=host -e DISPLAY=$DISPLAY -e XAUTHORITY=/root/.Xauthority -v /tmp/.X11-unix:/tmp/.X11-unix`
+to the `docker run` command.
+
+You might also need to do `xhost +si:localuser:root` on the host machine to allow access to X11 from within docker.
+
+> [!IMPORTANT]
+> This only works if your OS is using X11
