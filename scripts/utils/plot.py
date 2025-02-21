@@ -1,7 +1,7 @@
 """
 This module contains utility functions for plotting data.
 """
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -25,7 +25,7 @@ def show_image(image: np.ndarray, title: str = "An image", clusters: Optional[Di
         plt.show()
 
 
-def show_images(images: list[np.ndarray], grid_size: Tuple[int, int], title: str = "An image", save=False) -> None:
+def show_images(images: List[np.ndarray], grid_size: Tuple[int, int], title: str = "An image", save=False) -> None:
     n, m = grid_size
     fig, axes = plt.subplots(n, m, figsize=(m * 3, n * 3))  # Adjust size as needed
     plt.title(title)

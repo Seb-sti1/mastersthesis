@@ -1,4 +1,5 @@
 opencv-python
-numpy
+numpy==1.24.4
 tqdm
 cv_bridge
+open3d
