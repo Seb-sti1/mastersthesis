@@ -8,7 +8,6 @@ from typing import Callable, Dict, Any, Iterator
 import numpy as np
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from tqdm import tqdm
 
 import rosbag
 
@@ -27,7 +26,7 @@ def replay_bag(bag_file: Path, topics: Dict[str, Callable]) -> Iterator[Dict[str
     bag = rosbag.Bag(bag_file)
     last_published = {t: None for t in topics.keys()}
 
-    for topic, msg, t in tqdm(bag.read_messages(topics=topics)):
+    for topic, msg, t in bag.read_messages(topics=topics):
         last_published[topic] = topics[topic](msg, t)
 
         if all(map(lambda x: x is not None, last_published.values())):
