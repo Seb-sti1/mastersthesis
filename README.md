@@ -1,6 +1,9 @@
 Collaborative navigation in unstructured environments using an aerial drone and a terrestrial robot
 ===
 
+> [!IMPORTANT]
+> To clone, it is recommended to install `git-lfs` on your system.
+
 ## Initial description
 
 This project explores the collaboration between an aerial drone and a terrestrial robot for navigating unstructured
