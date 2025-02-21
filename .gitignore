@@ -486,5 +486,6 @@ cython_debug/
 *.pdf
 *.jpg
 *.png
-datasets/**
 *.pth
+datasets/**
+notes/exclude/
