@@ -8,24 +8,15 @@ formats) is under analysis._
 
 ## TODOs
 
-- [ ] Zotero
-    - [x] Move notes to Zotero
-    - [ ] Share Zotero notes
-- [x] Fix docker images
-- [x] finish bev script
-- [ ] accumulate bev data
-- [ ] Read articles
-    - [x] _Accurate Quadrifocal Tracking for Robust 3D Visual Odometry_
-    - [x] _Statistically robust 2D visual servoing_
-    - [ ] Search article about pairing UAV BEV and UGV POV
+- [ ] Share Zotero notes
+- [ ] Search article about pairing UAV BEV and UGV POV
 - [ ] Latex
     - [ ] Git tag in attributes
     - [x] Fix latex
     - [ ] Project plan
     - [ ] Traversability meeting slides
 - [ ] IGN Data
-    - [x] Try detectree on IGN Map
-        - [ ] Automatic topological map?
+    - [ ] Automatic topological map on IGN Map using dectree ?
     - [ ] Get topographic map
 - [ ] [fast_colortexture_seg_outdoor_robots.py](../scripts/fast_colortexture_seg_outdoor_robots.py)
     - [x] Check implementation
