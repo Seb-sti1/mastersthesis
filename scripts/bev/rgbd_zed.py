@@ -14,6 +14,7 @@ from numba import njit, prange
 from numpy import ndarray
 from tqdm import tqdm
 
+from scripts.bev.rgbd_processing import create_pointcloud
 from scripts.rosutils.rosbag import msg2image, msg2calibration, replay_bag
 from scripts.utils.datasets import get_dataset_by_name
 from scripts.utils.plot import DynamicO3DWindow
@@ -26,37 +27,6 @@ def keep_internal_disk(points: np.ndarray, colors: np.ndarray,
         points = points - center
     valid = np.linalg.norm(points, axis=1) <= radius
     return points[valid], colors[valid]
-
-
-def create_pointcloud(rgb: ndarray, depth: ndarray, k_matrix: np.ndarray) -> o3d.geometry.PointCloud:
-    """
-    Create a point cloud from the rgb image and the depth image.
-
-    The return point coordinates are as follows:
-     - points[:, 0] left right
-     - points[:, 1] top down
-     - points[:, 2] front back
-
-    :param rgb: the rgb image
-    :param depth: the depth image (float32 meters)
-    :param k_matrix: the camera intrinsics matrix
-    :return: points, colors
-    """
-    height, width = depth.shape
-    fx, fy = k_matrix[0, 0], k_matrix[1, 1]
-    cx, cy = k_matrix[0, 2], k_matrix[1, 2]
-
-    u, v = np.meshgrid(np.arange(width), np.arange(height))
-    z = depth
-
-    valid = np.isfinite(z) & (z > 0)
-    points = np.stack((u[valid], v[valid], z[valid]), axis=-1)
-    colors = rgb[valid]
-
-    points[:, 0] = (points[:, 0] - cx) * points[:, 2] / fx
-    points[:, 1] = (points[:, 1] - cy) * points[:, 2] / fy
-    # TODO robot inclination into consideration
-    return points, colors
 
 
 @njit(parallel=True)
