@@ -1,6 +1,9 @@
 """
 This module contains utility functions for plotting data.
 """
+import importlib
+import threading
+import time
 from typing import Optional, Dict, Tuple, List
 
 import numpy as np
@@ -54,3 +57,44 @@ def plot_histogram(data: np.ndarray, bins: int = 30, title: str = "Histogram of 
     plt.ylabel("Frequency")
     plt.title(title)
     plt.show()
+
+
+class DynamicO3DWindow:
+    def __init__(self):
+        self.vis = None
+        self.o3d = importlib.import_module("open3d")
+
+        self.should_update = threading.Event()
+        self.should_close = threading.Event()
+
+        self.pcd_thread = threading.Thread(target=self.__show_pcd__)
+        self.pcd_thread.start()
+
+        self.first = True
+        self.cloud = None
+
+    def __show_pcd__(self):
+        if self.vis is None:
+            self.vis = self.o3d.visualization.Visualizer()
+            self.vis.create_window(width=800, height=600)
+
+        while not self.should_close.is_set():
+            if self.should_update.is_set():
+                self.should_update = threading.Event()
+                # update cloud
+                self.vis.clear_geometries()
+                self.vis.add_geometry(self.cloud, reset_bounding_box=self.first)
+                self.first = False
+            self.vis.poll_events()
+            self.vis.update_renderer()
+            time.sleep(0.01)
+
+        self.vis.destroy_window()
+
+    def show_pcd(self, cloud):
+        self.cloud = cloud
+        self.should_update.set()
+
+    def finish(self):
+        self.should_close.set()
+        self.pcd_thread.join()
