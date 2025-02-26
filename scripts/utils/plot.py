@@ -77,13 +77,14 @@ class DynamicO3DWindow:
         if self.vis is None:
             self.vis = self.o3d.visualization.Visualizer()
             self.vis.create_window(width=800, height=600)
-
+        axis = self.o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.2)
         while not self.should_close.is_set():
             if self.should_update.is_set():
                 self.should_update = threading.Event()
                 # update cloud
                 self.vis.clear_geometries()
                 self.vis.add_geometry(self.cloud, reset_bounding_box=self.first)
+                self.vis.add_geometry(axis)
                 self.first = False
             self.vis.poll_events()
             self.vis.update_renderer()
