@@ -7,11 +7,22 @@ from typing import Callable, Dict, Any, Iterator
 
 import numpy as np
 from cv_bridge import CvBridge
-from sensor_msgs.msg import Image
 
 import rosbag
 
 bridge = CvBridge()
+
+
+def msg2imu(msg, t):
+    return {
+        "orientation": np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]),
+        "orientation_covariance": np.array(msg.orientation_covariance).reshape(3, 3),
+        "angular_velocity": np.array([msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]),
+        "angular_velocity_covariance": np.array(msg.angular_velocity_covariance).reshape(3, 3),
+        "linear_acceleration": np.array(
+            [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]),
+        "linear_acceleration_covariance": np.array(msg.linear_acceleration_covariance).reshape(3, 3),
+    }
 
 
 def msg2image(msg, t):
