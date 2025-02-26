@@ -148,7 +148,7 @@ def main(ros_bag: Path, benchmark: bool):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bag", type=str, default="rosbag_husky/ENSTA_U2IS_grass_2024-05-03-14-54-33.bag")
+    parser.add_argument("--bag", type=str, default="rosbag_u2is/ENSTA_U2IS_grass_2024-05-03-14-54-33.bag")
     parser.add_argument("--bench", default=False, action="store_true")
     args = parser.parse_args()
 
