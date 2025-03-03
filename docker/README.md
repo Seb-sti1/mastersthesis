@@ -41,11 +41,12 @@ To simplify reproducibility, a collection of Docker images are available to buil
 
 ## Graphical support
 
+> [!IMPORTANT]
+> This only works if your OS is using X11 (e.g. Ubuntu)
+
 To be able to open GUI from the docker, add
 `--device /dev/dri:/dev/dri --ipc=host -e DISPLAY=$DISPLAY -e XAUTHORITY=/root/.Xauthority -v /tmp/.X11-unix:/tmp/.X11-unix`
 to the `docker run` command.
 
 You might also need to do `xhost +si:localuser:root` on the host machine to allow access to X11 from within docker.
 
-> [!IMPORTANT]
-> This only works if your OS is using X11

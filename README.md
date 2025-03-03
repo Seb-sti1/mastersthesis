@@ -14,11 +14,11 @@ environmental features previously detected with the drone and associated to the 
 
 ## Content
 
-- [Bibliography](bibliography): Currently containing notes on the articles that I have read (will be refactored).
 - [Datasets](datasets): An empty folder where the datasets should be stored. The list and links to the datasets used are
-  specified in the [README.md](datasets/README.md).
+  specified in the dedicated [README.md](datasets/README.md).
 - [Docker](docker): Dockerfiles to simplify reproducibility.
 - [Latex](latex): The latex source files for all the related work of the Master's thesis.
+- [Notes](notes): The notes of my research and intermediate results. See dedicated [README.md](notes/README.md).
 - [Scripts](scripts): Scripts to test/automate things. If some script become more than a test, it will be moved to a
   dedicated repository (the list will be made available below).
 
@@ -40,4 +40,5 @@ and [Thibault TORALBA](http://u2is.ensta-paris.fr/members/toralba/index.php?lang
 ## License
 
 All the code (scripts, latex, etc.) is under [GNU GPL](LICENSE) license.
-The graph, datasets, etc. are under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.
+The graph, datasets, images, etc. (excluding items mentioned but not present in this repository) are
+under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.

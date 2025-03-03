@@ -8,17 +8,23 @@ formats) is under analysis._
 
 ## TODOs
 
-- [ ] Share Zotero notes
-- [ ] Search article about pairing UAV BEV and UGV POV
-- [ ] Latex
+- [ ] Main tasks
+  - [ ] BEV
+    - [ ] Detect ground, exclude too high point, deform image
+  - [ ] Master thesis
+    - [x] Share Zotero notes
+    - [ ] Search article about pairing UAV BEV and UGV POV
+  - [ ] Latex
     - [ ] Git tag in attributes
-    - [x] Fix latex
-    - [ ] Project plan
-    - [ ] Traversability meeting slides
-- [ ] IGN Data
+    - [ ] Project plan 5/3/25
+    - [x] Traversability meeting slides 4/3/25
+      - [ ] Check for question about DualBEV
+- [ ] Side quests
+  - [ ] redirect drone video stream using firewall
+  - [ ] IGN Data
     - [ ] Automatic topological map on IGN Map using dectree ?
     - [ ] Get topographic map
-- [ ] [fast_colortexture_seg_outdoor_robots.py](../scripts/fast_colortexture_seg_outdoor_robots.py)
+  - [ ] [fast_colortexture_seg_outdoor_robots.py](../scripts/fast_colortexture_seg_outdoor_robots.py)
     - [x] Check implementation
     - [ ] Try https://en.wikipedia.org/wiki/Hough_transform, https://en.wikipedia.org/wiki/Sobel_operator,
       https://en.wikipedia.org/wiki/Canny_edge_detector on first kmeans
@@ -60,7 +66,5 @@ input vs include https://tex.stackexchange.com/questions/246/when-should-i-use-i
 jinja2 https://jinja.palletsprojects.com/en/stable/templates/ & https://github.com/pappasam/latexbuild
 
 minted compilation issue https://github.com/gpoore/minted/issues/231
-
-git hash in pdf https://tex.stackexchange.com/questions/161094/adding-custom-metadata-values-to-a-pdf-file
 
 zotero export https://github.com/windingwind/zotero-better-notes?tab=readme-ov-file#note-export
