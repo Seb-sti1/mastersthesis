@@ -27,6 +27,20 @@ def create_matrix_coordinate(z: np.ndarray, k_matrix: np.ndarray) -> np.ndarray:
     return xyz
 
 
+def change_frame_matrix_coordinate(xyz_matrix: np.ndarray, t) -> np.ndarray:
+    """
+    Performs the frame change of a point cloud shaped as an image
+    :param xyz_matrix: the points
+    :param t: the transformation matrix
+    :return: the points in t
+    """
+    h, w, _ = xyz_matrix.shape
+    xyz_reshaped = np.reshape(xyz_matrix, (h * w, 3)).T
+    xyz_in_t_reshaped = np.matmul(t, np.vstack([xyz_reshaped, np.ones((h * w))]))[:3, :].T
+    xyz_in_t = np.reshape(xyz_in_t_reshaped, xyz_matrix.shape)
+    return xyz_in_t
+
+
 def create_pointcloud(rgb: np.ndarray, depth: np.ndarray, k_matrix: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     Create a point cloud from the rgb image and the depth image.
