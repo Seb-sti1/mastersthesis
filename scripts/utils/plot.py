@@ -141,6 +141,10 @@ class DynamicO3DWindow:
             self.vis = self.o3d.visualization.Visualizer()
             self.vis.create_window(width=800, height=600)
         axis = self.o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.2)
+        rot_axis = self.o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.2)
+        T = np.eye(4)
+        T[:3, :3] = self.o3d.geometry.get_rotation_matrix_from_quaternion([0.94, -0.01, -0.03, -0.33])
+        rot_axis.transform(T)
         while not self.should_close.is_set():
             if self.should_update.is_set():
                 self.should_update = threading.Event()
@@ -148,6 +152,7 @@ class DynamicO3DWindow:
                 self.vis.clear_geometries()
                 self.vis.add_geometry(self.cloud, reset_bounding_box=self.first)
                 self.vis.add_geometry(axis)
+                self.vis.add_geometry(rot_axis)
                 self.first = False
             self.vis.poll_events()
             self.vis.update_renderer()
