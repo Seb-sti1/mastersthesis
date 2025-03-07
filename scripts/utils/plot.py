@@ -59,6 +59,40 @@ def plot_histogram(data: np.ndarray, bins: int = 30, title: str = "Histogram of 
     plt.show()
 
 
+def plot(x: np.ndarray | list, y: np.ndarray | list,
+         xlabel: str = "x", ylabel: str = "y",
+         title: str = "A plot") -> None:
+    plt.title(title)
+    plt.plot(x, y)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.show()
+
+
+def plot_bar(groups_name: list[str],
+             features: Dict[str, np.ndarray | list],
+             xlabel: str = "x", ylabel: str = "y",
+             title: str = "A plot") -> None:
+    x = np.arange(len(groups_name))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
+
+    fig, ax = plt.subplots(layout='constrained')
+
+    for attribute, measurement in features.items():
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar_label(rects, padding=3)
+        multiplier += 1
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.set_xticks(x + width, groups_name)
+    ax.legend(loc='upper left', ncols=3)
+    plt.show()
+
+
 class DynamicO3DWindow:
     def __init__(self):
         self.vis = None
