@@ -2,17 +2,82 @@
 %! Date = 03/02/2025
 
 \documentclass[11pt, a4paper]{article}
+
 \input{configs/preamble}
-\renewcommand{\subtitle}{\Large{CoHoMa III}}
+
+\renewcommand{\subtitle}{\Large{Project Plan}}
 \chead{Master's thesis - Project Plan}
+\rhead{}
 
 % Document
 \begin{document}
     \input{configs/cover}
 
-    It is possible to use two dual BEV \cite{zhang_dual-bev_2025}
+
+    \section{Initial research}\label{sec:initial-research}
+
+    The first month of my master's thesis was focus toward looking at different papers, finding datasets and testing
+    different snippets of code related to the subject.
+
+    I first started looking at ways to segment maps either for unmanned aerial vehicle (UAV) images (e.g.~\cite{khan_visual_2012}) or satellite imagery
+    (e.g.~\cite{sofman_terrain_2006}) in order to construct a topology map (of the traversable path) of the relevant area.
+    I also found other techniques when looking at forest trail detection and segmentation (e.g.~\cite{giusti_machine_2016}
+    or~\cite{rufus_blas_fast_2008} used in~\cite{rasmussen_appearance_2009}).
+    Finally, I tested~\cite{bosch_journal_2020} that gave good results on UAV imagery and decent results on satellite imagery.
+    This could, alone or along with other methods, help to create decent topology maps either using satellite imagery or UAV imagery.
+    This topology map would contain information about the GNSS coordinates of each node and the distance of each edge.
+    Other techniques (e.g. \cite{wang_2d_2021}) based on full 3D reconstruction exist, but,
+    as the aim of this project is to run them onboard in real-time, they appear suboptimal.
+
+    Focusing on the collaborative aspect,~\cite{delmerico_active_2017} shows an UAV scouting terrain information for
+    the unmanned ground vehicle (UGV) to reach a particular goal.
+    Similarly,~\cite{fortin_uav-assisted_2024} shows that it is possible to create a machine learning model that predicts
+    vibration, bumpiness and power consumption of the UGV using Bird-eye view (BEV) from the UAV.
+    The trained model can then be used by the UAV to scout terrain traversability beforehand.
+    In~\cite{zhang_dual-bev_2025}, the UGV's camera is used to create a BEV of the surrounding before extracting
+    traversability features.
+    It, then, uses overhead maps to select the optimum path to reach the objective.
+    These examples clearly demonstrate how well a BEV can be leverage to improve local navigation.
+
+    In my case, the goal is to improve the global navigation while keeping the amount of computation power and storage
+    in a reasonable range.
+    Going back to the topology map (that will either be generated semi-automatically or manually),
+    one of the objectives of this map would be to store information about each node,
+    gathered by the UAV, in order for the UGV, once at that node, to be able to locate itself.
+    In a sense, it would be similar to~\cite{han_effective_2020} if the references were images from a UAV's BEV
+    and the images to match were images (potentially preprocessed or transformed) from the UGV.
+    The complexity here will come from the differences in point of view (POV).
+
+
+    \section{Main objectives going forward}\label{sec:main-objectives-going-forward}
+
+    Given this early research, I will, going forward, explore various techniques to reproject the UGV's POV in a BEV.
+    The goal here is to ensure that the transformation will not remove or reduce the perceptibility of visual
+    features that could be matched in the UAV's BEV.
+    Then, the UGV's BEV and UAV's BEV will need to be matched to determined if there are representing the same
+    location.
+    Techniques like~\cite{comport_accurate_2007} based on~\cite{comport_statistically_2006}, that can either be used
+    with dense or sparse correspondences, could be a good place to start.
+    More abstract techniques, where features are extracted using neural networks (e.g.~\cite{zhang_dual-bev_2025}),
+    can also yield some results, given the creation of a representative dataset.
+
+    \textit{See Gantt chart on the next page.}
+
+    \newpage
+
+
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[angle=90,height=24cm]{illustrations/gantt}
+        \caption{Gantt}
+        \label{fig:gantt}
+    \end{figure}
+    \FloatBarrier
+
+    \newpage
+
 
     \section{References}\label{sec:references}
 
-    \printbibliography[heading=bibnumbered, title={Bibliography}]
+    \printbibliography[heading=none]
 \end{document}

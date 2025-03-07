@@ -1,254 +1,137 @@
 
 @article{delmerico_active_2017,
-	title = {Active {Autonomous} {Aerial} {Exploration} for {Ground} {Robot} {Path} {Planning}},
+	title = {Active Autonomous Aerial Exploration for Ground Robot Path Planning},
 	volume = {2},
 	issn = {2377-3766},
 	url = {https://ieeexplore.ieee.org/document/7812671/?arnumber=7812671},
 	doi = {10.1109/LRA.2017.2651163},
 	abstract = {We address the problem of planning a path for a ground robot through unknown terrain, using observations from a flying robot. In search and rescue missions, which are our target scenarios, the time from arrival at the disaster site to the delivery of aid is critically important. Previous works required exhaustive exploration before path planning, which is time-consuming but eventually leads to an optimal path for the ground robot. Instead, we propose active exploration of the environment, where the flying robot chooses regions to map in a way that optimizes the overall response time of the system, which is the combined time for the air and ground robots to execute their missions. In our approach, we estimate terrain classes throughout our terrain map, and we also add elevation information in areas where the active exploration algorithm has chosen to perform 3-D reconstruction. This terrain information is used to estimate feasible and efficient paths for the ground robot. By exploring the environment actively, we achieve superior response times compared to both exhaustive and greedy exploration strategies. We demonstrate the performance and capabilities of the proposed system in simulated and real-world outdoor experiments. To the best of our knowledge, this is the first work to address ground robot path planning using active aerial exploration.},
-	number = {2},
-	urldate = {2025-02-14},
-	journal = {IEEE Robotics and Automation Letters},
-	author = {Delmerico, Jeffrey and Mueggler, Elias and Nitsch, Julia and Scaramuzza, Davide},
-	month = apr,
-	year = {2017},
-	note = {Conference Name: IEEE Robotics and Automation Letters},
-	keywords = {Exploration, Terrain classification, 3D terrain reconstruction, UGV, UAV, Traversability, Collaboration, Global path},
 	pages = {664--671},
-	annote = {My notes
-1. Initial manual fly to see goal. Camera imagery is also used to obtain initial classification of the terrain.2. Then vision-guided flights (to a series of waypoints) chosen actively. For each waypoint 3D reconstruction and groundrobot path (to optimize total duration of the mission).3. Repeat 2. until path is complete
-- visual odometry for loc\&nav [{\textasciicircum}3], [{\textasciicircum}4]- [{\textasciicircum}3] also seems to mention matching of FPV (ground drone) and BEV (aerial drone) (p191)- classifier is trained on the spot [{\textasciicircum}1]. Two models type tried, feature-based and CNN. CNN is significantly slowerwithout giving significant better result (surprising).- in the 2. not exhaustive exploration just along the \_global path\_ from the manually generated map.The next waypoints for the aerial drone are chosen as to minimize\$T\_\{{\textbackslash}text\{ground robot\}, s {\textbackslash}rightarrow b\_i\} + T\_\{{\textbackslash}text\{ground robot\}, b\_i {\textbackslash}rightarrow g\} + T\_\{extend 3d reconstructed region\}\$,respectively \_time of ground robot from s to next ground robot waypoint (uses 3d reconstructed area)\_, the \_time ofground robot from next ground robot waypoint (uses initial partial map)\_, the \_time to extend the 3d reconstructedregion (in the correct direction)\_.- 7,8,9 are ref for high altitude, high resolution aerial images- use of monocular camera to reconstruct 3D ground in real time [{\textasciicircum}2] (could be used with move\_base\_flex).- use of [ANYbotics Grid Map](https://github.com/ANYbotics/grid\_map) [{\textasciicircum}5]- Terrain classification, dense 3D reconstruction and exploration algorithm run on a laptop computer not on the drone.
-
-[{\textasciicircum}1]: https://rpg.ifi.uzh.ch/docs/ISER16\_Delmerico.pdf
-[{\textasciicircum}2]: https://rpg.ifi.uzh.ch/docs/ICRA14\_Pizzoli.pdf
-[{\textasciicircum}3]: https://rpg.ifi.uzh.ch/docs/PhD16\_Forster.pdf
-[{\textasciicircum}4]: https://ieeexplore.ieee.org/document/6906584
-[{\textasciicircum}5]: https://www.researchgate.net/publication/284415855\_A\_Universal\_Grid\_Map\_Library\_Implementation\_and\_Use\_Case\_for\_Rough\_Terrain\_Navigation
-},
+	number = {2},
+	journaltitle = {{IEEE} Robotics and Automation Letters},
+	author = {Delmerico, Jeffrey and Mueggler, Elias and Nitsch, Julia and Scaramuzza, Davide},
+	urldate = {2025-02-14},
+	date = {2017-04},
+	note = {Conference Name: {IEEE} Robotics and Automation Letters},
+	keywords = {Exploration, Terrain classification, 3D terrain reconstruction, {UGV}, {UAV}, Traversability, Collaboration, Global path},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/3N3L352T/Delmerico et al. - 2017 - Active Autonomous Aerial Exploration for Ground Robot Path Planning.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/LNNWMXVZ/7812671.html:text/html},
 }
 
 @article{comport_statistically_2006,
-	title = {Statistically robust 2-{D} visual servoing},
+	title = {Statistically robust 2-D visual servoing},
 	volume = {22},
-	copyright = {https://ieeexplore.ieee.org/Xplorehelp/downloads/license-information/IEEE.html},
+	rights = {https://ieeexplore.ieee.org/Xplorehelp/downloads/license-information/{IEEE}.html},
 	issn = {1552-3098},
 	url = {http://ieeexplore.ieee.org/document/1618537/},
 	doi = {10.1109/TRO.2006.870666},
-	abstract = {A fundamental step towards broadening the use of real world image-based visual servoing is to deal with the important issue of reliability and robustness. In order to address this issue, a closed loop control law is proposed that simultaneously accomplishes a visual servoing task and is robust to a general class of image processing errors. This is achieved with the application of widely accepted statistical techniques such as robust M-estimation and LMedS. Experimental results are presented which demonstrate visual servoing tasks that resist severe outlier contamination.},
-	language = {en},
-	number = {2},
-	urldate = {2025-02-14},
-	journal = {IEEE Transactions on Robotics},
-	author = {Comport, A.I. and Marchand, E. and Chaumette, F.},
-	month = apr,
-	year = {2006},
-	keywords = {M-estimator, Robust matching, Key points},
+	abstract = {A fundamental step towards broadening the use of real world image-based visual servoing is to deal with the important issue of reliability and robustness. In order to address this issue, a closed loop control law is proposed that simultaneously accomplishes a visual servoing task and is robust to a general class of image processing errors. This is achieved with the application of widely accepted statistical techniques such as robust M-estimation and {LMedS}. Experimental results are presented which demonstrate visual servoing tasks that resist severe outlier contamination.},
 	pages = {415--420},
-	annote = {My notes
-Using M-estimators allow to exclude outliers from the features.
-This can be used with sparse features (e.g. key points) as shown in the paper or when dense method like in (Comport et al., 2007).
-The goal is to obtain robust behavior.
-},
+	number = {2},
+	journaltitle = {{IEEE} Transactions on Robotics},
+	shortjournal = {{IEEE} Trans. Robot.},
+	author = {Comport, A.I. and Marchand, E. and Chaumette, F.},
+	urldate = {2025-02-14},
+	date = {2006-04},
+	langid = {english},
+	keywords = {M-estimator, Robust matching, Key points},
 	file = {PDF:/home/seb-sti1/Zotero/storage/GFRSXJ9F/Comport et al. - 2006 - Statistically robust 2-D visual servoing.pdf:application/pdf},
 }
 
 @inproceedings{comport_accurate_2007,
-	title = {Accurate {Quadrifocal} {Tracking} for {Robust} {3D} {Visual} {Odometry}},
+	title = {Accurate Quadrifocal Tracking for Robust 3D Visual Odometry},
 	url = {https://ieeexplore.ieee.org/document/4209067/?arnumber=4209067},
 	doi = {10.1109/ROBOT.2007.363762},
 	abstract = {This paper describes a new image-based approach to tracking the 6dof trajectory of a stereo camera pair using a corresponding reference image pairs instead of explicit 3D feature reconstruction of the scene. A dense minimisation approach is employed which directly uses all grey-scale information available within the stereo pair (or stereo region) leading to very robust and precise results. Metric 3D structure constraints are imposed by consistently warping corresponding stereo images to generate novel viewpoints at each stereo acquisition. An iterative non-linear trajectory estimation approach is formulated based on a quadrifocal relationship between the image intensities within adjacent views of the stereo pair. A robust M-estimation technique is used to reject outliers corresponding to moving objects within the scene or other outliers such as occlusions and illumination changes. The technique is applied to recovering the trajectory of a moving vehicle in long and difficult sequences of images.},
-	urldate = {2025-02-14},
-	booktitle = {Proceedings 2007 {IEEE} {International} {Conference} on {Robotics} and {Automation}},
-	author = {Comport, A.I. and Malis, E. and Rives, P.},
-	month = apr,
-	year = {2007},
-	note = {ISSN: 1050-4729},
-	keywords = {Dense correspondences, Quadrifocal warping},
+	eventtitle = {Proceedings 2007 {IEEE} International Conference on Robotics and Automation},
 	pages = {40--45},
-	annote = {My notes
-Given geometric constraints two “trifocal tensor” (Comport et al., 2007, p. 42) can be computed from the two references images and left/right current images.
-In case of the two ref images and the left current images, the “the warping from the left reference image to the left current image [is done] via a plane in the right reference image” (Comport et al., 2007, p. 42). A mathematical relation describe (depending on the transformation between the ref and current) the warping in term of coordinates between the left ref and left curr images.
-Similar relation can be computed using the two ref images and the right images.
-These relations can be used on the pixels of 3d coordinates seen in both ref images (found using dense correspondence (Mark and Gavrila, 2006)) to compare luminescence (images are in grayscale) between ref and current images. This quantity needs to be minimized (describe in Section 4). 
-
-},
+	booktitle = {Proceedings 2007 {IEEE} International Conference on Robotics and Automation},
+	author = {Comport, A.I. and Malis, E. and Rives, P.},
+	urldate = {2025-02-14},
+	date = {2007-04},
+	note = {{ISSN}: 1050-4729},
+	keywords = {Dense correspondences, Quadrifocal warping},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/56EYZP6B/Comport et al. - 2007 - Accurate Quadrifocal Tracking for Robust 3D Visual Odometry.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/CZJX3AKX/4209067.html:text/html},
 }
 
 @inproceedings{wang_2d_2021,
-	title = {{2D} {Topological} {Map} {Building} by {UAVs} for {Ground} {Robot} {Navigation}},
+	title = {2D Topological Map Building by {UAVs} for Ground Robot Navigation},
 	url = {https://ieeexplore.ieee.org/document/9739395/?arnumber=9739395},
 	doi = {10.1109/ROBIO54168.2021.9739395},
-	abstract = {In air-ground cooperation, unmanned aerial vehicles (UAVs) are used to build a priori map of the ground environment from an aerial perspective, which is conducive to improve the navigation ability of ground robots. This paper proposes a 2D topology map building method from the air view, which can be effectively used for global path planning of ground mobile robots. To realize the 3D reconstruction of the ground from the air view, the 3D Euclidean Signed Distance Field (ESDF) is constructed incrementally from the Truncated Signed Distance Field (TSDF). The ESDF map occupies a large storage space, which is inconvenient to transmit to ground robots. To solve this problem, a lighter topology map is constructed on the basis of the ESDF map. Since ground robots can only move in the 2D plane, the 2D topological map is generated at any height from the ground to represent the topological structure of the ground robots working environment. The experimental results on the dataset and simulation environment shows the effectiveness of the proposed method.},
-	urldate = {2025-02-14},
-	booktitle = {2021 {IEEE} {International} {Conference} on {Robotics} and {Biomimetics} ({ROBIO})},
-	author = {Wang, Yuqian and Zhang, Xuetao and Liu, Yisha and Zhuang, Yan},
-	month = dec,
-	year = {2021},
-	keywords = {3D terrain reconstruction, UGV, UAV, Topological Map},
+	abstract = {In air-ground cooperation, unmanned aerial vehicles ({UAVs}) are used to build a priori map of the ground environment from an aerial perspective, which is conducive to improve the navigation ability of ground robots. This paper proposes a 2D topology map building method from the air view, which can be effectively used for global path planning of ground mobile robots. To realize the 3D reconstruction of the ground from the air view, the 3D Euclidean Signed Distance Field ({ESDF}) is constructed incrementally from the Truncated Signed Distance Field ({TSDF}). The {ESDF} map occupies a large storage space, which is inconvenient to transmit to ground robots. To solve this problem, a lighter topology map is constructed on the basis of the {ESDF} map. Since ground robots can only move in the 2D plane, the 2D topological map is generated at any height from the ground to represent the topological structure of the ground robots working environment. The experimental results on the dataset and simulation environment shows the effectiveness of the proposed method.},
+	eventtitle = {2021 {IEEE} International Conference on Robotics and Biomimetics ({ROBIO})},
 	pages = {663--668},
-	annote = {My notes
-- Use of a 3D TSDF to stores the "distance" to the obstacle (is it a weight from 1 (far in front) to 0 (surface of object) to -1 (far behind))
-- Updating a cell to a new values ("Weighting") is done by doing a weighted average of the previous weight and distance and new weight and distance.
-- Grouping points in sensor data ("Merging") is done by grouped ray-casting
-- ESDF from TSDF using wave propagation
-- Then ESDF is used to generate the 2D topology map
-
-},
+	booktitle = {2021 {IEEE} International Conference on Robotics and Biomimetics ({ROBIO})},
+	author = {Wang, Yuqian and Zhang, Xuetao and Liu, Yisha and Zhuang, Yan},
+	urldate = {2025-02-14},
+	date = {2021-12},
+	keywords = {3D terrain reconstruction, {UGV}, {UAV}, Topological Map},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/9IGV7ILJ/Wang et al. - 2021 - 2D Topological Map Building by UAVs for Ground Robot Navigation.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/GEBZ428Y/9739395.html:text/html},
 }
 
 @misc{zhang_dual-bev_2025,
-	title = {Dual-{BEV} {Nav}: {Dual}-layer {BEV}-based {Heuristic} {Path} {Planning} for {Robotic} {Navigation} in {Unstructured} {Outdoor} {Environments}},
-	shorttitle = {Dual-{BEV} {Nav}},
+	title = {Dual-{BEV} Nav: Dual-layer {BEV}-based Heuristic Path Planning for Robotic Navigation in Unstructured Outdoor Environments},
 	url = {http://arxiv.org/abs/2501.18351},
 	doi = {10.48550/arXiv.2501.18351},
-	abstract = {Path planning with strong environmental adaptability plays a crucial role in robotic navigation in unstructured outdoor environments, especially in the case of low-quality location and map information. The path planning ability of a robot depends on the identification of the traversability of global and local ground areas. In real-world scenarios, the complexity of outdoor open environments makes it difficult for robots to identify the traversability of ground areas that lack a clearly defined structure. Moreover, most existing methods have rarely analyzed the integration of local and global traversability identifications in unstructured outdoor scenarios. To address this problem, we propose a novel method, Dual-BEV Nav, first introducing Bird’s Eye View (BEV) representations into local planning to generate high-quality traversable paths. Then, these paths are projected onto the global traversability map generated by the global BEV planning model to obtain the optimal waypoints. By integrating the traversability from both local and global BEV, we establish a dual-layer BEV heuristic planning paradigm, enabling long-distance navigation in unstructured outdoor environments. We test our approach through both public dataset evaluations and real-world robot deployments, yielding promising results. Compared to baselines, the DualBEV Nav improved temporal distance prediction accuracy by up to 18.7\%. In the real-world deployment, under conditions significantly different from the training set and with notable occlusions in the global BEV, the Dual-BEV Nav successfully achieved a 65-meter-long outdoor navigation. Further analysis demonstrates that the local BEV representation significantly enhances the rationality of the planning, while the global BEV probability map ensures the robustness of the overall planning.},
-	language = {en},
-	urldate = {2025-02-14},
-	publisher = {arXiv},
+	shorttitle = {Dual-{BEV} Nav},
+	abstract = {Path planning with strong environmental adaptability plays a crucial role in robotic navigation in unstructured outdoor environments, especially in the case of low-quality location and map information. The path planning ability of a robot depends on the identification of the traversability of global and local ground areas. In real-world scenarios, the complexity of outdoor open environments makes it difficult for robots to identify the traversability of ground areas that lack a clearly defined structure. Moreover, most existing methods have rarely analyzed the integration of local and global traversability identifications in unstructured outdoor scenarios. To address this problem, we propose a novel method, Dual-{BEV} Nav, first introducing Bird’s Eye View ({BEV}) representations into local planning to generate high-quality traversable paths. Then, these paths are projected onto the global traversability map generated by the global {BEV} planning model to obtain the optimal waypoints. By integrating the traversability from both local and global {BEV}, we establish a dual-layer {BEV} heuristic planning paradigm, enabling long-distance navigation in unstructured outdoor environments. We test our approach through both public dataset evaluations and real-world robot deployments, yielding promising results. Compared to baselines, the {DualBEV} Nav improved temporal distance prediction accuracy by up to 18.7\%. In the real-world deployment, under conditions significantly different from the training set and with notable occlusions in the global {BEV}, the Dual-{BEV} Nav successfully achieved a 65-meter-long outdoor navigation. Further analysis demonstrates that the local {BEV} representation significantly enhances the rationality of the planning, while the global {BEV} probability map ensures the robustness of the overall planning.},
+	number = {{arXiv}:2501.18351},
+	publisher = {{arXiv}},
 	author = {Zhang, Jianfeng and Dong, Hanlin and Yang, Jian and Liu, Jiahui and Huang, Shibo and Li, Ke and Tang, Xuan and Wei, Xian and You, Xiong},
-	month = jan,
-	year = {2025},
-	note = {arXiv:2501.18351 [cs]},
-	keywords = {UGV, Traversability, Satellite imagery},
-	annote = {My notes
-LBPM Local BEV plannning model = local BEV perception encoder + task-driven goal decoder
-LBPM
-Local BEV Perception encoder
-inputs: (i) context observation \$o\_\{t-P:t-1\}\$ (ii) current observation \$o\_t\$.
-- BEV transformation on the observation
-- Feature extract based on LSS method. Uses EfficientNet
-- Uses LSS and BEVDet to predict discrete depth distribution for each pixel
-- BEV transformation (If multiple feature -{\textgreater} BEV pooling using BEVFusion)
-\_I'm confused about what is new compared to LSS. At least until the computation of the
-BEV features (see Fig. 2), it is every similar. Also (this is one of the difference compared to LSS), I
-don't understand the point of the traversability features, is it to make the system
-keep in mind what was traversable?\_
-Task-driven goal decoder
-based on the ViKiNG architecture
-inputs: environmental context \$o\_\{t-P\}\$, current observation \$o\_t\$, goal observation \$o\_{\textbackslash}omega\$.
-GBPM
-Provide traversability hint and overall direction.
-- Use an overhead map from satellite images
-- segmentation that gradually increase as they approach impassable.
-{\textgreater} GBPM uses trajectory data to learn traversability in the
-{\textgreater} overhead map [...], the more easily accessible areas will
-{\textgreater} be covered by a larger number of trajectories.
-- This step uses the probability predictions as a map (not a thresholds regulated
-  output). [U-net](https://github.com/milesial/Pytorch-UNet) is used to do the segmentation.
-Use GBPM with potential trajectories generated by LBPM
-{\textgreater} First, the LBPM generates multiple potential traversable paths, providing information including temporal distance, GPS
-{\textgreater} offsets, and waypoints from the current position to the goal. The GBPM encodes the overhead map into a global
-{\textgreater} probability map, projecting traversable paths of LBPM onto this map.
-{\textgreater}
-{\textgreater} \$cost = k {\textbackslash}times score + (1-k) {\textbackslash}times temporal{\textbackslash}\_distance\$
-
-},
+	urldate = {2025-02-14},
+	date = {2025-01-30},
+	langid = {english},
+	eprinttype = {arxiv},
+	eprint = {2501.18351 [cs]},
+	keywords = {{UGV}, Traversability, Satellite imagery},
 	file = {PDF:/home/seb-sti1/Zotero/storage/9KJEWZPQ/Zhang et al. - 2025 - Dual-BEV Nav Dual-layer BEV-based Heuristic Path Planning for Robotic Navigation in Unstructured Ou.pdf:application/pdf},
 }
 
 @misc{manderson_learning_2020,
-	title = {Learning to {Drive} {Off} {Road} on {Smooth} {Terrain} in {Unstructured} {Environments} {Using} an {On}-{Board} {Camera} and {Sparse} {Aerial} {Images}},
+	title = {Learning to Drive Off Road on Smooth Terrain in Unstructured Environments Using an On-Board Camera and Sparse Aerial Images},
 	url = {http://arxiv.org/abs/2004.04697},
 	doi = {10.48550/arXiv.2004.04697},
 	abstract = {We present a method for learning to drive on smooth terrain while simultaneously avoiding collisions in challenging off-road and unstructured outdoor environments using only visual inputs. Our approach applies a hybrid model-based and model-free reinforcement learning method that is entirely self-supervised in labeling terrain roughness and collisions using on-board sensors. Notably, we provide both ﬁrst-person and overhead aerial image inputs to our model. We ﬁnd that the fusion of these complementary inputs improves planning foresight and makes the model robust to visual obstructions. Our results show the ability to generalize to environments with plentiful vegetation, various types of rock, and sandy trails. During evaluation, our policy attained 90\% smooth terrain traversal and reduced the proportion of rough terrain driven over by 6.1 times compared to a model using only ﬁrstperson imagery. Video and project details can be found at www.cim.mcgill.ca/mrl/offroad driving/.},
-	language = {en},
-	urldate = {2025-02-14},
-	publisher = {arXiv},
+	number = {{arXiv}:2004.04697},
+	publisher = {{arXiv}},
 	author = {Manderson, Travis and Wapnick, Stefan and Meger, David and Dudek, Gregory},
-	month = apr,
-	year = {2020},
-	note = {arXiv:2004.04697 [cs]},
-	keywords = {Reinforcement learning, UGV, UAV, Traversability, Local path, Collaboration},
-	annote = {Comment: ICRA 2020. Video and project details can be found at http://www.cim.mcgill.ca/mrl/offroad\_driving/},
-	annote = {My notes
-
-
-In this paper, we present a system for learning a navigation policy that **preferentially chooses smooth terrain** [...]. The emphasis of the paper, however, is not road classification perse, but rather to propose an approach for **online adaptive self-supervised learning** for off-road driving in rough terrain and to explore the synthesis of aerial and first-person (ground) sensing in this context.
-
-
-
-From BEV, FPS images, use CNN to predict the rougher terrain for \$H\$ steps (supplying an action for every step)
-
-
-use of Value Prediction Networks, a hybrid model-based and model-free reinforcement learning architecture.
-
-
-It is model-based as it implicitly learns a dynamics model for abstract states optimized for predicting future rewards and value functions.
-
-
-It is also model-free as it maps these encoded abstract states to rewards and value functions using direct experience with the environment prior to the planning phase.
-
-
-
-
-In training terrain roughness is estimated using IMU and obstacles using short-range LiDAR.
-
-
-Reward based on the difference between the prediction and the actual roughness
-
-
-It is classification as type of terrain is associated with different number and the model tries to predict the correct one
-
-
-},
+	urldate = {2025-02-14},
+	date = {2020-04-09},
+	langid = {english},
+	eprinttype = {arxiv},
+	eprint = {2004.04697 [cs]},
+	keywords = {Reinforcement learning, {UGV}, {UAV}, Traversability, Local path, Collaboration},
 	file = {PDF:/home/seb-sti1/Zotero/storage/P5MEPZCE/Manderson et al. - 2020 - Learning to Drive Off Road on Smooth Terrain in Unstructured Environments Using an On-Board Camera a.pdf:application/pdf},
 }
 
 @misc{fortin_uav-assisted_2024,
-	title = {{UAV}-{Assisted} {Self}-{Supervised} {Terrain} {Awareness} for {Off}-{Road} {Navigation}},
+	title = {{UAV}-Assisted Self-Supervised Terrain Awareness for Off-Road Navigation},
 	url = {http://arxiv.org/abs/2409.18253},
 	doi = {10.48550/arXiv.2409.18253},
-	abstract = {Terrain awareness is an essential milestone to enable truly autonomous off-road navigation. Accurately predicting terrain characteristics allows optimizing a vehicle's path against potential hazards. Recent methods use deep neural networks to predict traversability-related terrain properties in a self-supervised manner, relying on proprioception as a training signal. However, onboard cameras are inherently limited by their point-of-view relative to the ground, suffering from occlusions and vanishing pixel density with distance. This paper introduces a novel approach for self-supervised terrain characterization using an aerial perspective from a hovering drone. We capture terrain-aligned images while sampling the environment with a ground vehicle, effectively training a simple predictor for vibrations, bumpiness, and energy consumption. Our dataset includes 2.8 km of off-road data collected in forest environment, comprising 13 484 ground-based images and 12 935 aerial images. Our findings show that drone imagery improves terrain property prediction by 21.37 \% on the whole dataset and 37.35 \% in high vegetation, compared to ground robot images. We conduct ablation studies to identify the main causes of these performance improvements. We also demonstrate the real-world applicability of our approach by scouting an unseen area with a drone, planning and executing an optimized path on the ground.},
-	urldate = {2025-02-14},
-	publisher = {arXiv},
+	abstract = {Terrain awareness is an essential milestone to enable truly autonomous off-road navigation. Accurately predicting terrain characteristics allows optimizing a vehicle's path against potential hazards. Recent methods use deep neural networks to predict traversability-related terrain properties in a self-supervised manner, relying on proprioception as a training signal. However, onboard cameras are inherently limited by their point-of-view relative to the ground, suffering from occlusions and vanishing pixel density with distance. This paper introduces a novel approach for self-supervised terrain characterization using an aerial perspective from a hovering drone. We capture terrain-aligned images while sampling the environment with a ground vehicle, effectively training a simple predictor for vibrations, bumpiness, and energy consumption. Our dataset includes 2.8 km of off-road data collected in forest environment, comprising 13 484 ground-based images and 12 935 aerial images. Our findings show that drone imagery improves terrain property prediction by 21.37 \% on the whole dataset and 37.35 \% in high vegetation, compared to ground robot images. We conduct ablation studies to identify the offline causes of these performance improvements. We also demonstrate the real-world applicability of our approach by scouting an unseen area with a drone, planning and executing an optimized path on the ground.},
+	number = {{arXiv}:2409.18253},
+	publisher = {{arXiv}},
 	author = {Fortin, Jean-Michel and Gamache, Olivier and Fecteau, William and Daum, Effie and Larrivée-Hardy, William and Pomerleau, François and Giguère, Philippe},
-	month = sep,
-	year = {2024},
-	note = {arXiv:2409.18253 [cs]},
-	keywords = {Terrain classification, UGV, UAV, Dataset, Traversability, ResNet18},
-	annote = {Comment: 7 pages, 5 figures, submitted to ICRA 2025},
-	annote = {My notes
-
-
-good documentation of related work
-
-
-datasets created could be very useful
-
-
-makes me think of the work done by Tom.
-
-
-use of ResNet18 and a "homemade" MLP to predict \$M\_z\$, \$M\_{\textbackslash}omega\$ and \$M\_p\$
-respectively vibration metric, bumpiness and electrical energy consumption.
-BEV from UAV gives better prediction than FPS from UGV.
-Using the BEV from UAV, can obtain maps (similar to occupancy grid) (see Fig5)
-than can be used to choose "better" path.
--
-},
+	urldate = {2025-02-14},
+	date = {2024-09-26},
+	eprinttype = {arxiv},
+	eprint = {2409.18253 [cs]},
+	keywords = {Terrain classification, {UGV}, {UAV}, Dataset, Traversability, {ResNet}18},
 	file = {Preprint PDF:/home/seb-sti1/Zotero/storage/ZK3724GU/Fortin et al. - 2024 - UAV-Assisted Self-Supervised Terrain Awareness for Off-Road Navigation.pdf:application/pdf;Snapshot:/home/seb-sti1/Zotero/storage/QXD3RTTA/2409.html:text/html},
 }
 
 @misc{mortimer_survey_2024,
-	title = {Survey on {Datasets} for {Perception} in {Unstructured} {Outdoor} {Environments}},
+	title = {Survey on Datasets for Perception in Unstructured Outdoor Environments},
 	url = {http://arxiv.org/abs/2404.18750},
 	doi = {10.48550/arXiv.2404.18750},
 	abstract = {Perception is an essential component of pipelines in field robotics. In this survey, we quantitatively compare publicly available datasets available in unstructured outdoor environments. We focus on datasets for common perception tasks in field robotics. Our survey categorizes and compares available research datasets. This survey also reports on relevant dataset characteristics to help practitioners determine which dataset fits best for their own application. We believe more consideration should be taken in choosing compatible annotation policies across the datasets in unstructured outdoor environments.},
-	urldate = {2025-02-17},
-	publisher = {arXiv},
+	number = {{arXiv}:2404.18750},
+	publisher = {{arXiv}},
 	author = {Mortimer, Peter and Maehlisch, Mirko},
-	month = apr,
-	year = {2024},
-	note = {arXiv:2404.18750 [cs]},
+	urldate = {2025-02-17},
+	date = {2024-04-29},
+	eprinttype = {arxiv},
+	eprint = {2404.18750 [cs]},
 	keywords = {Dataset},
-	annote = {Comment: Accepted to the IEEE ICRA Workshop on Field Robotics 2024},
-	annote = {My notes
-Minimize using M-estimators the sum of a given function of the error (the difference between the the two feature vectors)
-
-},
 	file = {Preprint PDF:/home/seb-sti1/Zotero/storage/2P2595RZ/Mortimer and Maehlisch - 2024 - Survey on Datasets for Perception in Unstructured Outdoor Environments.pdf:application/pdf;Snapshot:/home/seb-sti1/Zotero/storage/BGPQHQ9T/2404.html:text/html},
 }
 
@@ -257,71 +140,33 @@ Minimize using M-estimators the sum of a given function of the error (the differ
 	url = {https://ieeexplore.ieee.org/document/4651086/?arnumber=4651086},
 	doi = {10.1109/IROS.2008.4651086},
 	abstract = {We present a fast integrated approach for online segmentation of images for outdoor robots. A compact color and texture descriptor has been developed to describe local color and texture variations in an image. This descriptor is then used in a two-stage fast clustering framework using K-means to perform online segmentation of natural images. We present results of applying our descriptor for segmenting a synthetic image and compare it against other state-of-the-art descriptors. We also apply our segmentation algorithm to the task of detecting natural paths in outdoor images. The whole system has been demonstrated to work online alongside localization, 3D obstacle detection, and planning.},
-	urldate = {2025-02-17},
-	booktitle = {2008 {IEEE}/{RSJ} {International} {Conference} on {Intelligent} {Robots} and {Systems}},
-	author = {Rufus Blas, Morten and Agrawal, Motilal and Sundaresan, Aravind and Konolige, Kurt},
-	month = sep,
-	year = {2008},
-	note = {ISSN: 2153-0866},
-	keywords = {Terrain classification, UGV, Trail classification},
+	eventtitle = {2008 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems},
 	pages = {4078--4085},
-	annote = {My notes
-
-
-create a vector of LAB, and texture around the pixel
-
-
-k-means to find 16 centroids “textons”
-
-
-for each pixels do a histogram of the classification around the pixel
-
-
-k-means on the histogram
-
-
-EMD (using the distance between the textons) to merge clusters that are “too” close
-
-
-
-https://github.com/Seb-sti1/mastersthesis/blob/master/scripts/fast\_colortexture\_seg\_outdoor\_robots.py
-https://github.com/tbjszhu/
-},
+	booktitle = {2008 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems},
+	author = {Rufus Blas, Morten and Agrawal, Motilal and Sundaresan, Aravind and Konolige, Kurt},
+	urldate = {2025-02-17},
+	date = {2008-09},
+	note = {{ISSN}: 2153-0866},
+	keywords = {Terrain classification, {UGV}, Trail classification},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/3BSXZ9L2/Rufus Blas et al. - 2008 - Fast colortexture segmentation for outdoor robots.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/SBS4EJQG/4651086.html:text/html},
 }
 
 @inproceedings{rasmussen_appearance_2009,
-	address = {St. Louis, MO, USA},
+	location = {St. Louis, {MO}, {USA}},
 	title = {Appearance contrast for fast, robust trail-following},
 	isbn = {978-1-4244-3803-7},
 	url = {http://ieeexplore.ieee.org/document/5354059/},
 	doi = {10.1109/IROS.2009.5354059},
 	abstract = {We describe a framework for ﬁnding and tracking “trails” for autonomous outdoor robot navigation. Through a combination of visual cues and ladar-derived structural information, the algorithm is able to follow paths which pass through multiple zones of terrain smoothness, border vegetation, tread material, and illumination conditions. Our shape-based visual trail tracker assumes that the approaching trail region is approximately triangular under perspective. It generates region hypotheses from a learned distribution of expected trail width and curvature variation, and scores them using a robust measure of color and brightness contrast with ﬂanking regions. The structural component analogously rewards hypotheses which correspond to empty or low-density regions in a groundstrike-ﬁltered ladar obstacle map. Our system’s performance is analyzed on several long sequences with diverse appearance and structural characteristics. Ground-truth segmentations are used to quantify performance where available, and several alternative algorithms are compared on the same data.},
-	language = {en},
-	urldate = {2025-02-17},
-	booktitle = {2009 {IEEE}/{RSJ} {International} {Conference} on {Intelligent} {Robots} and {Systems}},
-	publisher = {IEEE},
-	author = {Rasmussen, Christopher and Lu, Yan and Kocamaz, Mehmet},
-	month = oct,
-	year = {2009},
-	keywords = {UGV, Trail classification, Local path, Lidar},
+	eventtitle = {2009 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems ({IROS} 2009)},
 	pages = {3505--3512},
-	annote = {My notes
-
-
-CIE-Lab used
-
-
-textons generated from the input image using (Rufus Blas et al., 2008) method
-
-
-Then triangles are scored using a likelihood function
-
-
-Add lidar info to enhance results
-
-
-},
+	booktitle = {2009 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems},
+	publisher = {{IEEE}},
+	author = {Rasmussen, Christopher and Lu, Yan and Kocamaz, Mehmet},
+	urldate = {2025-02-17},
+	date = {2009-10},
+	langid = {english},
+	keywords = {{UGV}, Trail classification, Local path, Lidar},
 	file = {PDF:/home/seb-sti1/Zotero/storage/BS4FH7ZP/Rasmussen et al. - 2009 - Appearance contrast for fast, robust trail-following.pdf:application/pdf},
 }
 
@@ -330,13 +175,13 @@ Add lidar info to enhance results
 	url = {https://ieeexplore.ieee.org/document/988771/?arnumber=988771},
 	doi = {10.1109/SMBV.2001.988771},
 	abstract = {Stereo matching is one of the most active research areas in computer vision. While a large number of algorithms for stereo correspondence have been developed, relatively little work has been done on characterizing their performance. In this paper, we present a taxonomy of dense, two-frame stereo methods designed to assess the different components and design decisions made in individual stereo algorithms. Using this taxonomy, we compare existing stereo methods and present experiments evaluating the performance of many different variants. In order to establish a common software platform and a collection of data sets for easy evaluation, we have designed a stand-alone, flexible C++ implementation that enables the evaluation of individual components and that can be easily extended to include new algorithms. We have also produced several new multiframe stereo data sets with ground truth, and are making both the code and data sets available on the Web.},
-	urldate = {2025-02-17},
-	booktitle = {Proceedings {IEEE} {Workshop} on {Stereo} and {Multi}-{Baseline} {Vision} ({SMBV} 2001)},
-	author = {Scharstein, D. and Szeliski, R. and Zabih, R.},
-	month = dec,
-	year = {2001},
-	keywords = {To read},
+	eventtitle = {Proceedings {IEEE} Workshop on Stereo and Multi-Baseline Vision ({SMBV} 2001)},
 	pages = {131--140},
+	booktitle = {Proceedings {IEEE} Workshop on Stereo and Multi-Baseline Vision ({SMBV} 2001)},
+	author = {Scharstein, D. and Szeliski, R. and Zabih, R.},
+	urldate = {2025-02-17},
+	date = {2001-12},
+	keywords = {To read},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/BL7ATB99/Scharstein et al. - 2001 - A taxonomy and evaluation of dense two-frame stereo correspondence algorithms.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/DKGADFLK/988771.html:text/html},
 }
 
@@ -346,33 +191,32 @@ Add lidar info to enhance results
 	issn = {1558-0016},
 	url = {https://ieeexplore.ieee.org/document/1603551/?arnumber=1603551},
 	doi = {10.1109/TITS.2006.869625},
-	abstract = {Stereo vision is an attractive passive sensing technique for obtaining three-dimensional (3-D) measurements. Recent hardware advances have given rise to a new class of real-time dense disparity estimation algorithms. This paper examines their suitability for intelligent vehicle (IV) applications. In order to gain a better understanding of the performance and the computational-cost tradeoff, the authors created a framework of real-time implementations. This consists of different methodical components based on single instruction multiple data (SIMD) techniques. Furthermore, the resulting algorithmic variations are compared with other publicly available algorithms. The authors argue that existing publicly available stereo data sets are not very suitable for the IV domain. Therefore, the authors' evaluation of stereo algorithms is based on novel realistically looking simulated data as well as real data from complex urban traffic scenes. In order to facilitate future benchmarks, all data used in this paper is made publicly available. The results from this study reveal that there is a considerable influence of scene conditions on the performance of all tested algorithms. Approaches that aim for (global) search optimization are more affected by this than other approaches. The best overall performance is achieved by the proposed multiple-window algorithm, which uses local matching and a left-right check for a robust error rejection. Timing results show that the simplest of the proposed SIMD variants are more than twice as fast than the most complex one. Nevertheless, the latter still achieves real-time processing speeds, while their average accuracy is at least equal to that of publicly available non-SIMD algorithms},
-	number = {1},
-	urldate = {2025-02-17},
-	journal = {IEEE Transactions on Intelligent Transportation Systems},
-	author = {van der Mark, W. and Gavrila, D.M.},
-	month = mar,
-	year = {2006},
-	note = {Conference Name: IEEE Transactions on Intelligent Transportation Systems},
-	keywords = {To read},
+	abstract = {Stereo vision is an attractive passive sensing technique for obtaining three-dimensional (3-D) measurements. Recent hardware advances have given rise to a new class of real-time dense disparity estimation algorithms. This paper examines their suitability for intelligent vehicle ({IV}) applications. In order to gain a better understanding of the performance and the computational-cost tradeoff, the authors created a framework of real-time implementations. This consists of different methodical components based on single instruction multiple data ({SIMD}) techniques. Furthermore, the resulting algorithmic variations are compared with other publicly available algorithms. The authors argue that existing publicly available stereo data sets are not very suitable for the {IV} domain. Therefore, the authors' evaluation of stereo algorithms is based on novel realistically looking simulated data as well as real data from complex urban traffic scenes. In order to facilitate future benchmarks, all data used in this paper is made publicly available. The results from this study reveal that there is a considerable influence of scene conditions on the performance of all tested algorithms. Approaches that aim for (global) search optimization are more affected by this than other approaches. The best overall performance is achieved by the proposed multiple-window algorithm, which uses local matching and a left-right check for a robust error rejection. Timing results show that the simplest of the proposed {SIMD} variants are more than twice as fast than the most complex one. Nevertheless, the latter still achieves real-time processing speeds, while their average accuracy is at least equal to that of publicly available non-{SIMD} algorithms},
 	pages = {38--50},
+	number = {1},
+	journaltitle = {{IEEE} Transactions on Intelligent Transportation Systems},
+	author = {van der Mark, W. and Gavrila, D.M.},
+	urldate = {2025-02-17},
+	date = {2006-03},
+	note = {Conference Name: {IEEE} Transactions on Intelligent Transportation Systems},
+	keywords = {To read},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/QNS6ET8R/van der Mark and Gavrila - 2006 - Real-time dense stereo for intelligent vehicles.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/AUIPZ59T/1603551.html:text/html},
 }
 
 @incollection{wang_collaborative_2020,
-	title = {A {Collaborative} {Aerial}-{Ground} {Robotic} {System} for {Fast} {Exploration}},
+	title = {A Collaborative Aerial-Ground Robotic System for Fast Exploration},
 	volume = {11},
 	url = {http://arxiv.org/abs/1806.02487},
 	abstract = {Autonomous exploration of unknown environments has been widely applied in inspection, surveillance, and search and rescue. In exploration task, the basic requirement for robots is to detect the unknown space as fast as possible. In this paper, we propose an autonomous collaborative system consists of an aerial robot and a ground vehicle to explore in unknown environments. We combine the frontier based method and the harmonic field to generate a path. Then, For the ground robot, a minimum jerk piecewise Bezier curve which can guarantee safety and dynamical feasibility is generated amid obstacles. For the aerial robot, a motion primitive method is adopted for local path planning. We implement the proposed framework on an autonomous collaborative aerial-ground system. Extensive field experiments as well as simulations are presented to validate the method and demonstrate its higher efficiency against each single vehicle.},
-	language = {en},
-	urldate = {2025-02-19},
-	author = {Wang, Luqi and Cheng, Daqian and Gao, Fei and Cai, Fengyu and Guo, Jixin and Lin, Mengxiang and Shen, Shaojie},
-	year = {2020},
-	doi = {10.1007/978-3-030-33950-0_6},
-	note = {arXiv:1806.02487 [cs]},
-	keywords = {Exploration, UGV, UAV, Collaboration, Ignored},
 	pages = {59--71},
-	annote = {Comment: 12 pages, 16 figures},
+	author = {Wang, Luqi and Cheng, Daqian and Gao, Fei and Cai, Fengyu and Guo, Jixin and Lin, Mengxiang and Shen, Shaojie},
+	urldate = {2025-02-19},
+	date = {2020},
+	langid = {english},
+	doi = {10.1007/978-3-030-33950-0_6},
+	eprinttype = {arxiv},
+	eprint = {1806.02487 [cs]},
+	keywords = {Exploration, {UGV}, {UAV}, Collaboration, Ignored},
 	file = {PDF:/home/seb-sti1/Zotero/storage/9KK8FJ2T/Wang et al. - 2020 - A Collaborative Aerial-Ground Robotic System for Fast Exploration.pdf:application/pdf},
 }
 
@@ -380,60 +224,43 @@ Add lidar info to enhance results
 	title = {Visual terrain classification by flying robots},
 	url = {https://ieeexplore.ieee.org/document/6224988/?arnumber=6224988},
 	doi = {10.1109/ICRA.2012.6224988},
-	abstract = {In this paper we investigate the effectiveness of SURF features for visual terrain classification for outdoor flying robots. A quadrocopter fitted with a single camera is flown over different terrains to take images of the ground below. Each image is divided into a grid and SURF features are calculated at grid intersections. A classifier is then used to learn to differentiate between different terrain types. Classification results of the SURF descriptor are compared with results from other texture descriptors like Local Binary Patterns and Local Ternary Patterns. Six different terrain types are considered in this approach. Random forests are used for classification on each descriptor. It is shown that SURF features perform better than other descriptors at higher resolutions.},
-	urldate = {2025-02-19},
-	booktitle = {2012 {IEEE} {International} {Conference} on {Robotics} and {Automation}},
-	author = {Khan, Yasir Niaz and Masselli, Andreas and Zell, Andreas},
-	month = may,
-	year = {2012},
-	note = {ISSN: 1050-4729},
-	keywords = {Terrain classification, UAV, TSURF, LBP, LTP},
+	abstract = {In this paper we investigate the effectiveness of {SURF} features for visual terrain classification for outdoor flying robots. A quadrocopter fitted with a single camera is flown over different terrains to take images of the ground below. Each image is divided into a grid and {SURF} features are calculated at grid intersections. A classifier is then used to learn to differentiate between different terrain types. Classification results of the {SURF} descriptor are compared with results from other texture descriptors like Local Binary Patterns and Local Ternary Patterns. Six different terrain types are considered in this approach. Random forests are used for classification on each descriptor. It is shown that {SURF} features perform better than other descriptors at higher resolutions.},
+	eventtitle = {2012 {IEEE} International Conference on Robotics and Automation},
 	pages = {498--503},
-	annote = {My notes
-Comparison of SURF descriptor, LBP, LTP for visual outdoor terrain classification
-
-
-Random forest gives the best results
-
-
-TSURF good with small grid size and lower training time than LBP, LTP
-
-
-
-},
+	booktitle = {2012 {IEEE} International Conference on Robotics and Automation},
+	author = {Khan, Yasir Niaz and Masselli, Andreas and Zell, Andreas},
+	urldate = {2025-02-19},
+	date = {2012-05},
+	note = {{ISSN}: 1050-4729},
+	keywords = {Terrain classification, {UAV}, {TSURF}, {LBP}, {LTP}},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/7AATA5UI/Khan et al. - 2012 - Visual terrain classification by flying robots.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/7CHRVJQ5/6224988.html:text/html},
 }
 
 @inproceedings{silver_experimental_2006,
-	title = {Experimental {Analysis} of {Overhead} {Data} {Processing} {To} {Support} {Long} {Range} {Navigation}},
+	title = {Experimental Analysis of Overhead Data Processing To Support Long Range Navigation},
 	url = {https://ieeexplore.ieee.org/document/4058754/?arnumber=4058754},
 	doi = {10.1109/IROS.2006.281686},
 	abstract = {Long range navigation by unmanned ground vehicles continues to challenge the robotics community. Efficient navigation requires not only intelligent on-board perception and planning systems, but also the effective use of prior knowledge of the vehicle's environment. This paper describes a system for supporting unmanned ground vehicle navigation through the use of heterogeneous overhead data. Semantic information is obtained through supervised classification, and vehicle mobility is predicted from available geometric data. This approach is demonstrated and validated through over 50 kilometers of autonomous traversal through complex natural environments},
-	urldate = {2025-02-19},
-	booktitle = {2006 {IEEE}/{RSJ} {International} {Conference} on {Intelligent} {Robots} and {Systems}},
-	author = {Silver, David and Sofman, Boris and Vandapel, Nicolas and Bagnell, J. Andrew and Stentz, Anthony},
-	month = oct,
-	year = {2006},
-	note = {ISSN: 2153-0866},
-	keywords = {UGV, Satellite imagery, Lidar, Ignored},
+	eventtitle = {2006 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems},
 	pages = {2443--2450},
-	annote = {My notes
-usage of LiDAR and imagery on (only) terrestrial robot and prior data (from variety of sources) to achieve robust navigation.
-
-},
+	booktitle = {2006 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems},
+	author = {Silver, David and Sofman, Boris and Vandapel, Nicolas and Bagnell, J. Andrew and Stentz, Anthony},
+	urldate = {2025-02-19},
+	date = {2006-10},
+	note = {{ISSN}: 2153-0866},
+	keywords = {{UGV}, Satellite imagery, Lidar, Ignored},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/MMVCY4JJ/Silver et al. - 2006 - Experimental Analysis of Overhead Data Processing To Support Long Range Navigation.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/NM2AJAXS/4058754.html:text/html},
 }
 
 @article{sofman_terrain_2006,
-	title = {Terrain {Classification} from {Aerial} {Data} to {Support} {Ground} {Vehicle} {Navigation}},
+	title = {Terrain Classification from Aerial Data to Support Ground Vehicle Navigation},
 	url = {https://kilthub.cmu.edu/articles/journal_contribution/Terrain_Classification_from_Aerial_Data_to_Support_Ground_Vehicle_Navigation/6561173/1},
 	doi = {10.1184/R1/6561173.v1},
 	abstract = {Sensory perception for unmanned ground vehicle navigation has received great attention from the robotics community. However, sensors mounted on the vehicle are regularly viewpoint impaired. A vehicle navigating at high speeds in off- road environments may be unable to react to negative obstacles such as large holes and cliffs. One approach to address this problem is to complement the sensing capabilities of an unmanned ground vehicle with overhead data gathered from an aerial source. This paper presents techniques to achieve accurate terrain classiﬁcation by utilizing high-density, colorized, three- dimensional laser data. We describe methods to extract relevant features from this sensor data in such a way that a learning algorithm can successfully train on a small set of labeled data in order to classify a much larger map and show experimental results. Additionally, we introduce a technique to signiﬁcantly reduce classiﬁcation errors through the use of context. Finally, we show how this algorithm can be customized for the intended vehicle’s capabilities in order to create more accurate a priori maps that can then be used for path planning.},
-	language = {en},
-	urldate = {2025-02-19},
 	author = {Sofman, Boris and Bagnell, J. Andrew and Stentz, Anthony and Vandapel, Nicolas},
-	month = jan,
-	year = {2006},
+	urldate = {2025-02-19},
+	date = {2006-01-01},
+	langid = {english},
 	note = {Publisher: Carnegie Mellon University},
 	keywords = {Terrain classification, Satellite imagery, Ignored},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/FB8IZXJW/Sofman et al. - 2006 - Terrain Classification from Aerial Data to Support Ground Vehicle Navigation.pdf:application/pdf},
@@ -444,103 +271,90 @@ usage of LiDAR and imagery on (only) terrestrial robot and prior data (from vari
 	volume = {1},
 	isbn = {978-0-7695-2372-9},
 	doi = {10.1109/CVPR.2005.52},
-	abstract = {A novel two-stage level set evolution method for detecting man-made objects in aerial images is described. The method is based on a modified Mumford-Shah model and it uses a two-stage curve evolution strategy to get a preferable detection. It applies fractal error metric, developed by Cooper, et al. (1994) at the first curve evolution stage and adds additional constraint texture edge descriptor that is defined by using DCT (discrete cosine transform) coefficients on the image at the next stage. Man-made objects and natural areas are optimally differentiated by evolving the partial differential equation. The method artfully avoids selecting a threshold to separate the fractal error image, while an improper threshold often results in great segmentation errors. Experiments of the segmentation show that the proposed method is efficient.},
-	author = {Cao, Guo and Yang, Xin and Mao, Zhihong},
-	month = jul,
-	year = {2005},
-	keywords = {UAV, Man-made segmentation, Ignored},
+	abstract = {A novel two-stage level set evolution method for detecting man-made objects in aerial images is described. The method is based on a modified Mumford-Shah model and it uses a two-stage curve evolution strategy to get a preferable detection. It applies fractal error metric, developed by Cooper, et al. (1994) at the first curve evolution stage and adds additional constraint texture edge descriptor that is defined by using {DCT} (discrete cosine transform) coefficients on the image at the next stage. Man-made objects and natural areas are optimally differentiated by evolving the partial differential equation. The method artfully avoids selecting a threshold to separate the fractal error image, while an improper threshold often results in great segmentation errors. Experiments of the segmentation show that the proposed method is efficient.},
+	eventtitle = {Proceedings of the {IEEE} Computer Society Conference on Computer Vision and Pattern Recognition},
 	pages = {474--479 vol. 1},
+	author = {Cao, Guo and Yang, Xin and Mao, Zhihong},
+	date = {2005-07-20},
+	keywords = {{UAV}, Man-made segmentation, Ignored},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/A65SW6XJ/Cao et al. - 2005 - A two-stage level set evolution scheme for man-made objects detection in aerial images.pdf:application/pdf},
 }
 
 @article{giusti_machine_2016,
-	title = {A {Machine} {Learning} {Approach} to {Visual} {Perception} of {Forest} {Trails} for {Mobile} {Robots}},
+	title = {A Machine Learning Approach to Visual Perception of Forest Trails for Mobile Robots},
 	volume = {1},
 	issn = {2377-3766},
 	url = {https://ieeexplore.ieee.org/document/7358076},
 	doi = {10.1109/LRA.2015.2509024},
-	abstract = {We study the problem of perceiving forest or mountain trails from a single monocular image acquired from the viewpoint of a robot traveling on the trail itself. Previous literature focused on trail segmentation, and used low-level features such as image saliency or appearance contrast; we propose a different approach based on a deep neural network used as a supervised image classifier. By operating on the whole image at once, our system outputs the main direction of the trail compared to the viewing direction. Qualitative and quantitative results computed on a large real-world dataset (which we provide for download) show that our approach outperforms alternatives, and yields an accuracy comparable to the accuracy of humans that are tested on the same image classification task. Preliminary results on using this information for quadrotor control in unseen trails are reported. To the best of our knowledge, this is the first letter that describes an approach to perceive forest trials, which is demonstrated on a quadrotor micro aerial vehicle.},
-	number = {2},
-	urldate = {2025-02-19},
-	journal = {IEEE Robotics and Automation Letters},
-	author = {Giusti, Alessandro and Guzzi, Jérôme and Cireşan, Dan C. and He, Fang-Lin and Rodríguez, Juan P. and Fontana, Flavio and Faessler, Matthias and Forster, Christian and Schmidhuber, Jürgen and Caro, Gianni Di and Scaramuzza, Davide and Gambardella, Luca M.},
-	month = jul,
-	year = {2016},
-	note = {Conference Name: IEEE Robotics and Automation Letters},
-	keywords = {UAV, Dataset, Traversability, Trail classification},
+	abstract = {We study the problem of perceiving forest or mountain trails from a single monocular image acquired from the viewpoint of a robot traveling on the trail itself. Previous literature focused on trail segmentation, and used low-level features such as image saliency or appearance contrast; we propose a different approach based on a deep neural network used as a supervised image classifier. By operating on the whole image at once, our system outputs the offline direction of the trail compared to the viewing direction. Qualitative and quantitative results computed on a large real-world dataset (which we provide for download) show that our approach outperforms alternatives, and yields an accuracy comparable to the accuracy of humans that are tested on the same image classification task. Preliminary results on using this information for quadrotor control in unseen trails are reported. To the best of our knowledge, this is the first letter that describes an approach to perceive forest trials, which is demonstrated on a quadrotor micro aerial vehicle.},
 	pages = {661--667},
-	annote = {My notes
-
-
-Clever technic to generate dataset: human with 3 cameras oriented left, center, right walks on a forest trails making sure to face the direction of the path. It generates, respectively, images with trails on the right side, center and left side
-
-
-The model predict if the trail is on the right side, center or left side
-
-
-15+ GB of training testing dataset available (images left, center and right of forest trails)
-
-},
+	number = {2},
+	journaltitle = {{IEEE} Robotics and Automation Letters},
+	author = {Giusti, Alessandro and Guzzi, Jérôme and Cireşan, Dan C. and He, Fang-Lin and Rodríguez, Juan P. and Fontana, Flavio and Faessler, Matthias and Forster, Christian and Schmidhuber, Jürgen and Caro, Gianni Di and Scaramuzza, Davide and Gambardella, Luca M.},
+	urldate = {2025-02-19},
+	date = {2016-07},
+	note = {Conference Name: {IEEE} Robotics and Automation Letters},
+	keywords = {{UAV}, Dataset, Traversability, Trail classification},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/4XE5ZKK3/Giusti et al. - 2016 - A Machine Learning Approach to Visual Perception of Forest Trails for Mobile Robots.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/LKUJAWGM/7358076.html:text/html},
 }
 
 @article{santana_tracking_2013,
 	title = {Tracking natural trails with swarm-based visual saliency},
 	volume = {30},
-	copyright = {© 2012 Wiley Periodicals, Inc.},
+	rights = {© 2012 Wiley Periodicals, Inc.},
 	issn = {1556-4967},
 	url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/rob.21423},
 	doi = {10.1002/rob.21423},
 	abstract = {This paper proposes a model for trail detection and tracking that builds upon the observation that trails are salient structures in the robot's visual field. Due to the complexity of natural environments, the straightforward application of bottom-up visual saliency models is not sufficiently robust to predict the location of trails. As for other detection tasks, robustness can be increased by modulating the saliency computation based on a priori knowledge about which pixel-wise visual features are most representative of the object being sought. This paper proposes the use of the object's overall layout as the primary cue instead, as it is more stable and predictable in natural trails. Bearing in mind computational parsimony and detection robustness, this knowledge is specified in terms of perception-action rules, which control the behavior of simple agents performing as a swarm to compute the saliency map of the input image. For the purpose of tracking, multiframe evidence about the trail location is obtained with a motion-compensated dynamic neural field. In addition, to reduce ambiguity between the trail and trail-like distractors, a simple appearance model is learned online and used to influence the agents' activity. Experimental results on a large data set reveal the ability of the model to produce a success rate on the order of 97\% at 20 Hz. The model is shown to be robust in situations where previous models would fail, such as when the trail does not emerge from the lower part of the image or when it is considerably interrupted. © 2012 Wiley Periodicals, Inc.},
-	language = {en},
-	number = {1},
-	urldate = {2025-02-19},
-	journal = {Journal of Field Robotics},
-	author = {Santana, Pedro and Correia, Luís and Mendonça, Ricardo and Alves, Nelson and Barata, José},
-	year = {2013},
-	note = {\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/rob.21423},
-	keywords = {UGV, Traversability, Trail classification, Saliency, Not read},
 	pages = {64--86},
+	number = {1},
+	journaltitle = {Journal of Field Robotics},
+	author = {Santana, Pedro and Correia, Luís and Mendonça, Ricardo and Alves, Nelson and Barata, José},
+	urldate = {2025-02-19},
+	date = {2013},
+	langid = {english},
+	note = {\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/rob.21423},
+	keywords = {{UGV}, Traversability, Trail classification, Saliency, Not read},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/V22WLQTV/Santana et al. - 2013 - Tracking natural trails with swarm-based visual saliency.pdf:application/pdf;Snapshot:/home/seb-sti1/Zotero/storage/Z9YR84JZ/rob.html:text/html},
 }
 
 @inproceedings{ross_bev-slam_2022,
-	address = {Kyoto, Japan},
-	title = {{BEV}-{SLAM}: {Building} a {Globally}-{Consistent} {World} {Map} {Using} {Monocular} {Vision}},
-	copyright = {https://doi.org/10.15223/policy-029},
+	location = {Kyoto, Japan},
+	title = {{BEV}-{SLAM}: Building a Globally-Consistent World Map Using Monocular Vision},
+	rights = {https://doi.org/10.15223/policy-029},
 	isbn = {978-1-6654-7927-1},
-	shorttitle = {{BEV}-{SLAM}},
 	url = {https://ieeexplore.ieee.org/document/9981258/},
 	doi = {10.1109/IROS47612.2022.9981258},
-	abstract = {The ability to produce large-scale maps for navigation, path planning and other tasks is a crucial step for autonomous agents, but has always been challenging. In this work, we introduce BEV-SLAM, a novel type of graph-based SLAM that aligns semantically-segmented Bird’s Eye View (BEV) predictions from monocular cameras. We introduce a novel form of occlusion reasoning into BEV estimation and demonstrate its importance to aid spatial aggregation of BEV predictions. The result is a versatile SLAM system that can operate across arbitrary multi-camera configurations and can be seamlessly integrated with other sensors. We show that the use of multiple cameras significantly increases performance, and achieves lower relative error than high-performance GPS.},
-	language = {en},
-	urldate = {2025-02-19},
-	booktitle = {2022 {IEEE}/{RSJ} {International} {Conference} on {Intelligent} {Robots} and {Systems} ({IROS})},
-	publisher = {IEEE},
-	author = {Ross, James and Mendez, Oscar and Saha, Avishkar and Johnson, Mark and Bowden, Richard},
-	month = oct,
-	year = {2022},
-	keywords = {UGV, Not read, Ignored, BEV, SLAM},
+	shorttitle = {{BEV}-{SLAM}},
+	abstract = {The ability to produce large-scale maps for navigation, path planning and other tasks is a crucial step for autonomous agents, but has always been challenging. In this work, we introduce {BEV}-{SLAM}, a novel type of graph-based {SLAM} that aligns semantically-segmented Bird’s Eye View ({BEV}) predictions from monocular cameras. We introduce a novel form of occlusion reasoning into {BEV} estimation and demonstrate its importance to aid spatial aggregation of {BEV} predictions. The result is a versatile {SLAM} system that can operate across arbitrary multi-camera configurations and can be seamlessly integrated with other sensors. We show that the use of multiple cameras significantly increases performance, and achieves lower relative error than high-performance {GPS}.},
+	eventtitle = {2022 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems ({IROS})},
 	pages = {3830--3836},
+	booktitle = {2022 {IEEE}/{RSJ} International Conference on Intelligent Robots and Systems ({IROS})},
+	publisher = {{IEEE}},
+	author = {Ross, James and Mendez, Oscar and Saha, Avishkar and Johnson, Mark and Bowden, Richard},
+	urldate = {2025-02-19},
+	date = {2022-10-23},
+	langid = {english},
+	keywords = {{UGV}, Not read, Ignored, {BEV}, {SLAM}},
 	file = {PDF:/home/seb-sti1/Zotero/storage/XYGT8DIM/Ross et al. - 2022 - BEV-SLAM Building a Globally-Consistent World Map Using Monocular Vision.pdf:application/pdf},
 }
 
 @article{shang_topology-based_2023,
-	title = {Topology-based {UAV} path planning for multi-view stereo {3D} reconstruction of complex structures},
+	title = {Topology-based {UAV} path planning for multi-view stereo 3D reconstruction of complex structures},
 	volume = {9},
 	issn = {2198-6053},
 	url = {https://doi.org/10.1007/s40747-022-00831-5},
 	doi = {10.1007/s40747-022-00831-5},
-	abstract = {This paper introduces a new UAV path planning method for creating high-quality 3D reconstruction models of large and complex structures. The core of the new method is incorporating the topology information of the surveyed 3D structure to decompose the multi-view stereo path planning into a collection of overlapped view optimization problems that can be processed in parallel. Different from the existing state-of-the-arts that recursively select the vantage camera views, the new method iteratively resamples all nearby cameras (i.e., positions/orientations) together and achieves a substantial reduction in computation cost while improving reconstruction quality. The new approach also provides a higher-level automation function that facilitates field implementations by eliminating the need for redundant camera initialization as in existing studies. Validations are provided by measuring the variance between the reconstructions to the ground truth models. Results from three synthetic case studies and one real-world application are presented to demonstrate the improved performance. The new method is expected to be instrumental in expanding the adoption of UAV-based multi-view stereo 3D reconstruction of large and complex structures.},
-	language = {en},
-	number = {1},
-	urldate = {2025-02-19},
-	journal = {Complex \& Intelligent Systems},
-	author = {Shang, Zhexiong and Shen, Zhigang},
-	month = feb,
-	year = {2023},
-	keywords = {3D terrain reconstruction, UAV, Not read},
+	abstract = {This paper introduces a new {UAV} path planning method for creating high-quality 3D reconstruction models of large and complex structures. The core of the new method is incorporating the topology information of the surveyed 3D structure to decompose the multi-view stereo path planning into a collection of overlapped view optimization problems that can be processed in parallel. Different from the existing state-of-the-arts that recursively select the vantage camera views, the new method iteratively resamples all nearby cameras (i.e., positions/orientations) together and achieves a substantial reduction in computation cost while improving reconstruction quality. The new approach also provides a higher-level automation function that facilitates field implementations by eliminating the need for redundant camera initialization as in existing studies. Validations are provided by measuring the variance between the reconstructions to the ground truth models. Results from three synthetic case studies and one real-world application are presented to demonstrate the improved performance. The new method is expected to be instrumental in expanding the adoption of {UAV}-based multi-view stereo 3D reconstruction of large and complex structures.},
 	pages = {909--926},
+	number = {1},
+	journaltitle = {Complex \& Intelligent Systems},
+	shortjournal = {Complex Intell. Syst.},
+	author = {Shang, Zhexiong and Shen, Zhigang},
+	urldate = {2025-02-19},
+	date = {2023-02-01},
+	langid = {english},
+	keywords = {3D terrain reconstruction, {UAV}, Not read},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/V6DR8NUN/Shang and Shen - 2023 - Topology-based UAV path planning for multi-view stereo 3D reconstruction of complex structures.pdf:application/pdf},
 }
 
@@ -550,47 +364,47 @@ The model predict if the trail is on the right side, center or left side
 	issn = {1573-7527},
 	url = {https://doi.org/10.1007/s10514-017-9638-9},
 	doi = {10.1007/s10514-017-9638-9},
-	abstract = {This paper presents a vehicle localization method to assist vehicle navigation based on topological map construction and scene recognition. A topological map is constructed using omni-directional image sequences, and the node information of the topological map is used for place recognition and derivation of vehicle location. In topological map construction and scene change detection, we utilize the Extended-HCT method for semantic description and feature extraction. Content-based and feature-based image retrieval approaches are adopted for place recognition and vehicle localization on the real scene image dataset. The proposed technique is able to construct a real-time image retrieval system for navigation assistance and validate the correctness of the route. Experiments are carried out in both the indoor and outdoor environments using real world images.},
-	language = {en},
-	number = {1},
-	urldate = {2025-02-21},
-	journal = {Autonomous Robots},
-	author = {Lin, Huei-Yung and Yao, Chia-Wei and Cheng, Kai-Sheng and Tran, Van Luan},
-	month = jan,
-	year = {2018},
-	keywords = {To read},
+	abstract = {This paper presents a vehicle localization method to assist vehicle navigation based on topological map construction and scene recognition. A topological map is constructed using omni-directional image sequences, and the node information of the topological map is used for place recognition and derivation of vehicle location. In topological map construction and scene change detection, we utilize the Extended-{HCT} method for semantic description and feature extraction. Content-based and feature-based image retrieval approaches are adopted for place recognition and vehicle localization on the real scene image dataset. The proposed technique is able to construct a real-time image retrieval system for navigation assistance and validate the correctness of the route. Experiments are carried out in both the indoor and outdoor environments using real world images.},
 	pages = {65--81},
+	number = {1},
+	journaltitle = {Autonomous Robots},
+	shortjournal = {Auton Robot},
+	author = {Lin, Huei-Yung and Yao, Chia-Wei and Cheng, Kai-Sheng and Tran, Van Luan},
+	urldate = {2025-02-21},
+	date = {2018-01-01},
+	langid = {english},
+	keywords = {To read},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/HAQ3R662/Lin et al. - 2018 - Topological map construction and scene recognition for vehicle localization.pdf:application/pdf},
 }
 
 @inproceedings{sautier_bevcontrast_2024,
-	title = {{BEVContrast}: {Self}-{Supervision} in {BEV} {Space} for {Automotive} {Lidar} {Point} {Clouds}},
-	shorttitle = {{BEVContrast}},
+	title = {{BEVContrast}: Self-Supervision in {BEV} Space for Automotive Lidar Point Clouds},
 	url = {https://ieeexplore.ieee.org/document/10550628/?arnumber=10550628},
 	doi = {10.1109/3DV62453.2024.00017},
-	abstract = {We present a surprisingly simple and efficient method for self-supervision of 3D backbone on automotive Lidar point clouds. We design a contrastive loss between features of Lidar scans captured in the same scene. Several such approaches have been proposed in the literature from PointConstrast [40], which uses a contrast at the level of points, to the state-of-the-art TARL [30], which uses a contrast at the level of segments, roughly corresponding to objects. While the former enjoys a great simplicity of implementation, it is surpassed by the latter, which however requires a costly pre-processing. In BEVContrast, we define our contrast at the level of 2D cells in the Bird’s Eye View plane. Resulting cell-level representations offer a good trade-off between the point-level representations exploited in PointContrast and segment-level representations exploited in TARL: we retain the simplicity of PointContrast (cell representations are cheap to compute) while surpassing the performance of TARL in downstream semantic segmentation. The code is available at github.com/valeoai/BEVContrast},
-	urldate = {2025-02-21},
-	booktitle = {2024 {International} {Conference} on {3D} {Vision} ({3DV})},
-	author = {Sautier, Corentin and Puy, Gilles and Boulch, Alexandre and Marlet, Renaud and Lepetit, Vincent},
-	month = mar,
-	year = {2024},
-	note = {ISSN: 2475-7888},
-	keywords = {Not read, Ignored},
+	shorttitle = {{BEVContrast}},
+	abstract = {We present a surprisingly simple and efficient method for self-supervision of 3D backbone on automotive Lidar point clouds. We design a contrastive loss between features of Lidar scans captured in the same scene. Several such approaches have been proposed in the literature from {PointConstrast} [40], which uses a contrast at the level of points, to the state-of-the-art {TARL} [30], which uses a contrast at the level of segments, roughly corresponding to objects. While the former enjoys a great simplicity of implementation, it is surpassed by the latter, which however requires a costly pre-processing. In {BEVContrast}, we define our contrast at the level of 2D cells in the Bird’s Eye View plane. Resulting cell-level representations offer a good trade-off between the point-level representations exploited in {PointContrast} and segment-level representations exploited in {TARL}: we retain the simplicity of {PointContrast} (cell representations are cheap to compute) while surpassing the performance of {TARL} in downstream semantic segmentation. The code is available at github.com/valeoai/{BEVContrast}},
+	eventtitle = {2024 International Conference on 3D Vision (3DV)},
 	pages = {559--568},
+	booktitle = {2024 International Conference on 3D Vision (3DV)},
+	author = {Sautier, Corentin and Puy, Gilles and Boulch, Alexandre and Marlet, Renaud and Lepetit, Vincent},
+	urldate = {2025-02-21},
+	date = {2024-03},
+	note = {{ISSN}: 2475-7888},
+	keywords = {Not read, Ignored},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/XEHKDXRE/Sautier et al. - 2024 - BEVContrast Self-Supervision in BEV Space for Automotive Lidar Point Clouds.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/UYAINSGU/10550628.html:text/html},
 }
 
 @article{scherer_autonomous_2012,
-	title = {Autonomous {Landing} at {Unprepared} {Sites} by a {Full}-{Scale} {Helicopter}},
+	title = {Autonomous Landing at Unprepared Sites by a Full-Scale Helicopter},
 	volume = {60},
 	doi = {10.1016/j.robot.2012.09.004},
-	abstract = {Helicopters are valuable since they can land at unprepared sites; however, current unmanned helicopters are unable to select or validate landing zones (LZs) and approach paths. For operation in unknown terrain it is necessary to assess the safety of a LZ. In this paper, we describe a lidar-based perception system that enables a full-scale autonomous helicopter to identify and land in previously unmapped terrain with no human input.We describe the problem, real-time algorithms, perception hardware, and results. Our approach has extended the state of the art in terrain assessment by incorporating not only plane fitting, but by also considering factors such as terrain/skid interaction, rotor and tail clearance, wind direction, clear approach/abort paths, and ground paths.In results from urban and natural environments we were able to successfully classify LZs from point cloud maps. We also present results from 8 successful landing experiments with varying ground clutter and approach directions. The helicopter selected its own landing site, approaches, and then proceeds to land. To our knowledge, these experiments were the first demonstration of a full-scale autonomous helicopter that selected its own landing zones and landed.},
-	journal = {Robotics and Autonomous Systems},
-	author = {Scherer, Sebastian and Chamberlain, Lyle and Singh, Sanjiv},
-	month = dec,
-	year = {2012},
-	keywords = {Not read, Ignored},
+	abstract = {Helicopters are valuable since they can land at unprepared sites; however, current unmanned helicopters are unable to select or validate landing zones ({LZs}) and approach paths. For operation in unknown terrain it is necessary to assess the safety of a {LZ}. In this paper, we describe a lidar-based perception system that enables a full-scale autonomous helicopter to identify and land in previously unmapped terrain with no human input.We describe the problem, real-time algorithms, perception hardware, and results. Our approach has extended the state of the art in terrain assessment by incorporating not only plane fitting, but by also considering factors such as terrain/skid interaction, rotor and tail clearance, wind direction, clear approach/abort paths, and ground paths.In results from urban and natural environments we were able to successfully classify {LZs} from point cloud maps. We also present results from 8 successful landing experiments with varying ground clutter and approach directions. The helicopter selected its own landing site, approaches, and then proceeds to land. To our knowledge, these experiments were the first demonstration of a full-scale autonomous helicopter that selected its own landing zones and landed.},
 	pages = {1545--1562},
+	journaltitle = {Robotics and Autonomous Systems},
+	shortjournal = {Robotics and Autonomous Systems},
+	author = {Scherer, Sebastian and Chamberlain, Lyle and Singh, Sanjiv},
+	date = {2012-12-01},
+	keywords = {Not read, Ignored},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/RMPHJ9LF/Scherer et al. - 2012 - Autonomous Landing at Unprepared Sites by a Full-Scale Helicopter.pdf:application/pdf},
 }
 
@@ -599,94 +413,92 @@ The model predict if the trail is on the right side, center or left side
 	volume = {2015-June},
 	issn = {1050-4729},
 	url = {https://ora.ox.ac.uk/objects/uuid:0758dad0-6b33-40d1-bade-0cc2eb6f989a},
-	abstract = {Our abilities in scene understanding, which allow us to perceive the 3D structure of our surroundings and intuitively recognise the objects we see, are things that we largely take for granted, but for robots, the task of understanding large scenes quickly remains extremely challenging. Recently, scene understanding approaches based on 3D reconstruction and semantic segmentation have become popular, but existing methods either do not scale, fail outdoors, provide only sparse reconstructions or are rather slow. In this paper, we build on a recent hash-based technique for large-scale fusion and an efficient mean-field inference algorithm for densely-connected CRFs to present what to our knowledge is the first system that can perform dense, large-scale, outdoor semantic reconstruction of a scene in (near) real time. We also present a 'semantic fusion' approach that allows us to handle dynamic objects more effectively than previous approaches. We demonstrate the effectiveness of our approach on the KITTI dataset, and provide qualitative and quantitative results showing high-quality dense reconstruction and labelling of a number of scenes.},
-	language = {en},
-	number = {June},
-	urldate = {2025-02-21},
-	journal = {ICRA 2015: IEEE International Conference on Robotics and Automation},
+	abstract = {Our abilities in scene understanding, which allow us to perceive the 3D structure of our surroundings and intuitively recognise the objects we see, are things that we largely take for granted, but for robots, the task of understanding large scenes quickly remains extremely challenging. Recently, scene understanding approaches based on 3D reconstruction and semantic segmentation have become popular, but existing methods either do not scale, fail outdoors, provide only sparse reconstructions or are rather slow. In this paper, we build on a recent hash-based technique for large-scale fusion and an efficient mean-field inference algorithm for densely-connected {CRFs} to present what to our knowledge is the first system that can perform dense, large-scale, outdoor semantic reconstruction of a scene in (near) real time. We also present a 'semantic fusion' approach that allows us to handle dynamic objects more effectively than previous approaches. We demonstrate the effectiveness of our approach on the {KITTI} dataset, and provide qualitative and quantitative results showing high-quality dense reconstruction and labelling of a number of scenes.},
+	issue = {June},
+	journaltitle = {{ICRA} 2015: {IEEE} International Conference on Robotics and Automation},
 	author = {Vineet, V. and Miksik, O. and Lidegaard, M. and Nießner, M. and Golodetz, S. and Prisacariu, V. and Kähler, O. and Murray, D. and Izadi, S. and Pérez, P. and Torr, P.},
-	year = {2015},
-	note = {ISBN: 9781479969234
+	urldate = {2025-02-21},
+	date = {2015},
+	langid = {english},
+	note = {{ISBN}: 9781479969234
 Publisher: Institute of Electrical and Electronics Engineers},
 	keywords = {3D terrain reconstruction, Ignored, move\_base\_flex, Dense},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/M54MZA6U/Vineet et al. - 2015 - Incremental dense semantic stereo fusion for large-scale semantic scene reconstruction..pdf:application/pdf},
 }
 
 @inproceedings{pizzoli_remode_2014,
-	address = {Hong Kong, China},
-	title = {{REMODE}: {Probabilistic}, monocular dense reconstruction in real time},
+	location = {Hong Kong, China},
+	title = {{REMODE}: Probabilistic, monocular dense reconstruction in real time},
 	isbn = {978-1-4799-3685-4},
-	shorttitle = {{REMODE}},
 	url = {http://ieeexplore.ieee.org/document/6907233/},
 	doi = {10.1109/ICRA.2014.6907233},
-	abstract = {In this paper, we solve the problem of estimating dense and accurate depth maps from a single moving camera. A probabilistic depth measurement is carried out in real time on a per-pixel basis and the computed uncertainty is used to reject erroneous estimations and provide live feedback on the reconstruction progress. Our contribution is a novel approach to depth map computation that combines Bayesian estimation and recent development on convex optimization for image processing. We demonstrate that our method outperforms stateof-the-art techniques in terms of accuracy, while exhibiting high efﬁciency in memory usage and computing power. We call our approach REMODE (REgularized MOnocular Depth Estimation) and the CUDA-based implementation runs at 30Hz on a laptop computer.},
-	language = {en},
-	urldate = {2025-02-21},
-	booktitle = {2014 {IEEE} {International} {Conference} on {Robotics} and {Automation} ({ICRA})},
-	publisher = {IEEE},
-	author = {Pizzoli, Matia and Forster, Christian and Scaramuzza, Davide},
-	month = may,
-	year = {2014},
-	keywords = {3D terrain reconstruction, Ignored, move\_base\_flex, Dense},
+	shorttitle = {{REMODE}},
+	abstract = {In this paper, we solve the problem of estimating dense and accurate depth maps from a single moving camera. A probabilistic depth measurement is carried out in real time on a per-pixel basis and the computed uncertainty is used to reject erroneous estimations and provide live feedback on the reconstruction progress. Our contribution is a novel approach to depth map computation that combines Bayesian estimation and recent development on convex optimization for image processing. We demonstrate that our method outperforms stateof-the-art techniques in terms of accuracy, while exhibiting high efﬁciency in memory usage and computing power. We call our approach {REMODE} ({REgularized} {MOnocular} Depth Estimation) and the {CUDA}-based implementation runs at 30Hz on a laptop computer.},
+	eventtitle = {2014 {IEEE} International Conference on Robotics and Automation ({ICRA})},
 	pages = {2609--2616},
+	booktitle = {2014 {IEEE} International Conference on Robotics and Automation ({ICRA})},
+	publisher = {{IEEE}},
+	author = {Pizzoli, Matia and Forster, Christian and Scaramuzza, Davide},
+	urldate = {2025-02-21},
+	date = {2014-05},
+	langid = {english},
+	keywords = {3D terrain reconstruction, Ignored, move\_base\_flex, Dense},
 	file = {PDF:/home/seb-sti1/Zotero/storage/AMKPZGUT/Pizzoli et al. - 2014 - REMODE Probabilistic, monocular dense reconstruction in real time.pdf:application/pdf},
 }
 
 @misc{philion_lift_2020,
-	title = {Lift, {Splat}, {Shoot}: {Encoding} {Images} {From} {Arbitrary} {Camera} {Rigs} by {Implicitly} {Unprojecting} to {3D}},
-	shorttitle = {Lift, {Splat}, {Shoot}},
+	title = {Lift, Splat, Shoot: Encoding Images From Arbitrary Camera Rigs by Implicitly Unprojecting to 3D},
 	url = {http://arxiv.org/abs/2008.05711},
 	doi = {10.48550/arXiv.2008.05711},
+	shorttitle = {Lift, Splat, Shoot},
 	abstract = {The goal of perception for autonomous vehicles is to extract semantic representations from multiple sensors and fuse these representations into a single “bird’s-eye-view” coordinate frame for consumption by motion planning. We propose a new end-to-end architecture that directly extracts a bird’s-eye-view representation of a scene given image data from an arbitrary number of cameras. The core idea behind our approach is to “lift” each image individually into a frustum of features for each camera, then “splat” all frustums into a rasterized bird’s-eyeview grid. By training on the entire camera rig, we provide evidence that our model is able to learn not only how to represent images but how to fuse predictions from all cameras into a single cohesive representation of the scene while being robust to calibration error. On standard bird’seye-view tasks such as object segmentation and map segmentation, our model outperforms all baselines and prior work. In pursuit of the goal of learning dense representations for motion planning, we show that the representations inferred by our model enable interpretable end-to-end motion planning by “shooting” template trajectories into a bird’s-eyeview cost map output by our network. We benchmark our approach against models that use oracle depth from lidar. Project page with code: https://nv-tlabs.github.io/lift-splat-shoot.},
-	language = {en},
-	urldate = {2025-02-21},
-	publisher = {arXiv},
+	number = {{arXiv}:2008.05711},
+	publisher = {{arXiv}},
 	author = {Philion, Jonah and Fidler, Sanja},
-	month = aug,
-	year = {2020},
-	note = {arXiv:2008.05711 [cs]},
-	keywords = {Terrain classification, UGV, To read, BEV},
-	annote = {Comment: ECCV 2020},
+	urldate = {2025-02-21},
+	date = {2020-08-13},
+	langid = {english},
+	eprinttype = {arxiv},
+	eprint = {2008.05711 [cs]},
+	keywords = {Terrain classification, {UGV}, To read, {BEV}},
 	file = {PDF:/home/seb-sti1/Zotero/storage/JIVLXPUU/Philion and Fidler - 2020 - Lift, Splat, Shoot Encoding Images From Arbitrary Camera Rigs by Implicitly Unprojecting to 3D.pdf:application/pdf},
 }
 
 @inproceedings{shah_viking_2022,
-	title = {{ViKiNG}: {Vision}-{Based} {Kilometer}-{Scale} {Navigation} with {Geographic} {Hints}},
-	shorttitle = {{ViKiNG}},
+	title = {{ViKiNG}: Vision-Based Kilometer-Scale Navigation with Geographic Hints},
 	url = {http://arxiv.org/abs/2202.11271},
 	doi = {10.15607/RSS.2022.XVIII.019},
-	abstract = {Robotic navigation has been approached as a problem of 3D reconstruction and planning, as well as an end-to-end learning problem. However, long-range navigation requires both planning and reasoning about local traversability, as well as being able to utilize general knowledge about global geography, in the form of a roadmap, GPS, or other side information providing important cues. In this work, we propose an approach that integrates learning and planning, and can utilize side information such as schematic roadmaps, satellite maps and GPS coordinates as a planning heuristic, without relying on them being accurate. Our method, ViKiNG, incorporates a local traversability model, which looks at the robot's current camera observation and a potential subgoal to infer how easily that subgoal can be reached, as well as a heuristic model, which looks at overhead maps for hints and attempts to evaluate the appropriateness of these subgoals in order to reach the goal. These models are used by a heuristic planner to identify the best waypoint in order to reach the final destination. Our method performs no explicit geometric reconstruction, utilizing only a topological representation of the environment. Despite having never seen trajectories longer than 80 meters in its training dataset, ViKiNG can leverage its image-based learned controller and goal-directed heuristic to navigate to goals up to 3 kilometers away in previously unseen environments, and exhibit complex behaviors such as probing potential paths and backtracking when they are found to be non-viable. ViKiNG is also robust to unreliable maps and GPS, since the low-level controller ultimately makes decisions based on egocentric image observations, using maps only as planning heuristics. For videos of our experiments, please check out our project page https://sites.google.com/view/viking-release.},
-	language = {en},
-	urldate = {2025-02-21},
-	booktitle = {Robotics: {Science} and {Systems} {XVIII}},
+	shorttitle = {{ViKiNG}},
+	abstract = {Robotic navigation has been approached as a problem of 3D reconstruction and planning, as well as an end-to-end learning problem. However, long-range navigation requires both planning and reasoning about local traversability, as well as being able to utilize general knowledge about global geography, in the form of a roadmap, {GPS}, or other side information providing important cues. In this work, we propose an approach that integrates learning and planning, and can utilize side information such as schematic roadmaps, satellite maps and {GPS} coordinates as a planning heuristic, without relying on them being accurate. Our method, {ViKiNG}, incorporates a local traversability model, which looks at the robot's current camera observation and a potential subgoal to infer how easily that subgoal can be reached, as well as a heuristic model, which looks at overhead maps for hints and attempts to evaluate the appropriateness of these subgoals in order to reach the goal. These models are used by a heuristic planner to identify the best waypoint in order to reach the final destination. Our method performs no explicit geometric reconstruction, utilizing only a topological representation of the environment. Despite having never seen trajectories longer than 80 meters in its training dataset, {ViKiNG} can leverage its image-based learned controller and goal-directed heuristic to navigate to goals up to 3 kilometers away in previously unseen environments, and exhibit complex behaviors such as probing potential paths and backtracking when they are found to be non-viable. {ViKiNG} is also robust to unreliable maps and {GPS}, since the low-level controller ultimately makes decisions based on egocentric image observations, using maps only as planning heuristics. For videos of our experiments, please check out our project page https://sites.google.com/view/viking-release.},
+	booktitle = {Robotics: Science and Systems {XVIII}},
 	author = {Shah, Dhruv and Levine, Sergey},
-	month = jun,
-	year = {2022},
-	note = {arXiv:2202.11271 [cs]},
-	keywords = {UGV, Local path, Global path, To read, Vision based navigation},
-	annote = {Comment: Best Systems Paper Finalist at XVII Robotics: Science and Systems (RSS 2022), New York City, USA. Project page https://sites.google.com/view/viking-release},
+	urldate = {2025-02-21},
+	date = {2022-06-27},
+	langid = {english},
+	eprinttype = {arxiv},
+	eprint = {2202.11271 [cs]},
+	keywords = {{UGV}, Local path, Global path, To read, Vision based navigation},
 	file = {PDF:/home/seb-sti1/Zotero/storage/LCN29FN7/Shah and Levine - 2022 - ViKiNG Vision-Based Kilometer-Scale Navigation with Geographic Hints.pdf:application/pdf},
 }
 
 @article{qi_compact_2022,
-	title = {Compact and {Efficient} {Topological} {Mapping} for {Large}-{Scale} {Environment} with {Pruned} {Voronoi} {Diagram}},
+	title = {Compact and Efficient Topological Mapping for Large-Scale Environment with Pruned Voronoi Diagram},
 	volume = {6},
-	copyright = {http://creativecommons.org/licenses/by/3.0/},
+	rights = {http://creativecommons.org/licenses/by/3.0/},
 	issn = {2504-446X},
 	url = {https://www.mdpi.com/2504-446X/6/7/183},
 	doi = {10.3390/drones6070183},
 	abstract = {Topological maps generated in complex and irregular unknown environments are meaningful for autonomous robots’ navigation. To obtain the skeleton of the environment without obstacle polygon extraction and clustering, we propose a method to obtain high-quality topological maps using only pure Voronoi diagrams in three steps. Supported by Voronoi vertex’s property of the largest empty circle, the method updates the global topological map incrementally in both dynamic and static environments online. The incremental method can be adapted to any fundamental Voronoi diagram generator. We maintain the entire space by two graphs, the pruned Voronoi graph for incremental updates and the reduced approximated generalized Voronoi graph for routing planning requests. We present an extensive benchmark and real-world experiment, and our method completes the environment representation in both indoor and outdoor areas. The proposed method generates a compact topological map in both small- and large-scale scenarios, which is defined as the total length and vertices of topological maps. Additionally, our method has been shortened by several orders of magnitude in terms of the total length and consumes less than 30\% of the average time cost compared to state-of-the-art methods.},
-	language = {en},
+	pages = {183},
 	number = {7},
-	urldate = {2025-02-21},
-	journal = {Drones},
+	journaltitle = {Drones},
 	author = {Qi, Yao and Wang, Rendong and He, Binbing and Lu, Feng and Xu, Youchun},
-	month = jul,
-	year = {2022},
+	urldate = {2025-02-21},
+	date = {2022-07},
+	langid = {english},
 	note = {Number: 7
 Publisher: Multidisciplinary Digital Publishing Institute},
-	keywords = {To read, BEV, Topological Map},
-	pages = {183},
+	keywords = {To read, {BEV}, Topological Map},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/9UU8VPB2/Qi et al. - 2022 - Compact and Efficient Topological Mapping for Large-Scale Environment with Pruned Voronoi Diagram.pdf:application/pdf},
 }
 
@@ -696,43 +508,53 @@ Publisher: Multidisciplinary Digital Publishing Institute},
 	issn = {0140-3664},
 	url = {https://www.sciencedirect.com/science/article/pii/S0140366419307868},
 	doi = {10.1016/j.comcom.2019.12.026},
-	abstract = {Unmanned Aerial Vehicles are constantly being using in professional activities that require higher precision in navigating and positioning the aircraft during operation. Advanced location technologies such as Global Navigation Satellite System and Real-Time Kinematic are widely used, however, they depend on an area with transmission coverage. In this approach, this article presents a visual navigation methodology based on topological maps. We compared the performance of consolidated classifiers such as Bayesian classifier, k-nearest neighbor, Multilayer Perceptron, Optimal Path Forest and Support Vector Machines (SVM). They are evaluated with attributes returned by last generation resource extractors such as Fourier, Gray Level Co-Occurrence and Local Binary Patterns (LBP). After analyzing the results we found that the combination of LBP and SVM obtained the best values in the evaluation metrics considered, among them, 99.99\% Specificity and 99.98\% Precision in the navigation process. SVM reached 5.49787 s in combination with LBP completes the training in 5.49787 s. Concerning the testing time, SVM achieving 80.91 ms in association with LBP.},
-	urldate = {2025-02-21},
-	journal = {Computer Communications},
-	author = {Han, Tao and Almeida, Jefferson S. and da Silva, Suane Pires P. and Filho, Paulo Honório and de Oliveira Rodrigues, Antonio W. and de Albuquerque, Victor Hugo C. and Rebouças Filho, Pedro P.},
-	month = jan,
-	year = {2020},
-	keywords = {To read, Topological Map},
+	abstract = {Unmanned Aerial Vehicles are constantly being using in professional activities that require higher precision in navigating and positioning the aircraft during operation. Advanced location technologies such as Global Navigation Satellite System and Real-Time Kinematic are widely used, however, they depend on an area with transmission coverage. In this approach, this article presents a visual navigation methodology based on topological maps. We compared the performance of consolidated classifiers such as Bayesian classifier, k-nearest neighbor, Multilayer Perceptron, Optimal Path Forest and Support Vector Machines ({SVM}). They are evaluated with attributes returned by last generation resource extractors such as Fourier, Gray Level Co-Occurrence and Local Binary Patterns ({LBP}). After analyzing the results we found that the combination of {LBP} and {SVM} obtained the best values in the evaluation metrics considered, among them, 99.99\% Specificity and 99.98\% Precision in the navigation process. {SVM} reached 5.49787 s in combination with {LBP} completes the training in 5.49787 s. Concerning the testing time, {SVM} achieving 80.91 ms in association with {LBP}.},
 	pages = {696--702},
+	journaltitle = {Computer Communications},
+	shortjournal = {Computer Communications},
+	author = {Han, Tao and Almeida, Jefferson S. and da Silva, Suane Pires P. and Filho, Paulo Honório and de Oliveira Rodrigues, Antonio W. and de Albuquerque, Victor Hugo C. and Rebouças Filho, Pedro P.},
+	urldate = {2025-02-21},
+	date = {2020-01-15},
+	keywords = {To read, Topological Map},
 	file = {PDF:/home/seb-sti1/Zotero/storage/LCZV2YWL/Han et al. - 2020 - An effective approach to unmanned aerial vehicle navigation using visual topological map in outdoor.pdf:application/pdf;ScienceDirect Snapshot:/home/seb-sti1/Zotero/storage/6LDNVZ6W/S0140366419307868.html:text/html},
 }
 
 @article{stentz_focussed_nodate,
-	title = {The {Focussed} {D}* {Algorithm} for {Real}-{Time} {Replanning}},
-	language = {en},
+	title = {The Focussed D* Algorithm for Real-Time Replanning},
 	author = {Stentz, Anthony},
-	keywords = {To read, Ignored},
+	langid = {english},
+	keywords = {Ignored},
 	file = {PDF:/home/seb-sti1/Zotero/storage/ADX6TQJD/Stentz - The Focussed D Algorithm for Real-Time Replanning.pdf:application/pdf},
 }
 
 @article{garzon_aerial-ground_2013,
-	title = {An {Aerial}-{Ground} {Robotic} {System} for {Navigation} and {Obstacle} {Mapping} in {Large} {Outdoor} {Areas}},
+	title = {An Aerial-Ground Robotic System for Navigation and Obstacle Mapping in Large Outdoor Areas},
 	volume = {13},
-	copyright = {http://creativecommons.org/licenses/by/3.0/},
+	rights = {http://creativecommons.org/licenses/by/3.0/},
 	issn = {1424-8220},
 	url = {https://www.mdpi.com/1424-8220/13/1/1247},
 	doi = {10.3390/s130101247},
 	abstract = {There are many outdoor robotic applications where a robot must reach a goal position or explore an area without previous knowledge of the environment around it. Additionally, other applications (like path planning) require the use of known maps or previous information of the environment. This work presents a system composed by a terrestrial and an aerial robot that cooperate and share sensor information in order to address those requirements. The ground robot is able to navigate in an unknown large environment aided by visual feedback from a camera on board the aerial robot. At the same time, the obstacles are mapped in real-time by putting together the information from the camera and the positioning system of the ground robot. A set of experiments were carried out with the purpose of verifying the system applicability. The experiments were performed in a simulation environment and outdoor with a medium-sized ground robot and a mini quad-rotor. The proposed robotic system shows outstanding results in simultaneous navigation and mapping applications in large outdoor environments.},
-	language = {en},
+	pages = {1247--1267},
 	number = {1},
-	urldate = {2025-02-21},
-	journal = {Sensors},
+	journaltitle = {Sensors},
 	author = {Garzón, Mario and Valente, João and Zapata, David and Barrientos, Antonio},
-	month = jan,
-	year = {2013},
+	urldate = {2025-02-21},
+	date = {2013-01},
+	langid = {english},
 	note = {Number: 1
 Publisher: Multidisciplinary Digital Publishing Institute},
 	keywords = {To read},
-	pages = {1247--1267},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/5L7LJAU6/Garzón et al. - 2013 - An Aerial-Ground Robotic System for Navigation and Obstacle Mapping in Large Outdoor Areas.pdf:application/pdf},
+}
+
+@online{bosch_journal_2020,
+	title = {Journal of Open Source Software: {DetecTree}: Tree detection from aerial imagery in Python},
+	url = {https://joss.theoj.org/papers/10.21105/joss.02172},
+	author = {Bosch, Martí},
+	urldate = {2025-03-04},
+	date = {2020},
+	note = {https://github.com/martibosch/detectree},
+	keywords = {Terrain classification},
+	file = {Journal of Open Source Software\: DetecTree\: Tree detection from aerial imagery in Python:/home/seb-sti1/Zotero/storage/KIXEKSHC/joss.html:text/html},
 }

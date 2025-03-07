@@ -10,15 +10,15 @@ formats) is under analysis._
 
 - [ ] Main tasks
   - [ ] BEV
-    - [ ] Detect ground, exclude too high point, deform image
+    - [x] Detect ground, exclude too high point, deform image
   - [ ] Master thesis
     - [x] Share Zotero notes
     - [ ] Search article about pairing UAV BEV and UGV POV
   - [ ] Latex
-    - [ ] Git tag in attributes
-    - [ ] Project plan 5/3/25
+    - [x] Git tag in attributes
+    - [x] Project plan 5/3/25
     - [x] Traversability meeting slides 4/3/25
-      - [ ] Check for question about DualBEV
+      - [x] Check for question about DualBEV
 - [ ] Side quests
   - [ ] redirect drone video stream using firewall
   - [ ] IGN Data
