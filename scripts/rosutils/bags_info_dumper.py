@@ -49,7 +49,6 @@ from tqdm import tqdm
 
 import rosbag
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

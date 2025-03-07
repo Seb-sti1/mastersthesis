@@ -173,7 +173,6 @@ def main(image_iterator, n_clusters_desc: int, n_clusters_hist: int,
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     logger.setLevel(logging.DEBUG)
     hist_window = 32
     assert hist_window % 2 == 0, "Histogram window must be even"
