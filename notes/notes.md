@@ -9,27 +9,22 @@ formats) is under analysis._
 ## TODOs
 
 - [ ] Main tasks
-  - [ ] BEV
-    - [x] Detect ground, exclude too high point, deform image
-  - [ ] Master thesis
-    - [x] Share Zotero notes
-    - [ ] Search article about pairing UAV BEV and UGV POV
-  - [ ] Latex
-    - [x] Git tag in attributes
-    - [x] Project plan 5/3/25
-    - [x] Traversability meeting slides 4/3/25
-      - [x] Check for question about DualBEV
+    - [ ] BEV
+        - [x] Detect ground, exclude too high point, deform image
+        - [ ] X feat, omni glue, keypoints matching
+    - [ ] Master thesis
+        - [ ] Search article about pairing UAV BEV and UGV POV
 - [ ] Side quests
-  - [ ] redirect drone video stream using firewall
-  - [ ] IGN Data
-    - [ ] Automatic topological map on IGN Map using dectree ?
-    - [ ] Get topographic map
-  - [ ] [fast_colortexture_seg_outdoor_robots.py](../scripts/fast_colortexture_seg_outdoor_robots.py)
-    - [x] Check implementation
-    - [ ] Try https://en.wikipedia.org/wiki/Hough_transform, https://en.wikipedia.org/wiki/Sobel_operator,
-      https://en.wikipedia.org/wiki/Canny_edge_detector on first kmeans
-    - [ ] Try dilation/erosion on final segmentation
-    - [ ] Understand use in _Appearance contrast for fast, robust trail-following_
+    - [ ] redirect drone video stream using firewall
+    - [ ] IGN Data
+        - [ ] Automatic topological map on IGN Map using dectree ?
+        - [ ] Get topographic map
+    - [ ] [fast_colortexture_seg_outdoor_robots.py](../scripts/fast_colortexture_seg_outdoor_robots.py)
+        - [x] Check implementation
+        - [ ] Try https://en.wikipedia.org/wiki/Hough_transform, https://en.wikipedia.org/wiki/Sobel_operator,
+          https://en.wikipedia.org/wiki/Canny_edge_detector on first kmeans
+        - [ ] Try dilation/erosion on final segmentation
+        - [ ] Understand use in _Appearance contrast for fast, robust trail-following_
 
 ## Useful links
 

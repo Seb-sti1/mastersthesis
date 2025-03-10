@@ -19,7 +19,7 @@ header: 'Collaborative aero-terrestrial navigation using BEV'
 footer: '<img height="50px" src="../../../latex/logo/enstaparis.png"/>&nbsp;<img height="50px" src="../../../latex/logo/dtu.png"/>
   &nbsp;&nbsp;
   _Slides available on my [GitHub](https://github.com/Seb-sti1/mastersthesis)._
-  _??/03/25._'
+  _11/03/25._'
 ---
 
 # Collaborative aero-terrestrial navigation using Bird-eye view (BEV)
@@ -235,7 +235,7 @@ header: 'Collaborative aero-terrestrial navigation using BEV - J.-M. Fortin et a
 ## Context, Dataset
 
 - Warthog (ZED X, Xsens Mti-30 IMU, GNSS+RTK) & DJI Mavic 3E
-- Dataset: 45min driving, 13484 ground images, 12935 aerial images. <span class="sidenote">J.-M. Fortin shared the
+- Dataset: 45min driving, 13484 ground images, 12935 aerial images. <span class="sidenote">J.-M. Fortin shared a
   subset of the dataset*</span>
 
 ### Model, Training
@@ -298,7 +298,7 @@ header: 'Collaborative aero-terrestrial navigation using BEV - J.-M. Fortin et a
 
 - 2055 aerial images, 2082 ground images (and BEV projection)
 - IMU, Power, GNSS+RTK Odom, Wheel Odom
-- Will be on the Chap's NAS (WD My Cloud EX2 Ultra)
+- Will be on the Alexandre's NAS (WD My Cloud EX2 Ultra)
     - Login information on the U2IS wiki (/tech/matos/nas)
 
 <!--
@@ -335,6 +335,7 @@ Active Autonomous Aerial Exploration for Ground Robot Path Planning:
  - classification on the spot reduce dataset requirement
 
 Dual-BEV
+ - Unsure of the improvement compared to ViKiNG (probably better, viking is usually on roads)
  - U-Net navigation
 
 
