@@ -7,6 +7,7 @@ from typing import Callable, Dict, Any, Iterator
 
 import numpy as np
 from cv_bridge import CvBridge
+from tqdm import tqdm
 
 import rosbag
 
@@ -35,12 +36,15 @@ def msg2calibration(msg, t):
 
 def replay_bag(bag_file: Path, topics: Dict[str, Callable]) -> Iterator[Dict[str, Any]]:
     bag = rosbag.Bag(bag_file)
-    last_published = {t: None for t in topics.keys()}
+    found = {t: False for t in topics.keys()}
+    last_published = {t: (None, None) for t in topics.keys()}
 
-    for topic, msg, t in bag.read_messages(topics=topics):
-        last_published[topic] = topics[topic](msg, t)
+    for topic, msg, t in tqdm(bag.read_messages(topics=topics), leave=False):
+        last_published[topic] = (msg, t)
+        found[topic] = True
 
-        if all(map(lambda x: x is not None, last_published.values())):
-            yield last_published
-            last_published = {t: None for t in topics.keys()}
+        if all(found.values()):
+            yield {name: topics[name](msg, t) for name, (msg, t) in last_published.items()}
+            found = {t: False for t in topics.keys()}
     bag.close()
+    return None
