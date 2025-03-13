@@ -4,7 +4,7 @@ This module contains utility functions for plotting data.
 import importlib
 import threading
 import time
-from typing import Optional, Dict, Tuple, List
+from typing import Optional, Dict, Tuple, List, Union
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -44,8 +44,8 @@ def show_images(images: List[np.ndarray], grid_size: Tuple[int, int], title: str
         plt.show()
 
 
-def get_color_map(n: int) -> np.ndarray:
-    cmap_desc = plt.get_cmap("hsv", n)
+def get_color_map(n: int, cmap="hsv") -> np.ndarray:
+    cmap_desc = plt.get_cmap(cmap, n)
     return (cmap_desc(np.arange(n))[:, :3] * 255).astype(np.uint8)
 
 
@@ -59,7 +59,7 @@ def plot_histogram(data: np.ndarray, bins: int = 30, title: str = "Histogram of 
     plt.show()
 
 
-def plot(x: np.ndarray | list, y: np.ndarray | list,
+def plot(x: Union[np.ndarray, List], y: Union[np.ndarray, List],
          xlabel: str = "x", ylabel: str = "y",
          title: str = "A plot") -> None:
     plt.title(title)
@@ -69,8 +69,8 @@ def plot(x: np.ndarray | list, y: np.ndarray | list,
     plt.show()
 
 
-def plot_bar(groups_name: list[str],
-             features: Dict[str, np.ndarray | list],
+def plot_bar(groups_name: List[str],
+             features: Dict[str, Union[np.ndarray, List]],
              xlabel: str = "x", ylabel: str = "y",
              title: str = "A plot") -> None:
     x = np.arange(len(groups_name))  # the label locations
