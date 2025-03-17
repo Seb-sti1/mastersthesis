@@ -21,7 +21,8 @@ known_file_loaders: Dict[str, FileLoader] = {
 }
 
 
-def get_dataset_by_name(name: str) -> str:
+def get_dataset_by_name(name: str | Path) -> str:
+    name = str(name)
     path = os.path.join(os.path.dirname(__file__), "..", "..", "datasets", name)
     if not os.path.exists(path):
         raise FileNotFoundError(f"Dataset {name} not found at {path}")
@@ -36,6 +37,14 @@ def resize_image(img: np.ndarray, max_width: Optional[int] = None, max_height: O
 
     ratio = min(max_width / img.shape[0], max_height / img.shape[1], 1.0)
     return cv2.resize(img, (0, 0), fx=ratio, fy=ratio, interpolation=cv2.INTER_AREA)
+
+
+def load_paths(folder_path: Union[str, Path],
+               extension_filter: Optional[Callable[[str], bool]] = None) -> Iterator[Path]:
+    filepaths = sorted(os.listdir(folder_path) if extension_filter is None
+                       else filter(extension_filter, os.listdir(folder_path)))
+    for filepath in filepaths:
+        yield Path(os.path.join(folder_path, filepath))
 
 
 def load_paths_and_files(folder_path: Union[str, Path],
@@ -54,14 +63,12 @@ def load_paths_and_files(folder_path: Union[str, Path],
     :param additional_file_loaders: additional file loaders (association of extension and function)
     :return: an iterator of tuples (filepath, file)
     """
-    files = sorted(
-        os.listdir(folder_path) if extension_filter is None else filter(extension_filter, os.listdir(folder_path)))
+    files = load_paths(folder_path, extension_filter)
     file_loaders = known_file_loaders.copy()
     if additional_file_loaders is not None:
         file_loaders.update(additional_file_loaders)
 
     for filepath in files:
-        filepath = Path(os.path.join(folder_path, filepath))
         if filepath.suffix not in file_loaders:
             logging.warning("File extension %s not supported", filepath.suffix)
             continue
