@@ -27,7 +27,7 @@ def get_aruco(img: np.ndarray) -> Optional[np.ndarray]:
 
 def create_matrix_front_patch_using_aruco(aruco_square: np.ndarray,
                                           square_size: float,
-                                          pattern: Tuple[int, int] = (2, 6),
+                                          pattern: Tuple[int, int] = (1, 1),
                                           margin: Tuple[float, float] = (0, 0),
                                           aruco_size: float = 0.35) -> list[np.ndarray]:
     """
@@ -44,7 +44,8 @@ def create_matrix_front_patch_using_aruco(aruco_square: np.ndarray,
     center = np.mean(aruco_square, axis=0)
     vectors = aruco_square - center
     scale_factor = square_size / aruco_size
-    new_corners = center + vectors * scale_factor
+    # the rotation is because of the orientation of the aruco on the Warthog in the real world
+    new_corners = center + (vectors @ np.array([[0., 1.], [-1., 0.]])) * scale_factor
 
     pixel_by_meters = np.linalg.norm(vectors[0, :] - vectors[1, :]) / aruco_size
     right = aruco_square[2] - aruco_square[1]
@@ -67,8 +68,8 @@ def create_matrix_front_patch_using_aruco(aruco_square: np.ndarray,
 
 def create_matrix_front_patch(square_size: float,
                               image_size: Tuple[int, int],
-                              pattern: Tuple[int, int] = (2, 5),
-                              margin: Tuple[float, float] = (0, 4)) -> List[np.ndarray]:
+                              pattern: Tuple[int, int] = (1, 1),
+                              margin: Tuple[float, float] = (0, 350)) -> List[np.ndarray]:
     """
     Creates a matrix of squares with a given size in pixels, aligned with the image
     and centered at the bottom of the image.
@@ -97,7 +98,7 @@ def create_matrix_front_patch(square_size: float,
     return squares
 
 
-def generate_patch(patch_type: Literal["uav", "ugv"], vis=False):
+def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
     out_dir = Path(get_dataset_by_name(os.path.join(corr_dataset, f"{patch_type}_patch")))
 
     gnss = pd.read_csv(get_dataset_by_name(seq1 / "rtk_odom/rtk_odom.csv"))
@@ -108,7 +109,8 @@ def generate_patch(patch_type: Literal["uav", "ugv"], vis=False):
     is_running = True
 
     for filepath, image in tqdm(load_paths_and_files(
-            get_dataset_by_name(seq1 / ("aerial" if patch_type == "uav" else "ground") / "images"))):
+            get_dataset_by_name(seq1 / ("aerial" if patch_type == "uav" else "ground") /
+                                ("projections" if patch_type == "ugv_bev" else "images")))):
         uav_time = int(filepath.stem)
         # find aruco
         if patch_type == "uav":
@@ -118,7 +120,7 @@ def generate_patch(patch_type: Literal["uav", "ugv"], vis=False):
             aruco_loc = get_aruco(image)[0, :, :]
             c = create_matrix_front_patch_using_aruco(aruco_loc, 2)
         else:
-            c = create_matrix_front_patch(384, image.shape)
+            c = create_matrix_front_patch(420 if patch_type == "ugv" else 500, image.shape)
 
         # extract image patchs
         saved_at_least_one = False
@@ -166,15 +168,17 @@ def generate_patch(patch_type: Literal["uav", "ugv"], vis=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process UAV and/or UGV data to create a dataset"
                                                  "of patches to be used to find correspondences.")
-    parser.add_argument("--type", choices=["uav", "ugv"], action="append",
+    parser.add_argument("--type", choices=["uav", "ugv", "ugv_bev"], action="append",
                         help="Specify data type(s) to process. By default, it does both (equivalent to --type uav --type ugv).")
     parser.add_argument("--display", action="store_true", help="Enable display output (default: False).")
     args = parser.parse_args()
 
     if args.type is None:
-        args.type = ["uav", "ugv"]
+        args.type = ["uav", "ugv", "ugv_bev"]
 
     if "uav" in args.type:
-        generate_patch("uav", vis=False)
+        generate_patch("uav", vis=args.display)
     if "ugv" in args.type:
-        generate_patch("ugv", vis=False)
+        generate_patch("ugv", vis=args.display)
+    if "ugv_bev" in args.type:
+        generate_patch("ugv_bev", vis=args.display)
