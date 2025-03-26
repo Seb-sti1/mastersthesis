@@ -27,10 +27,10 @@ To simplify reproducibility, a collection of Docker images are available to buil
 
 ## Python
 
-| Command                                                                               | Description                      |
-|---------------------------------------------------------------------------------------|----------------------------------|
-| `docker build -t sebsti1/mt_python -f docker/python.Dockerfile .`                     | Build the image                  |
-| `docker run -v /path/to/mastersthesis:/app/ --name python -it --rm sebsti1/mt_python` | Run the image to run the scripts |
+| Command                                                                   | Description                      |
+|---------------------------------------------------------------------------|----------------------------------|
+| `docker build -t sebsti1/mt_python -f docker/python.Dockerfile .`         | Build the image                  |
+| `docker run -it --name mastersthesis --gpus all sebsti1/mt_python:latest` | Run the image to run the scripts |
 
 ## ROS
 
@@ -45,7 +45,7 @@ To simplify reproducibility, a collection of Docker images are available to buil
 > This only works if your OS is using X11 (e.g. Ubuntu)
 
 To be able to open GUI from the docker, add
-`--device /dev/dri:/dev/dri --ipc=host -e DISPLAY=$DISPLAY -e XAUTHORITY=/root/.Xauthority -v /tmp/.X11-unix:/tmp/.X11-unix`
+`--device /dev/dri:/dev/dri --ipc=host -e DISPLAY=$DISPLAY -e XAUTHORITY=/root/.Xauthority -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/root/.Xauthority`
 to the `docker run` command.
 
 You might also need to do `xhost +si:localuser:root` on the host machine to allow access to X11 from within docker.
