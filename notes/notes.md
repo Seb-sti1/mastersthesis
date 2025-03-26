@@ -10,12 +10,22 @@ formats) is under analysis._
 
 - [ ] Main tasks
     - [ ] BEV
-        - [x] Detect ground, exclude too high point, deform image
-        - [ ] X feat, omni glue, keypoints matching
-    - [ ] Master thesis
+        - [x] Detect ground, exclude too high point
+        - [ ] deform image
+    - [ ] Matching
+        - [ ] make gpu mem monitor
+        - [ ] re-run all benchmarks and make analysis
+        - [ ] change dataset to a -10 +10 degree change
+        - [x] X feat
+        - [x] omni glue
+        - [ ] VGGT
+        - [ ] visp
+        - [x] classical keypoints matching
+    - [ ] Bibliography
         - [ ] Search article about pairing UAV BEV and UGV POV
+    - [ ] Red trap detection
 - [ ] Side quests
-    - [ ] redirect drone video stream using firewall
+    - [ ] Slides docker
     - [ ] IGN Data
         - [ ] Automatic topological map on IGN Map using dectree ?
         - [ ] Get topographic map
