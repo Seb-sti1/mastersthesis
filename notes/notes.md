@@ -13,11 +13,13 @@ formats) is under analysis._
         - [x] Detect ground, exclude too high point
         - [ ] deform image
     - [ ] Matching
-        - [ ] make gpu mem monitor
-        - [ ] re-run all benchmarks and make analysis
-        - [ ] change dataset to a -10 +10 degree change
         - [x] X feat
         - [x] omni glue
+        - [x] make gpu mem monitor
+        - [x] change dataset to a -10 +10 degree change
+        - [ ] test gpu mem monitor & verify new dataset
+        - [ ] re-run all benchmarks
+        - [ ] make analysis
         - [ ] VGGT
         - [ ] visp
         - [x] classical keypoints matching
