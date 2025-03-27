@@ -29,7 +29,7 @@ def create_matrix_front_patch_using_aruco(aruco_square: np.ndarray,
                                           square_size: float,
                                           pattern: Tuple[int, int] = (1, 1),
                                           margin: Tuple[float, float] = (0, 0),
-                                          aruco_size: float = 0.35) -> list[np.ndarray]:
+                                          aruco_size: float = 0.35) -> List[np.ndarray]:
     """
     Creates a matrix of patches in front of the robot detected using ArUco markers.
 
@@ -69,7 +69,7 @@ def create_matrix_front_patch_using_aruco(aruco_square: np.ndarray,
 def create_matrix_front_patch(square_size: float,
                               image_size: Tuple[int, int],
                               pattern: Tuple[int, int] = (1, 1),
-                              margin: Tuple[float, float] = (0, 350)) -> List[np.ndarray]:
+                              margin: Tuple[float, float] = (0, 300)) -> List[np.ndarray]:
     """
     Creates a matrix of squares with a given size in pixels, aligned with the image
     and centered at the bottom of the image.
@@ -98,6 +98,21 @@ def create_matrix_front_patch(square_size: float,
     return squares
 
 
+def apply_rotations(corners: List[np.ndarray], angles: List[float]) -> List[np.ndarray]:
+    rotated_rects = []
+    for corner_set in corners:
+        center = np.mean(corner_set, axis=0)
+        for angle in angles:
+            theta = np.radians(angle)
+            rotation_matrix = np.array([
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta), np.cos(theta)]
+            ])
+            rotated_corners = np.dot(corner_set - center, rotation_matrix.T) + center
+            rotated_rects.append(rotated_corners.astype(np.int32))
+    return rotated_rects
+
+
 def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
     out_dir = Path(get_dataset_by_name(os.path.join(corr_dataset, f"{patch_type}_patch")))
 
@@ -105,7 +120,7 @@ def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
     wheel = pd.read_csv(get_dataset_by_name(seq1 / "wheel_odom/wheel_odom.csv"))
 
     merged_data = pd.DataFrame()
-
+    angles = [-10, -5, 0, 5, 10]
     is_running = True
 
     for filepath, image in tqdm(load_paths_and_files(
@@ -119,11 +134,11 @@ def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
                 continue
             aruco_loc = get_aruco(image)[0, :, :]
             c = create_matrix_front_patch_using_aruco(aruco_loc, 2)
+            c = apply_rotations(c, angles)
         else:
             c = create_matrix_front_patch(420 if patch_type == "ugv" else 500, image.shape)
 
         # extract image patchs
-        saved_at_least_one = False
         for index, square in enumerate(c):
             if not (0 <= square[0][0] < image.shape[1] and 0 <= square[0][1] < image.shape[0] and
                     0 <= square[1][0] < image.shape[1] and 0 <= square[1][1] < image.shape[0] and
@@ -137,12 +152,11 @@ def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
                 [[0, 0], [side_length - 1, 0], [side_length - 1, side_length - 1], [0, side_length - 1]],
                 dtype=np.float32))
             extracted_square = cv2.warpPerspective(image, M, (side_length, side_length))
-            saved_at_least_one = True
-            if not vis:
-                cv2.imwrite(str(out_dir / f"{filepath.stem}_{index}{filepath.suffix}"), extracted_square)
 
-        # extract position/speed of the patch
-        if saved_at_least_one:
+            savepath = str(out_dir / f"{filepath.stem}_{index}{filepath.suffix}")
+            if not vis:
+                cv2.imwrite(savepath, extracted_square)
+
             search_gnss = gnss.iloc[(gnss['timestamp'] - uav_time).abs().argmin()]
             search_wheel = wheel.iloc[(wheel['timestamp'] - uav_time).abs().argmin()]
             temp_data = pd.DataFrame(pd.concat([
@@ -150,6 +164,8 @@ def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
                 search_wheel[['timestamp', 'ros_time', 'vel_x', 'vel_y', 'vel_z']].add_suffix('_wheel')
             ], axis=0)).T
             temp_data["timestamp"] = uav_time
+            temp_data["filepath"] = savepath
+            temp_data["angle"] = 0 if patch_type != "uav" else angles[index]
             merged_data = pd.concat([merged_data, temp_data], axis=0).reset_index(drop=True)
 
         if vis:
