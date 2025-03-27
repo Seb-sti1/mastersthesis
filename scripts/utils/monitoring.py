@@ -16,9 +16,12 @@ class RamMonitor:
         self.count = 0
         self._stop_event = threading.Event()
 
+    def get_current_ram(self) -> float:
+        raise NotImplemented
+
     def monitor_ram(self):
         while not self._stop_event.is_set():
-            current_ram = psutil.Process().memory_info().rss / (1024 * 1024)  # MB
+            current_ram = self.get_current_ram() / (1024 * 1024)  # MB
             self.max_ram = max(self.max_ram, current_ram)
             self.sum_ram += current_ram
             self.count += 1
@@ -37,3 +40,11 @@ class RamMonitor:
 
     def get_average_ram(self):
         return self.sum_ram / self.count
+
+
+class CPURamMonitor(RamMonitor):
+    def __init__(self):
+        super().__init__()
+
+    def get_current_ram(self) -> float:
+        return psutil.virtual_memory().percent

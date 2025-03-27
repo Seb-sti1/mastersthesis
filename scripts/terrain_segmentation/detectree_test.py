@@ -15,7 +15,7 @@ import numpy as np
 from tqdm import tqdm
 
 from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files
-from scripts.utils.monitoring import RamMonitor
+from scripts.utils.monitoring import CPURamMonitor
 from scripts.utils.plot import show_images
 
 DATASET_PATH = get_dataset_by_name("aukerman")
@@ -49,7 +49,7 @@ def benchmark(max_image_size: int, count_img: int) -> list[list[float | int]]:
                                           max_height=max_image_size):
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
             cv2.imwrite(temp_file.name, img)
-            ram = RamMonitor()
+            ram = CPURamMonitor()
             ram.start()
             start = time.time()
             y_pred = dtr.Classifier().predict_img(temp_file.name)
