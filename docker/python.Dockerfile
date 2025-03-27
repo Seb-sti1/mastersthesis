@@ -8,6 +8,7 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app
 
+ENV CUDA_VISIBLE_DEVICES=0
 
 RUN apt update && \
     # Install common deps
@@ -26,17 +27,15 @@ RUN apt update && \
 RUN mkdir -p /app/mastersthesis && cd /app/mastersthesis &&\
     git clone https://github.com/Seb-sti1/mastersthesis.git /app/mastersthesis &&\
     . ~/miniconda3/bin/activate &&\
-    conda create -n mastersthesis pip python=3.10 &&\
+    conda create -n mastersthesis pip python=3.10 cuda -c nvidia &&\
     conda activate mastersthesis &&\
-    # install tools to build packages
-    conda install -c nvidia cuda &&\
     pip install -r scripts/requirements.txt
 
 # create env for omniglue
 RUN mkdir -p /app/omniglue && cd /app/omniglue &&\
     git clone https://github.com/google-research/omniglue.git /app/omniglue &&\
     . ~/miniconda3/bin/activate &&\
-    conda create -n omniglue pip python=3.10 &&\
+    conda create -n omniglue pip python=3.10 cuda -c nvidia &&\
     conda activate omniglue &&\
     pip install -e . &&\
     # fix cuDNN version (based on https://github.com/tensorflow/tensorflow/issues/60913#issuecomment-1707955579)
@@ -49,20 +48,18 @@ RUN mkdir -p /app/omniglue && cd /app/omniglue &&\
     wget https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_pretrain.pth &&\
     wget https://storage.googleapis.com/omniglue/og_export.zip &&\
     unzip og_export.zip && rm og_export.zip &&\
-    # install benchmark deps
-    pip install pandas scikit-image psutil tqdm opencv-contrib-python &&\
-    ln -s /app/mastersthesis/scripts/matching/benchmark_omniglue.py
+    # create symlink to run benchmark
+    pip install pandas scikit-image psutils &&\
+    cd /app/omniglue && ln -s /app/mastersthesis/scripts/matching/benchmark_omniglue.py
 
 # create env for xfeat
 RUN mkdir -p /app/xfeat && cd /app/xfeat &&\
     git clone https://github.com/verlab/accelerated_features.git /app/xfeat &&\
+    # dependencies
     . ~/miniconda3/bin/activate &&\
-    conda create -n xfeat pip python=3.10 pytorch=2.0.0 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia &&\
-    conda activate xfeat &&\
-    conda install -c nvidia cuda &&\
-    pip install kornia &&\
-    # install benchmark deps
-    pip install pandas scikit-image psutil tqdm opencv-contrib-python numpy==1.26.4 &&\
+    conda activate mastersthesis &&\
+    pip install kornia numpy==1.26.4 &&\
+    # create symlink to run benchmark
     ln -s /app/mastersthesis/scripts/matching/benchmark_xfeat.py
 
 ENTRYPOINT ["/bin/bash"]
