@@ -48,3 +48,23 @@ class CPURamMonitor(RamMonitor):
 
     def get_current_ram(self) -> float:
         return psutil.virtual_memory().percent
+
+
+class GPURamMonitor(RamMonitor):
+    def __init__(self, gpu_index=0):
+        try:
+            import pynvml as cuda
+            self.cuda = cuda
+            self.cuda.nvmlInit()
+        except ImportError:
+            raise RuntimeError("pynvml is not installed or GPU is not available.")
+        super().__init__()
+        self.gpu_index = gpu_index
+        self.handle = self.cuda.nvmlDeviceGetHandleByIndex(self.gpu_index)
+
+    def get_current_ram(self) -> float:
+        mem_info = self.cuda.nvmlDeviceGetMemoryInfo(self.handle)
+        return mem_info.used  # Returns GPU memory usage in bytes
+
+    def __del__(self):
+        self.cuda.nvmlShutdown()
