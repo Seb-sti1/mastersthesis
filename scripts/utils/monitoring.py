@@ -13,6 +13,7 @@ class RamMonitor:
         self.thread = None
         self.max_ram = 0
         self.sum_ram = 0
+        self.init_ram = self.get_current_ram()
         self.count = 0
         self._stop_event = threading.Event()
 
@@ -36,10 +37,10 @@ class RamMonitor:
         self.thread.join()
 
     def get_max_ram(self):
-        return self.max_ram
+        return self.max_ram - self.init_ram
 
     def get_average_ram(self):
-        return self.sum_ram / self.count
+        return self.sum_ram / self.count - self.init_ram
 
 
 class CPURamMonitor(RamMonitor):
@@ -48,3 +49,23 @@ class CPURamMonitor(RamMonitor):
 
     def get_current_ram(self) -> float:
         return psutil.virtual_memory().percent
+
+
+class GPURamMonitor(RamMonitor):
+    def __init__(self, gpu_index=0):
+        try:
+            import pynvml as cuda
+            self.cuda = cuda
+            self.cuda.nvmlInit()
+        except ImportError:
+            raise RuntimeError("pynvml is not installed or GPU is not available.")
+        self.gpu_index = gpu_index
+        self.handle = self.cuda.nvmlDeviceGetHandleByIndex(self.gpu_index)
+        super().__init__()
+
+    def get_current_ram(self) -> float:
+        mem_info = self.cuda.nvmlDeviceGetMemoryInfo(self.handle)
+        return mem_info.used  # Returns GPU memory usage in bytes
+
+    def __del__(self):
+        self.cuda.nvmlShutdown()

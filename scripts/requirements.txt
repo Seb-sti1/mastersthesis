@@ -22,4 +22,4 @@ detectree
 
 # for benchmarking
 psutil
-pycuda
+pynvml
