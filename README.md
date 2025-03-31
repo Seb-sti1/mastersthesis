@@ -30,7 +30,7 @@ and [scripts/README.md](scripts/README.md) for the scripts.
 ## Acknowledgements
 
 This is the source files of my Master's thesis for my M.Sc. Eng in Autonomous Systems
-at the [Danmarks Tekniske Universitet](https://www.dtu.dk/english/). I took place at
+at the [Danmarks Tekniske Universitet](https://www.dtu.dk/english/). It took place at
 the [U2IS lab of ENSTA Paris](http://u2is.ensta-paris.fr/?lang=fr).
 
 It was supervised by [Søren HANSEN](https://orbit.dtu.dk/en/persons/s%C3%B8ren-hansen) and co-supervised

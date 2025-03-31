@@ -14,6 +14,16 @@
 	date = {2017-04},
 	note = {Conference Name: {IEEE} Robotics and Automation Letters},
 	keywords = {Exploration, Terrain classification, 3D terrain reconstruction, {UGV}, {UAV}, Traversability, Collaboration, Global path},
+	annotation = {My notes
+1. Initial manual fly to see goal. Camera imagery is also used to obtain initial classification of the terrain.2. Then vision-guided flights (to a series of waypoints) chosen actively. For each waypoint 3D reconstruction and groundrobot path (to optimize total duration of the mission).3. Repeat 2. until path is complete
+- visual odometry for loc\&nav [{\textasciicircum}3], [{\textasciicircum}4]- [{\textasciicircum}3] also seems to mention matching of {FPV} (ground drone) and {BEV} (aerial drone) (p191)- classifier is trained on the spot [{\textasciicircum}1]. Two models type tried, feature-based and {CNN}. {CNN} is significantly slowerwithout giving significant better result (surprising).- in the 2. not exhaustive exploration just along the \_global path\_ from the manually generated map.The next waypoints for the aerial drone are chosen as to minimize\$T\_\{{\textbackslash}text\{ground robot\}, s {\textbackslash}rightarrow b\_i\} + T\_\{{\textbackslash}text\{ground robot\}, b\_i {\textbackslash}rightarrow g\} + T\_\{extend 3d reconstructed region\}\$,respectively \_time of ground robot from s to next ground robot waypoint (uses 3d reconstructed area)\_, the \_time ofground robot from next ground robot waypoint (uses initial partial map)\_, the \_time to extend the 3d reconstructedregion (in the correct direction)\_.- 7,8,9 are ref for high altitude, high resolution aerial images- use of monocular camera to reconstruct 3D ground in real time [{\textasciicircum}2] (could be used with move\_base\_flex).- use of [{ANYbotics} Grid Map](https://github.com/{ANYbotics}/grid\_map) [{\textasciicircum}5]- Terrain classification, dense 3D reconstruction and exploration algorithm run on a laptop computer not on the drone.
+
+[{\textasciicircum}1]: https://rpg.ifi.uzh.ch/docs/{ISER}16\_Delmerico.pdf
+[{\textasciicircum}2]: https://rpg.ifi.uzh.ch/docs/{ICRA}14\_Pizzoli.pdf
+[{\textasciicircum}3]: https://rpg.ifi.uzh.ch/docs/{PhD}16\_Forster.pdf
+[{\textasciicircum}4]: https://ieeexplore.ieee.org/document/6906584
+[{\textasciicircum}5]: https://www.researchgate.net/publication/284415855\_A\_Universal\_Grid\_Map\_Library\_Implementation\_and\_Use\_Case\_for\_Rough\_Terrain\_Navigation
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/3N3L352T/Delmerico et al. - 2017 - Active Autonomous Aerial Exploration for Ground Robot Path Planning.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/LNNWMXVZ/7812671.html:text/html},
 }
 
@@ -34,6 +44,11 @@
 	date = {2006-04},
 	langid = {english},
 	keywords = {M-estimator, Robust matching, Key points},
+	annotation = {My notes
+Using M-estimators allow to exclude outliers from the features.
+This can be used with sparse features (e.g. key points) as shown in the paper or when dense method like in (Comport et al., 2007).
+The goal is to obtain robust behavior.
+},
 	file = {PDF:/home/seb-sti1/Zotero/storage/GFRSXJ9F/Comport et al. - 2006 - Statistically robust 2-D visual servoing.pdf:application/pdf},
 }
 
@@ -50,6 +65,13 @@
 	date = {2007-04},
 	note = {{ISSN}: 1050-4729},
 	keywords = {Dense correspondences, Quadrifocal warping},
+	annotation = {My notes
+Given geometric constraints two “trifocal tensor” (Comport et al., 2007, p. 42) can be computed from the two references images and left/right current images.
+In case of the two ref images and the left current images, the “the warping from the left reference image to the left current image [is done] via a plane in the right reference image” (Comport et al., 2007, p. 42). A mathematical relation describe (depending on the transformation between the ref and current) the warping in term of coordinates between the left ref and left curr images.
+Similar relation can be computed using the two ref images and the right images.
+These relations can be used on the pixels of 3d coordinates seen in both ref images (found using dense correspondence (Mark and Gavrila, 2006)) to compare luminescence (images are in grayscale) between ref and current images. This quantity needs to be minimized (describe in Section 4). 
+
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/56EYZP6B/Comport et al. - 2007 - Accurate Quadrifocal Tracking for Robust 3D Visual Odometry.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/CZJX3AKX/4209067.html:text/html},
 }
 
@@ -65,6 +87,14 @@
 	urldate = {2025-02-14},
 	date = {2021-12},
 	keywords = {3D terrain reconstruction, {UGV}, {UAV}, Topological Map},
+	annotation = {My notes
+- Use of a 3D {TSDF} to stores the "distance" to the obstacle (is it a weight from 1 (far in front) to 0 (surface of object) to -1 (far behind))
+- Updating a cell to a new values ("Weighting") is done by doing a weighted average of the previous weight and distance and new weight and distance.
+- Grouping points in sensor data ("Merging") is done by grouped ray-casting
+- {ESDF} from {TSDF} using wave propagation
+- Then {ESDF} is used to generate the 2D topology map
+
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/9IGV7ILJ/Wang et al. - 2021 - 2D Topological Map Building by UAVs for Ground Robot Navigation.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/GEBZ428Y/9739395.html:text/html},
 }
 
@@ -83,6 +113,39 @@
 	eprinttype = {arxiv},
 	eprint = {2501.18351 [cs]},
 	keywords = {{UGV}, Traversability, Satellite imagery},
+	annotation = {My notes
+{LBPM} Local {BEV} plannning model = local {BEV} perception encoder + task-driven goal decoder
+{LBPM}
+Local {BEV} Perception encoder
+inputs: (i) context observation \$o\_\{t-P:t-1\}\$ (ii) current observation \$o\_t\$.
+- {BEV} transformation on the observation
+- Feature extract based on {LSS} method. Uses {EfficientNet}
+- Uses {LSS} and {BEVDet} to predict discrete depth distribution for each pixel
+- {BEV} transformation (If multiple feature -{\textgreater} {BEV} pooling using {BEVFusion})
+\_I'm confused about what is new compared to {LSS}. At least until the computation of the
+{BEV} features (see Fig. 2), it is every similar. Also (this is one of the difference compared to {LSS}), I
+don't understand the point of the traversability features, is it to make the system
+keep in mind what was traversable?\_
+Task-driven goal decoder
+based on the {ViKiNG} architecture
+inputs: environmental context \$o\_\{t-P\}\$, current observation \$o\_t\$, goal observation \$o\_{\textbackslash}omega\$.
+{GBPM}
+Provide traversability hint and overall direction.
+- Use an overhead map from satellite images
+- segmentation that gradually increase as they approach impassable.
+{\textgreater} {GBPM} uses trajectory data to learn traversability in the
+{\textgreater} overhead map [...], the more easily accessible areas will
+{\textgreater} be covered by a larger number of trajectories.
+- This step uses the probability predictions as a map (not a thresholds regulated
+  output). [U-net](https://github.com/milesial/Pytorch-{UNet}) is used to do the segmentation.
+Use {GBPM} with potential trajectories generated by {LBPM}
+{\textgreater} First, the {LBPM} generates multiple potential traversable paths, providing information including temporal distance, {GPS}
+{\textgreater} offsets, and waypoints from the current position to the goal. The {GBPM} encodes the overhead map into a global
+{\textgreater} probability map, projecting traversable paths of {LBPM} onto this map.
+{\textgreater}
+{\textgreater} \$cost = k {\textbackslash}times score + (1-k) {\textbackslash}times temporal{\textbackslash}\_distance\$
+
+},
 	file = {PDF:/home/seb-sti1/Zotero/storage/9KJEWZPQ/Zhang et al. - 2025 - Dual-BEV Nav Dual-layer BEV-based Heuristic Path Planning for Robotic Navigation in Unstructured Ou.pdf:application/pdf},
 }
 
@@ -100,6 +163,38 @@
 	eprinttype = {arxiv},
 	eprint = {2004.04697 [cs]},
 	keywords = {Reinforcement learning, {UGV}, {UAV}, Traversability, Local path, Collaboration},
+	annotation = {Comment: {ICRA} 2020. Video and project details can be found at http://www.cim.mcgill.ca/mrl/offroad\_driving/},
+	annotation = {My notes
+
+
+In this paper, we present a system for learning a navigation policy that **preferentially chooses smooth terrain** [...]. The emphasis of the paper, however, is not road classification perse, but rather to propose an approach for **online adaptive self-supervised learning** for off-road driving in rough terrain and to explore the synthesis of aerial and first-person (ground) sensing in this context.
+
+
+
+From {BEV}, {FPS} images, use {CNN} to predict the rougher terrain for \$H\$ steps (supplying an action for every step)
+
+
+use of Value Prediction Networks, a hybrid model-based and model-free reinforcement learning architecture.
+
+
+It is model-based as it implicitly learns a dynamics model for abstract states optimized for predicting future rewards and value functions.
+
+
+It is also model-free as it maps these encoded abstract states to rewards and value functions using direct experience with the environment prior to the planning phase.
+
+
+
+
+In training terrain roughness is estimated using {IMU} and obstacles using short-range {LiDAR}.
+
+
+Reward based on the difference between the prediction and the actual roughness
+
+
+It is classification as type of terrain is associated with different number and the model tries to predict the correct one
+
+
+},
 	file = {PDF:/home/seb-sti1/Zotero/storage/P5MEPZCE/Manderson et al. - 2020 - Learning to Drive Off Road on Smooth Terrain in Unstructured Environments Using an On-Board Camera a.pdf:application/pdf},
 }
 
@@ -107,7 +202,7 @@
 	title = {{UAV}-Assisted Self-Supervised Terrain Awareness for Off-Road Navigation},
 	url = {http://arxiv.org/abs/2409.18253},
 	doi = {10.48550/arXiv.2409.18253},
-	abstract = {Terrain awareness is an essential milestone to enable truly autonomous off-road navigation. Accurately predicting terrain characteristics allows optimizing a vehicle's path against potential hazards. Recent methods use deep neural networks to predict traversability-related terrain properties in a self-supervised manner, relying on proprioception as a training signal. However, onboard cameras are inherently limited by their point-of-view relative to the ground, suffering from occlusions and vanishing pixel density with distance. This paper introduces a novel approach for self-supervised terrain characterization using an aerial perspective from a hovering drone. We capture terrain-aligned images while sampling the environment with a ground vehicle, effectively training a simple predictor for vibrations, bumpiness, and energy consumption. Our dataset includes 2.8 km of off-road data collected in forest environment, comprising 13 484 ground-based images and 12 935 aerial images. Our findings show that drone imagery improves terrain property prediction by 21.37 \% on the whole dataset and 37.35 \% in high vegetation, compared to ground robot images. We conduct ablation studies to identify the offline causes of these performance improvements. We also demonstrate the real-world applicability of our approach by scouting an unseen area with a drone, planning and executing an optimized path on the ground.},
+	abstract = {Terrain awareness is an essential milestone to enable truly autonomous off-road navigation. Accurately predicting terrain characteristics allows optimizing a vehicle's path against potential hazards. Recent methods use deep neural networks to predict traversability-related terrain properties in a self-supervised manner, relying on proprioception as a training signal. However, onboard cameras are inherently limited by their point-of-view relative to the ground, suffering from occlusions and vanishing pixel density with distance. This paper introduces a novel approach for self-supervised terrain characterization using an aerial perspective from a hovering drone. We capture terrain-aligned images while sampling the environment with a ground vehicle, effectively training a simple predictor for vibrations, bumpiness, and energy consumption. Our dataset includes 2.8 km of off-road data collected in forest environment, comprising 13 484 ground-based images and 12 935 aerial images. Our findings show that drone imagery improves terrain property prediction by 21.37 \% on the whole dataset and 37.35 \% in high vegetation, compared to ground robot images. We conduct ablation studies to identify the main causes of these performance improvements. We also demonstrate the real-world applicability of our approach by scouting an unseen area with a drone, planning and executing an optimized path on the ground.},
 	number = {{arXiv}:2409.18253},
 	publisher = {{arXiv}},
 	author = {Fortin, Jean-Michel and Gamache, Olivier and Fecteau, William and Daum, Effie and Larrivée-Hardy, William and Pomerleau, François and Giguère, Philippe},
@@ -116,6 +211,26 @@
 	eprinttype = {arxiv},
 	eprint = {2409.18253 [cs]},
 	keywords = {Terrain classification, {UGV}, {UAV}, Dataset, Traversability, {ResNet}18},
+	annotation = {Comment: 7 pages, 5 figures, submitted to {ICRA} 2025},
+	annotation = {My notes
+
+
+good documentation of related work
+
+
+datasets created could be very useful
+
+
+makes me think of the work done by Tom.
+
+
+use of {ResNet}18 and a "homemade" {MLP} to predict \$M\_z\$, \$M\_{\textbackslash}omega\$ and \$M\_p\$
+respectively vibration metric, bumpiness and electrical energy consumption.
+{BEV} from {UAV} gives better prediction than {FPS} from {UGV}.
+Using the {BEV} from {UAV}, can obtain maps (similar to occupancy grid) (see Fig5)
+than can be used to choose "better" path.
+-
+},
 	file = {Preprint PDF:/home/seb-sti1/Zotero/storage/ZK3724GU/Fortin et al. - 2024 - UAV-Assisted Self-Supervised Terrain Awareness for Off-Road Navigation.pdf:application/pdf;Snapshot:/home/seb-sti1/Zotero/storage/QXD3RTTA/2409.html:text/html},
 }
 
@@ -132,6 +247,11 @@
 	eprinttype = {arxiv},
 	eprint = {2404.18750 [cs]},
 	keywords = {Dataset},
+	annotation = {Comment: Accepted to the {IEEE} {ICRA} Workshop on Field Robotics 2024},
+	annotation = {My notes
+Minimize using M-estimators the sum of a given function of the error (the difference between the the two feature vectors)
+
+},
 	file = {Preprint PDF:/home/seb-sti1/Zotero/storage/2P2595RZ/Mortimer and Maehlisch - 2024 - Survey on Datasets for Perception in Unstructured Outdoor Environments.pdf:application/pdf;Snapshot:/home/seb-sti1/Zotero/storage/BGPQHQ9T/2404.html:text/html},
 }
 
@@ -148,6 +268,28 @@
 	date = {2008-09},
 	note = {{ISSN}: 2153-0866},
 	keywords = {Terrain classification, {UGV}, Trail classification},
+	annotation = {My notes
+
+
+create a vector of {LAB}, and texture around the pixel
+
+
+k-means to find 16 centroids “textons”
+
+
+for each pixels do a histogram of the classification around the pixel
+
+
+k-means on the histogram
+
+
+{EMD} (using the distance between the textons) to merge clusters that are “too” close
+
+
+
+https://github.com/Seb-sti1/mastersthesis/blob/master/scripts/fast\_colortexture\_seg\_outdoor\_robots.py
+https://github.com/tbjszhu/
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/3BSXZ9L2/Rufus Blas et al. - 2008 - Fast colortexture segmentation for outdoor robots.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/SBS4EJQG/4651086.html:text/html},
 }
 
@@ -167,6 +309,22 @@
 	date = {2009-10},
 	langid = {english},
 	keywords = {{UGV}, Trail classification, Local path, Lidar},
+	annotation = {My notes
+
+
+{CIE}-Lab used
+
+
+textons generated from the input image using (Rufus Blas et al., 2008) method
+
+
+Then triangles are scored using a likelihood function
+
+
+Add lidar info to enhance results
+
+
+},
 	file = {PDF:/home/seb-sti1/Zotero/storage/BS4FH7ZP/Rasmussen et al. - 2009 - Appearance contrast for fast, robust trail-following.pdf:application/pdf},
 }
 
@@ -217,6 +375,7 @@
 	eprinttype = {arxiv},
 	eprint = {1806.02487 [cs]},
 	keywords = {Exploration, {UGV}, {UAV}, Collaboration, Ignored},
+	annotation = {Comment: 12 pages, 16 figures},
 	file = {PDF:/home/seb-sti1/Zotero/storage/9KK8FJ2T/Wang et al. - 2020 - A Collaborative Aerial-Ground Robotic System for Fast Exploration.pdf:application/pdf},
 }
 
@@ -233,6 +392,18 @@
 	date = {2012-05},
 	note = {{ISSN}: 1050-4729},
 	keywords = {Terrain classification, {UAV}, {TSURF}, {LBP}, {LTP}},
+	annotation = {My notes
+Comparison of {SURF} descriptor, {LBP}, {LTP} for visual outdoor terrain classification
+
+
+Random forest gives the best results
+
+
+{TSURF} good with small grid size and lower training time than {LBP}, {LTP}
+
+
+
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/7AATA5UI/Khan et al. - 2012 - Visual terrain classification by flying robots.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/7CHRVJQ5/6224988.html:text/html},
 }
 
@@ -249,6 +420,10 @@
 	date = {2006-10},
 	note = {{ISSN}: 2153-0866},
 	keywords = {{UGV}, Satellite imagery, Lidar, Ignored},
+	annotation = {My notes
+usage of {LiDAR} and imagery on (only) terrestrial robot and prior data (from variety of sources) to achieve robust navigation.
+
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/MMVCY4JJ/Silver et al. - 2006 - Experimental Analysis of Overhead Data Processing To Support Long Range Navigation.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/NM2AJAXS/4058754.html:text/html},
 }
 
@@ -286,7 +461,7 @@
 	issn = {2377-3766},
 	url = {https://ieeexplore.ieee.org/document/7358076},
 	doi = {10.1109/LRA.2015.2509024},
-	abstract = {We study the problem of perceiving forest or mountain trails from a single monocular image acquired from the viewpoint of a robot traveling on the trail itself. Previous literature focused on trail segmentation, and used low-level features such as image saliency or appearance contrast; we propose a different approach based on a deep neural network used as a supervised image classifier. By operating on the whole image at once, our system outputs the offline direction of the trail compared to the viewing direction. Qualitative and quantitative results computed on a large real-world dataset (which we provide for download) show that our approach outperforms alternatives, and yields an accuracy comparable to the accuracy of humans that are tested on the same image classification task. Preliminary results on using this information for quadrotor control in unseen trails are reported. To the best of our knowledge, this is the first letter that describes an approach to perceive forest trials, which is demonstrated on a quadrotor micro aerial vehicle.},
+	abstract = {We study the problem of perceiving forest or mountain trails from a single monocular image acquired from the viewpoint of a robot traveling on the trail itself. Previous literature focused on trail segmentation, and used low-level features such as image saliency or appearance contrast; we propose a different approach based on a deep neural network used as a supervised image classifier. By operating on the whole image at once, our system outputs the main direction of the trail compared to the viewing direction. Qualitative and quantitative results computed on a large real-world dataset (which we provide for download) show that our approach outperforms alternatives, and yields an accuracy comparable to the accuracy of humans that are tested on the same image classification task. Preliminary results on using this information for quadrotor control in unseen trails are reported. To the best of our knowledge, this is the first letter that describes an approach to perceive forest trials, which is demonstrated on a quadrotor micro aerial vehicle.},
 	pages = {661--667},
 	number = {2},
 	journaltitle = {{IEEE} Robotics and Automation Letters},
@@ -295,6 +470,18 @@
 	date = {2016-07},
 	note = {Conference Name: {IEEE} Robotics and Automation Letters},
 	keywords = {{UAV}, Dataset, Traversability, Trail classification},
+	annotation = {My notes
+
+
+Clever technic to generate dataset: human with 3 cameras oriented left, center, right walks on a forest trails making sure to face the direction of the path. It generates, respectively, images with trails on the right side, center and left side
+
+
+The model predict if the trail is on the right side, center or left side
+
+
+15+ {GB} of training testing dataset available (images left, center and right of forest trails)
+
+},
 	file = {Full Text PDF:/home/seb-sti1/Zotero/storage/4XE5ZKK3/Giusti et al. - 2016 - A Machine Learning Approach to Visual Perception of Forest Trails for Mobile Robots.pdf:application/pdf;IEEE Xplore Abstract Record:/home/seb-sti1/Zotero/storage/LKUJAWGM/7358076.html:text/html},
 }
 
@@ -461,6 +648,7 @@ Publisher: Institute of Electrical and Electronics Engineers},
 	eprinttype = {arxiv},
 	eprint = {2008.05711 [cs]},
 	keywords = {Terrain classification, {UGV}, To read, {BEV}},
+	annotation = {Comment: {ECCV} 2020},
 	file = {PDF:/home/seb-sti1/Zotero/storage/JIVLXPUU/Philion and Fidler - 2020 - Lift, Splat, Shoot Encoding Images From Arbitrary Camera Rigs by Implicitly Unprojecting to 3D.pdf:application/pdf},
 }
 
@@ -478,6 +666,7 @@ Publisher: Institute of Electrical and Electronics Engineers},
 	eprinttype = {arxiv},
 	eprint = {2202.11271 [cs]},
 	keywords = {{UGV}, Local path, Global path, To read, Vision based navigation},
+	annotation = {Comment: Best Systems Paper Finalist at {XVII} Robotics: Science and Systems ({RSS} 2022), New York City, {USA}. Project page https://sites.google.com/view/viking-release},
 	file = {PDF:/home/seb-sti1/Zotero/storage/LCN29FN7/Shah and Levine - 2022 - ViKiNG Vision-Based Kilometer-Scale Navigation with Geographic Hints.pdf:application/pdf},
 }
 
