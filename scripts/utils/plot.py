@@ -75,20 +75,18 @@ def plot_bar(groups_name: List[str],
              title: str = "A plot") -> None:
     x = np.arange(len(groups_name))  # the label locations
     width = 0.25  # the width of the bars
-    multiplier = 0
 
     fig, ax = plt.subplots(layout='constrained')
 
-    for attribute, measurement in features.items():
-        offset = width * multiplier
+    for multiplier, (attribute, measurement) in enumerate(features.items()):
+        offset = width * (multiplier - len(features) // 2)
         rects = ax.bar(x + offset, measurement, width, label=attribute)
         ax.bar_label(rects, padding=3)
-        multiplier += 1
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
-    ax.set_xticks(x + width, groups_name)
+    ax.set_xticks(x, groups_name)
     ax.legend(loc='upper left', ncols=3)
     plt.show()
 
