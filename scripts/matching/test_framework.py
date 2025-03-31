@@ -15,8 +15,8 @@ from skimage.metrics import structural_similarity
 from tqdm import tqdm
 
 from scripts.matching.generate_test_data import corr_dataset
-from scripts.utils.datasets import get_dataset_by_name, resize_image
-from scripts.utils.monitoring import CPURamMonitor
+from scripts.utils.datasets import get_dataset_by_name
+from scripts.utils.monitoring import CPURamMonitor, GPURamMonitor
 
 
 def get_homography_results(ref_points, dst_points, ugv_image, uav_image):
@@ -164,7 +164,8 @@ def benchmark(compare: Callable[[int, np.ndarray, np.ndarray], Tuple[np.ndarray,
     :param output_name: the name of the file to save the results (path is hard-coded)
     """
     uav_location = pd.read_csv(get_dataset_by_name(corr_dataset / "uav_patch" / "location.csv"))
-    ugv_location = pd.read_csv(get_dataset_by_name(corr_dataset / "ugv_bev_patch" / "location.csv"))
+    ugv_location = pd.read_csv(get_dataset_by_name(corr_dataset / "ugv_patch" / "location.csv"))
+    ugv_bev_location = pd.read_csv(get_dataset_by_name(corr_dataset / "ugv_bev_patch" / "location.csv"))
 
     ordered_idx = []
 
@@ -180,10 +181,11 @@ def benchmark(compare: Callable[[int, np.ndarray, np.ndarray], Tuple[np.ndarray,
         dist = np.linalg.norm(np.array(uav_coord) - np.array(ugv_coord))
         angle_dist = np.linalg.norm(np.array(uav_angle) - np.array(ugv_angle))
 
-        ordered_idx.append((uav.Index, ugv_idx, dist, angle_dist))
+        ordered_idx.append((uav.Index, ugv.filepath, uav.filepath, ugv_idx, dist, angle_dist, uav.angle))
 
     ordered_idx = (pd.DataFrame(ordered_idx,
-                                columns=['uav_index', 'ugv_index', 'distance', 'angle_distance'])
+                                columns=['uav_index', 'ugv_filepath', 'uav_filepath',
+                                         'ugv_index', 'distance', 'angle_distance', 'angle'])
                    # .sort_values(by=['distance', 'angle_distance'])
                    )
 
@@ -197,24 +199,28 @@ def benchmark(compare: Callable[[int, np.ndarray, np.ndarray], Tuple[np.ndarray,
         ugv_idx = int(ordered_idx.iloc[i]['ugv_index'])
         dist = ordered_idx.iloc[i]['distance']
         angle_dist = ordered_idx.iloc[i]['angle_distance']
-
-        uav_image_path = list(Path(get_dataset_by_name(corr_dataset / "uav_patch")).glob(
-            f"{int(uav_location.iloc[uav_idx]['timestamp'])}_*.*"))[0]
-        ugv_image_path = list(Path(get_dataset_by_name(corr_dataset / "ugv_patch")).glob(
-            f"{int(ugv_location.iloc[ugv_idx]['timestamp'])}_*.*"))[0]
-        ugv_bev_image_path = list(Path(get_dataset_by_name(corr_dataset / "ugv_bev_patch")).glob(
-            f"{int(ugv_location.iloc[ugv_idx]['timestamp'])}_*.*"))[0]
+        uav_filepath = ordered_idx.iloc[i]['uav_filepath']
+        ugv_filepath = ordered_idx.iloc[i]['ugv_filepath']
+        ugv_bev_filepath = ugv_bev_location.iloc[ugv_idx]['filepath']
+        ang = ordered_idx.iloc[i]['angle']
 
         def call_compare(uav_path, ugv_path, is_bev: bool,
                          angle: Union[Literal[0], Literal[90], Literal[180], Literal[270]]):
-            uav_image = rotate_image(cv2.imread(uav_path), angle)
-            ugv_image = cv2.imread(ugv_path)
+            uav_image = cv2.imread(
+                uav_path.replace("/home/seb-sti1/sebspace/mastersthesis/scripts/utils/../../datasets",
+                                 "/app/mastersthesis/datasets"))
+            ugv_image = cv2.imread(
+                ugv_path.replace("/home/seb-sti1/sebspace/mastersthesis/scripts/utils/../../datasets",
+                                 "/app/mastersthesis/datasets"))
             ram = CPURamMonitor()
+            gram = GPURamMonitor()
+            gram.start()
             ram.start()
             t = time.time_ns()
             ref_points, dst_points, (cmp_metrics) = compare(i, ugv_image, uav_image)
             t = time.time_ns() - t
             ram.stop()
+            gram.stop()
 
             scores = get_matching_scores(ref_points, dst_points, ugv_image, uav_image)
             results.append((uav_path, ugv_path, angle, is_bev,
@@ -225,9 +231,8 @@ def benchmark(compare: Callable[[int, np.ndarray, np.ndarray], Tuple[np.ndarray,
                             t, ram.get_average_ram(), ram.get_max_ram(),
                             *cmp_metrics))
 
-        for ang in (0, 90, 180, 270):
-            call_compare(uav_image_path, ugv_bev_image_path, True, ang)
-            call_compare(uav_image_path, ugv_image_path, False, ang)
+        call_compare(uav_filepath, ugv_bev_filepath, True, ang)
+        call_compare(uav_filepath, ugv_filepath, False, ang)
 
     pd.DataFrame(results, columns=['uav_path', 'ugv_path', 'uav_image_rotation', 'ugv image is bev',
                                    'uav_idx location.csv', 'ugv_idx in location.csv',
@@ -260,6 +265,12 @@ def plot_corners(img, corners):
     return img_with_corners
 
 
+def are_pixels_inside(image_shape, pixels):
+    height, width = image_shape
+    return np.all((0 <= pixels[:, 0]) & (pixels[:, 0] < height) &
+                  (0 <= pixels[:, 1]) & (pixels[:, 1] < width))
+
+
 def show_results(filename, path_relative_transform=None):
     """
     Shows the results of the matching for all the tested images
@@ -270,12 +281,15 @@ def show_results(filename, path_relative_transform=None):
 
     df = pd.read_csv(filename)
     # plot data
-    from scripts.utils.plot import plot_histogram
+    from scripts.utils.plot import plot_histogram, plot_bar
     import matplotlib.pyplot as plt
+
+    df['is_crossed_uav'] = df['is_crossed_uav'].astype(str).map({'True': True, 'False': False}).astype(bool)
+    df['is_crossed_ugv'] = df['is_crossed_ugv'].astype(str).map({'True': True, 'False': False}).astype(bool)
 
     df['valid'] = ((df['area_uav'] > 10000) & (df['area_ugv'] > 10000)
                    & (df['count_black_pixels_uav'] < 20) & (df['count_black_pixels_ugv'] < 20)
-                   & (df['is_crossed_uav'] == 'False') & (df['is_crossed_ugv'] == 'False'))
+                   & (~df['is_crossed_uav']) & (~df['is_crossed_ugv']))
 
     print(f"{int(df['valid'].mean() * 100)}% valid points.")
 
@@ -288,16 +302,28 @@ def show_results(filename, path_relative_transform=None):
         ax1.scatter(group['number of matched point'], group['ssim'], color='b', label='SSIM', alpha=0.7)
         ax1.set_xlabel('Number of Matched Points')
         ax1.set_ylabel('SSIM', color='b')
+        ax1.set_ylim([0, 1])
         ax1.tick_params(axis='y', labelcolor='b')
 
         ax2 = ax1.twinx()
         ax2.scatter(group['number of matched point'], group['mse'], color='r', label='MSE', alpha=0.7)
         ax2.set_ylabel('MSE', color='r')
+        ax2.set_ylim([0, 20000])
         ax2.tick_params(axis='y', labelcolor='r')
 
         plt.title(f'SSIM vs MSE vs Number of Matched Points (Rotation: {rotation})')
         plt.tight_layout()
         plt.show()
+
+    # Compute count of not valid points over total for each rotation
+    total_counts = df.groupby('uav_image_rotation').size()
+    not_valid_counts = df[~df['valid']].groupby('uav_image_rotation').size()
+    not_valid_ratio = ((not_valid_counts / total_counts) * 100).fillna(0).astype(int)
+    plot_bar(groups_name=not_valid_ratio.index.astype(str).tolist(),
+             features={'ratio (%)': not_valid_ratio.values},
+             xlabel='Relative image rotation',
+             ylabel='Ratio of obviously wrong matches',
+             title='Ratio of obviously wrong matches per relative image rotation')
 
     # show results in open cv
     is_running = False
@@ -309,8 +335,8 @@ def show_results(filename, path_relative_transform=None):
         ssim = row["ssim"]
         is_bev = row["ugv image is bev"]
         angle = row["uav_image_rotation"]
-        uav_image = resize_image(rotate_image(cv2.imread(uav_image_path), int(angle)), 400, 400)
-        ugv_image = resize_image(cv2.imread(ugv_image_path), 400, 400)
+        uav_image = cv2.imread(uav_image_path)
+        ugv_image = cv2.imread(ugv_image_path)
 
         if not row["valid"]:
             continue
