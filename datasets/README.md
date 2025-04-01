@@ -3,12 +3,12 @@ Datasets sources
 
 Below is a list of datasets (not present in this is repository) that were used to tests different method/algorithms.
 
-| Folder name            | Link                                   | Additional comment                              |
-|------------------------|----------------------------------------|-------------------------------------------------|
-| aukerman               | https://hub.dronedb.app/r/odm/aukerman |                                                 |
-| rosbag_u2is            |                                        | See [next section](#internal-dataset-locations) |
-| viewpro_calibration    |                                        | See [next section](#internal-dataset-locations) |
-| norlab_ulaval_datasets | https://arxiv.org/abs/2409.18253       | Not publicly available                          |
+| Folder name            | Link                                   | Additional comment                                |
+|------------------------|----------------------------------------|---------------------------------------------------|
+| aukerman               | https://hub.dronedb.app/r/odm/aukerman |                                                   |
+| rosbag_u2is            |                                        | See [next section](#internal-dataset-locations)   |
+| viewpro_calibration    |                                        | See [next section](#internal-dataset-locations)   |
+| norlab_ulaval_datasets | https://arxiv.org/abs/2409.18253       | Not publicly available (47°19'14.9"N 71°8'52.2"W) |
 
 ## Internal dataset locations
 
