@@ -69,6 +69,32 @@ def plot(x: Union[np.ndarray, List], y: Union[np.ndarray, List],
     plt.show()
 
 
+def plot_scatter_2axis(x: Union[np.ndarray, List], y1: Union[np.ndarray, List],
+                       y2: Union[np.ndarray, List],
+                       xlabel: str = "x", ylabel1: str = "y1", ylabel2: str = "y2",
+                       ylim1: Optional[Tuple[float, float]] = None,
+                       ylim2: Optional[Tuple[float, float]] = None,
+                       title: str = "A plot") -> None:
+    fig, ax1 = plt.subplots()
+    ax1.scatter(x, y1, color='b', label=ylabel1, alpha=0.7)
+    ax1.set_xlabel(xlabel)
+    ax1.set_ylabel(ylabel1, color='b')
+    if ylim1 is not None:
+        ax1.set_ylim(ylim1)
+    ax1.tick_params(axis='y', labelcolor='b')
+
+    ax2 = ax1.twinx()
+    ax2.scatter(x, y2, color='r', label=ylabel2, alpha=0.7)
+    ax2.set_ylabel(ylabel2, color='r')
+    if ylim1 is not None:
+        ax2.set_ylim(ylim2)
+    ax2.tick_params(axis='y', labelcolor='r')
+
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()
+
+
 def plot_bar(groups_name: List[str],
              features: Dict[str, Union[np.ndarray, List]],
              xlabel: str = "x", ylabel: str = "y",

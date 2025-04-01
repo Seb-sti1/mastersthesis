@@ -281,8 +281,7 @@ def show_results(filename, path_relative_transform=None):
 
     df = pd.read_csv(filename)
     # plot data
-    from scripts.utils.plot import plot_histogram, plot_bar
-    import matplotlib.pyplot as plt
+    from scripts.utils.plot import plot_histogram, plot_bar, plot_scatter_2axis
 
     df['is_crossed_uav'] = df['is_crossed_uav'].astype(str).map({'True': True, 'False': False}).astype(bool)
     df['is_crossed_ugv'] = df['is_crossed_ugv'].astype(str).map({'True': True, 'False': False}).astype(bool)
@@ -298,22 +297,11 @@ def show_results(filename, path_relative_transform=None):
 
     grouped = df[df['valid']].groupby('uav_image_rotation')
     for rotation, group in grouped:
-        fig, ax1 = plt.subplots()
-        ax1.scatter(group['number of matched point'], group['ssim'], color='b', label='SSIM', alpha=0.7)
-        ax1.set_xlabel('Number of Matched Points')
-        ax1.set_ylabel('SSIM', color='b')
-        ax1.set_ylim([0, 1])
-        ax1.tick_params(axis='y', labelcolor='b')
-
-        ax2 = ax1.twinx()
-        ax2.scatter(group['number of matched point'], group['mse'], color='r', label='MSE', alpha=0.7)
-        ax2.set_ylabel('MSE', color='r')
-        ax2.set_ylim([0, 20000])
-        ax2.tick_params(axis='y', labelcolor='r')
-
-        plt.title(f'SSIM vs MSE vs Number of Matched Points (Rotation: {rotation})')
-        plt.tight_layout()
-        plt.show()
+        plot_scatter_2axis(group['number of matched point'],
+                           group['ssim'], group['mse'],
+                           'Number of Matched Points', 'SSIM', 'MSE',
+                           (0, 1), (0, 20000),
+                           f'SSIM vs MSE vs Number of Matched Points (Rotation: {rotation})')
 
     # Compute count of not valid points over total for each rotation
     total_counts = df.groupby('uav_image_rotation').size()
@@ -324,6 +312,21 @@ def show_results(filename, path_relative_transform=None):
              xlabel='Relative image rotation',
              ylabel='Ratio of obviously wrong matches',
              title='Ratio of obviously wrong matches per relative image rotation')
+
+    # RAM usage
+
+    df['real_duration'] = df['compare_duration']
+    if "xfeat+lighterglue" in str(filename):
+        df['real_duration'] = df['detect duration'] + df['update duration'] + df['match duration']
+    elif "omniglue" in str(filename) or "xfeat" in str(filename):
+        df['real_duration'] = df['match duration']
+    elif "orb" in str(filename):
+        df['real_duration'] = df['detect duration'] + df['match duration']
+    df['real_duration'] *= 1e-9
+
+    plot_histogram(df['real_duration'].to_numpy(),
+                   50,
+                   title="Execution Duration (s)")
 
     # show results in open cv
     is_running = False
