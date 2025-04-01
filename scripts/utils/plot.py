@@ -66,6 +66,8 @@ def plot(x: Union[np.ndarray, List], y: Union[np.ndarray, List],
     plt.plot(x, y)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.grid()
+    plt.axis("equal")
     plt.show()
 
 
