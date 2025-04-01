@@ -52,7 +52,7 @@ Link to preopen:
 ## _A practical use tutorial_
 
 <div class="center">
-<img src="./docker_explaining.webp" height="400px" />
+<img src="meme_docker_explaining.webp" height="400px" />
 </div>
 
 <!--
@@ -91,7 +91,7 @@ header: 'How to use docker? - **What is docker**'
 
 <div class="center">
 <a href="https://hub.docker.com/_/ros">
-<img src="./works_on_my_machine.png" height="300px" />
+<img src="meme_works_on_my_machine.png" height="300px" />
 </a>
 </div>
 
@@ -156,7 +156,7 @@ header: 'How to use docker? - **Dockerhub**'
 - ROS, ROS2, Coq, NodeJS, argent/argent, Docker
 
 <div class="center">
-<img src="./docker_in_docker.png" height="200px" />
+<img src="meme_docker_in_docker.png" height="200px" />
 </div>
 
 ---
@@ -275,8 +275,8 @@ header: 'How to use docker? - **Run an Image**'
 <img src="./docker_ps.png" height="70px" />
 </div>
 
-- `docker stop <image name>[:<image tag>]`, `docker start <image name>[:<image tag>]`,
-  `docker rm <image name>[:<image tag>]`: start/stop/remove an existing container
+- `docker stop <container id or name>`, `docker start <container id or name>`,
+  `docker rm <container id or name>`: start/stop/remove an existing container
 
 ---
 
@@ -306,7 +306,7 @@ header: 'How to use docker? - **Docker Compose**'
 - Docker compose: multiple `docker run` $\rightarrow$ JSON config (and more)
 
 <div class="center">
-<img src="./docker_everywhere.jpg" height="200px" />
+<img src="meme_docker_everywhere.jpg" height="200px" />
 </div>
 
 ---
@@ -440,7 +440,7 @@ networks:
 
 ---
 
-`docker compose up [-d]`
+`docker compose up [-d]`: start containers with docker compose (`-d`: detached)
 
 <!--
 source devel/setup.bash
