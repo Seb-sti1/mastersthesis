@@ -37,10 +37,10 @@ class RamMonitor:
         self.thread.join()
 
     def get_max_ram(self):
-        return self.max_ram - self.init_ram
+        return self.max_ram
 
     def get_average_ram(self):
-        return self.sum_ram / self.count - self.init_ram
+        return self.sum_ram / self.count
 
 
 class CPURamMonitor(RamMonitor):
