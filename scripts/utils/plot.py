@@ -61,14 +61,17 @@ def plot_histogram(data: np.ndarray, bins: int = 30, title: str = "Histogram of 
 
 def plot(x: Union[np.ndarray, List], y: Union[np.ndarray, List],
          xlabel: str = "x", ylabel: str = "y",
-         title: str = "A plot") -> None:
+         title: str = "A plot",
+         should_show=True) -> None:
     plt.title(title)
     plt.plot(x, y)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.tight_layout()
     plt.grid()
     plt.axis("equal")
-    plt.show()
+    if should_show:
+        plt.show()
 
 
 def plot_scatter_2axis(x: Union[np.ndarray, List], y1: Union[np.ndarray, List],
