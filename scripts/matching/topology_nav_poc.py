@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Optional
 
 import cv2
@@ -9,10 +10,9 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations
+from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations, extract_patch
 from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files, resize_image
 from scripts.utils.norlab_sync_viz import seq1
-from scripts.utils.plot import plot
 
 type Coordinate = np.ndarray
 
@@ -22,12 +22,23 @@ class Node:
         self.name = name
         self.coordinate = coordinate
         self.radius = radius
+        self.patches = []
+        self.path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset")) / self.name
+        self.path.mkdir(parents=True, exist_ok=True)
 
     def distance(self, c: Coordinate) -> float:
         return float(np.linalg.norm(self.coordinate - c))
 
     def is_in(self, c: Coordinate) -> bool:
         return self.distance(c) < self.radius
+
+    def add_patch(self, image: np.ndarray, c: Coordinate, orientation: float) -> None:
+        cv2.imwrite(str(self.path / f"{len(self.patches)}.png"), image)
+        self.patches.append((c, orientation, str(self.path / f"{len(self.patches)}.png")))
+
+    def save_metadata(self):
+        df = pd.DataFrame([(c[0], c[1], o, path) for (c, o, path) in self.patches], columns=["x", "y", "yaw", "path"])
+        df.to_csv(str(self.path / "metadata.csv"), index=False)
 
     def __str__(self):
         return self.name
@@ -57,10 +68,12 @@ class Graph:
         """
         if n1 not in self.edges:
             self.add_node(n1)
-        self.edges[n1].append(n2)
+        if n2 not in self.edges[n1]:
+            self.edges[n1].append(n2)
         if n2 not in self.edges:
             self.add_node(n2)
-        self.edges[n2].append(n1)
+        if n1 not in self.edges[n2]:
+            self.edges[n2].append(n1)
 
     def plot(self):
         fig, ax = plt.subplots()
@@ -81,6 +94,26 @@ class Graph:
         for n in self.nodes:
             if n.is_in(c):
                 return n
+
+    def save(self):
+        path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset")) / "graph.csv"
+        df = pd.DataFrame([(n.name, n.coordinate[0], n.coordinate[1], n.radius,
+                            ",".join([m.name for m in self.edges[n]])) for n in self.nodes],
+                          columns=["name", "x", "y", "r", "connected"])
+        df.to_csv(path, index=False)
+
+    def load(self):
+        path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset")) / "graph.csv"
+        df = pd.read_csv(str(path))
+
+        constructed_node = {}
+        for _, row in df.iterrows():
+            constructed_node[str(row["name"])] = Node(str(row["name"]), (row["x"], row["y"]), row["r"])
+            self.add_node(constructed_node[str(row["name"])])
+
+        for _, row in df.iterrows():
+            for connected_node_name in row["connected"].split(","):
+                self.add_edge(constructed_node[str(row["name"])], constructed_node[connected_node_name])
 
 
 def create_norlab_graph():
@@ -131,8 +164,9 @@ def generate_scouting_data(vis):
     gnss = pd.read_csv(get_dataset_by_name("norlab_ulaval_datasets/test_dataset/sequence1/rtk_odom/rtk_odom.csv"))
 
     g = create_norlab_graph()
-    g.plot()
-    plot(gnss['x'], gnss['y'])
+    g.save()
+    # g.plot()
+    # plot(gnss['x'], gnss['y'])
 
     path_in_nodes = []
     for x, y in zip(gnss['x'], gnss['y']):
@@ -167,7 +201,8 @@ def generate_scouting_data(vis):
         R = np.array([[np.cos(yaw), -np.sin(yaw)],
                       [np.sin(yaw), np.cos(yaw)]])
 
-        patches = create_matrix_front_patch(480,  # 480 ~= pixels_per_meter*2
+        patches_width = 480  # 480 ~= pixels_per_meter*2
+        patches = create_matrix_front_patch(patches_width,
                                             image.shape[:2],
                                             pattern=(4, 7),
                                             margin=(20, 50))
@@ -176,19 +211,20 @@ def generate_scouting_data(vis):
         exclusion_rect = np.array([c + [-w, -h], c + [w, -h], c + [w, h], c + [-w, h]]) + [0, -100]
         exclusion_rect = apply_rotations([exclusion_rect], [-3])[0].astype(np.int32)
 
-        node = []
+        visible_nodes = []
         for p in patches:
             center = (np.array(image.shape)[:2] // 2 - np.mean(p, axis=0)[::-1]) / pixels_per_meter
             coordinate = uav_2d_position + R @ center
             n = g.get_current_node(coordinate)
-            if n is None or overlap(p, exclusion_rect):
-                node.append(None)
+            if n is not None and not overlap(p, exclusion_rect):
+                visible_nodes.append(n)
+                n.add_patch(extract_patch(p, image, patches_width), coordinate, yaw_uav)
             else:
-                node.append(n)
+                visible_nodes.append(None)
 
         if vis:
             cv2.polylines(image, [exclusion_rect], isClosed=True, color=(0, 0, 255), thickness=10)
-            for p, n in zip(patches, node):
+            for p, n in zip(patches, visible_nodes):
                 c = (0, 0, 255) if n is None else (0, 255, 0)
                 cv2.polylines(image, [p], isClosed=True, color=c, thickness=10)
                 cv2.putText(image,
@@ -202,6 +238,10 @@ def generate_scouting_data(vis):
             elif k == ord(' '):
                 is_running = not is_running
 
+    for node in g.nodes:
+        print(f"{node}: {len(node.patches)}")
+        node.save_metadata()
+
 
 # TODO iterate over images
 #   - get patch up, down, right left (square) (/!\ ignoring uav)
@@ -212,4 +252,4 @@ def generate_scouting_data(vis):
 
 
 if __name__ == "__main__":
-    generate_scouting_data(True)
+    generate_scouting_data(False)
