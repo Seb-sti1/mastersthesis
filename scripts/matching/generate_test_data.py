@@ -113,6 +113,13 @@ def apply_rotations(corners: List[np.ndarray], angles: List[float]) -> List[np.n
     return rotated_rects
 
 
+def extract_patch(corners: np.ndarray, src_image: np.ndarray, side_width: int) -> np.ndarray:
+    M = cv2.getPerspectiveTransform(corners.astype(np.float32), np.array(
+        [[0, 0], [side_width - 1, 0], [side_width - 1, side_width - 1], [0, side_width - 1]],
+        dtype=np.float32))
+    return cv2.warpPerspective(src_image, M, (side_width, side_width))
+
+
 def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
     out_dir = Path(get_dataset_by_name(os.path.join(corr_dataset, f"{patch_type}_patch")))
 
@@ -148,10 +155,7 @@ def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):
             side_length = int(np.linalg.norm(square.astype(np.float32)[0] - square[1]))
             if 50 > side_length or side_length > 1000:
                 continue
-            M = cv2.getPerspectiveTransform(square.astype(np.float32), np.array(
-                [[0, 0], [side_length - 1, 0], [side_length - 1, side_length - 1], [0, side_length - 1]],
-                dtype=np.float32))
-            extracted_square = cv2.warpPerspective(image, M, (side_length, side_length))
+            extracted_square = extract_patch(square, image, side_length)
 
             savepath = str(out_dir / f"{filepath.stem}_{index}{filepath.suffix}")
             if not vis:
