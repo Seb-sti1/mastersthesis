@@ -9,7 +9,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from matching.generate_test_data import get_aruco, create_matrix_front_patch
+from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations
 from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files, resize_image
 from scripts.utils.norlab_sync_viz import seq1
 from scripts.utils.plot import plot
@@ -117,6 +117,16 @@ def create_norlab_graph():
     return g
 
 
+def overlap(rect1: np.ndarray, rect2: np.ndarray) -> bool:
+    for p in rect1:
+        if cv2.pointPolygonTest(rect2.reshape(-1, 1, 2), p.astype(np.float32), False) >= 0:
+            return True
+    for q in rect2:
+        if cv2.pointPolygonTest(rect1.reshape(-1, 1, 2), q.astype(np.float32), False) >= 0:
+            return True
+    return False
+
+
 def generate_scouting_data(vis):
     gnss = pd.read_csv(get_dataset_by_name("norlab_ulaval_datasets/test_dataset/sequence1/rtk_odom/rtk_odom.csv"))
 
@@ -146,6 +156,9 @@ def generate_scouting_data(vis):
             In the final algorithm, this trick won't be necessary.
             """
             continue
+        perimeter = np.sum(np.array([np.linalg.norm(aruco[0, i, :] - aruco[0, i + 1, :]) for i in range(-1, 3)]))
+        pixels_per_meter = perimeter / 1.4
+
         aruco_angle = np.arctan2(aruco[0, 1, 1] - aruco[0, 0, 1],
                                  aruco[0, 1, 0] - aruco[0, 0, 0])  # angle from ugv to uav
         yaw_ugv = search_gnss['yaw']  # angle from global to ugv
@@ -153,24 +166,28 @@ def generate_scouting_data(vis):
         yaw = - yaw_uav  # angle from uav to global
         R = np.array([[np.cos(yaw), -np.sin(yaw)],
                       [np.sin(yaw), np.cos(yaw)]])
-        perimeter = np.sum(np.array([np.linalg.norm(aruco[0, i, :] - aruco[0, i + 1, :]) for i in range(-1, 3)]))
-        pixels_per_meter = perimeter / 1.4
-        patches = create_matrix_front_patch(int(pixels_per_meter * 2),
+
+        patches = create_matrix_front_patch(480,  # 480 ~= pixels_per_meter*2
                                             image.shape[:2],
                                             pattern=(4, 7),
                                             margin=(20, 50))
+        c = np.mean(aruco[0, :, :], axis=0)
+        w, h = 250, 325
+        exclusion_rect = np.array([c + [-w, -h], c + [w, -h], c + [w, h], c + [-w, h]]) + [0, -100]
+        exclusion_rect = apply_rotations([exclusion_rect], [-3])[0].astype(np.int32)
 
         node = []
         for p in patches:
             center = (np.array(image.shape)[:2] // 2 - np.mean(p, axis=0)[::-1]) / pixels_per_meter
             coordinate = uav_2d_position + R @ center
             n = g.get_current_node(coordinate)
-            if n is None:
+            if n is None or overlap(p, exclusion_rect):
                 node.append(None)
             else:
                 node.append(n)
 
         if vis:
+            cv2.polylines(image, [exclusion_rect], isClosed=True, color=(0, 0, 255), thickness=10)
             for p, n in zip(patches, node):
                 c = (0, 0, 255) if n is None else (0, 255, 0)
                 cv2.polylines(image, [p], isClosed=True, color=c, thickness=10)
