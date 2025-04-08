@@ -1,20 +1,42 @@
 from __future__ import annotations
 
+import logging
+import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple, Callable, Any
 
 import cv2
 import matplotlib
 import numpy as np
 import pandas as pd
+import torch
 from matplotlib import pyplot as plt
+from numpy import floating
 from tqdm import tqdm
 
-from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations, extract_patch
+from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations
 from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files, resize_image
 from scripts.utils.norlab_sync_viz import seq1
 
+_initiated_xfeat: Optional[torch] = None
+default_path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset"))
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 type Coordinate = np.ndarray
+
+
+def init_xfeat():
+    global _initiated_xfeat
+    logger.debug(f"Cuda device(s) {os.environ['CUDA_VISIBLE_DEVICES']}"
+                 if "CUDA_VISIBLE_DEVICES" in os.environ else "No CUDA devices")
+    _initiated_xfeat = torch.hub.load('verlab/accelerated_features', 'XFeat', pretrained=True, top_k=4096)
+
+
+def get_xfeat():
+    global _initiated_xfeat
+    if _initiated_xfeat is None:
+        init_xfeat()
+    return _initiated_xfeat
 
 
 class Node:
@@ -23,8 +45,9 @@ class Node:
         self.coordinate = coordinate
         self.radius = radius
         self.patches = []
-        self.path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset")) / self.name
+        self.path = default_path / self.name
         self.path.mkdir(parents=True, exist_ok=True)
+        self.correspondance_data = []
 
     def distance(self, c: Coordinate) -> float:
         return float(np.linalg.norm(self.coordinate - c))
@@ -39,6 +62,22 @@ class Node:
     def save_metadata(self):
         df = pd.DataFrame([(c[0], c[1], o, path) for (c, o, path) in self.patches], columns=["x", "y", "yaw", "path"])
         df.to_csv(str(self.path / "metadata.csv"), index=False)
+
+    def load_metadata(self):
+        df = pd.read_csv(str(self.path / "metadata.csv"))
+        self.patches = [((r['x'], r['y']), r['yaw'], r['path']) for _, r in df.iterrows()]
+
+    def add_correspondance(self,
+                           features: np.ndarray,
+                           patch: Tuple[Coordinate, float, str],
+                           memory_size: int,
+                           scoring_function: Callable[[Coordinate, float, np.ndarray], floating[Any]]) -> None:
+        self.correspondance_data.append((patch[0], patch[1], features))
+        if len(self.correspondance_data) > memory_size:
+            # FIXME test this
+            self.correspondance_data = sorted(self.correspondance_data, key=lambda x: scoring_function(*x),
+                                              reverse=True)
+            self.correspondance_data = self.correspondance_data[:memory_size]
 
     def __str__(self):
         return self.name
@@ -96,20 +135,21 @@ class Graph:
                 return n
 
     def save(self):
-        path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset")) / "graph.csv"
+        path = default_path / "graph.csv"
         df = pd.DataFrame([(n.name, n.coordinate[0], n.coordinate[1], n.radius,
                             ",".join([m.name for m in self.edges[n]])) for n in self.nodes],
                           columns=["name", "x", "y", "r", "connected"])
         df.to_csv(path, index=False)
 
     def load(self):
-        path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset")) / "graph.csv"
+        path = default_path / "graph.csv"
         df = pd.read_csv(str(path))
 
         constructed_node = {}
         for _, row in df.iterrows():
             constructed_node[str(row["name"])] = Node(str(row["name"]), (row["x"], row["y"]), row["r"])
             self.add_node(constructed_node[str(row["name"])])
+            constructed_node[str(row["name"])].load_metadata()
 
         for _, row in df.iterrows():
             for connected_node_name in row["connected"].split(","):
@@ -160,27 +200,26 @@ def overlap(rect1: np.ndarray, rect2: np.ndarray) -> bool:
     return False
 
 
-def generate_scouting_data(vis):
-    gnss = pd.read_csv(get_dataset_by_name("norlab_ulaval_datasets/test_dataset/sequence1/rtk_odom/rtk_odom.csv"))
+def rotation_matrix(a: float) -> np.ndarray:
+    return np.array([[np.cos(a), -np.sin(a)],
+                     [np.sin(a), np.cos(a)]])
 
-    g = create_norlab_graph()
-    g.save()
-    # g.plot()
-    # plot(gnss['x'], gnss['y'])
 
-    path_in_nodes = []
-    for x, y in zip(gnss['x'], gnss['y']):
-        n = g.get_current_node(np.array([x, y]))
-        if n is not None and (len(path_in_nodes) == 0 or path_in_nodes[-1] != n):
-            path_in_nodes.append(n)
-    print(path_in_nodes)
+def from_ugv_to_pixel(xy: np.ndarray, aruco_a: float, aruco_c: np.ndarray, pixels_per_meter: float) -> np.array:
+    return (aruco_c - (rotation_matrix(aruco_a) @ xy)[::-1] * pixels_per_meter).astype(np.int32)
 
+
+def from_pixel_to_ugv(ij: np.ndarray, aruco_a: float, aruco_c: np.ndarray, pixel_per_meter: float) -> np.array:
+    return rotation_matrix(-aruco_a) @ ((aruco_c - ij.astype(np.float32)) / pixel_per_meter)[::-1]
+
+
+def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
     is_running = False
-
     for filepath, image in tqdm(load_paths_and_files(get_dataset_by_name(seq1 / "aerial" / "images"))):
         uav_time = int(filepath.stem)
         search_gnss = gnss.iloc[(gnss['timestamp'] - uav_time).abs().argmin()]
-        uav_2d_position = np.array([search_gnss['x'], search_gnss['y']])
+        ugv_pos = np.array([search_gnss['x'], search_gnss['y']])  # x, y from global to ugv
+        yaw_ugv = search_gnss['yaw']  # angle from global to ugv
 
         aruco = get_aruco(image)
         if aruco is None:
@@ -190,43 +229,56 @@ def generate_scouting_data(vis):
             In the final algorithm, this trick won't be necessary.
             """
             continue
-        perimeter = np.sum(np.array([np.linalg.norm(aruco[0, i, :] - aruco[0, i + 1, :]) for i in range(-1, 3)]))
-        pixels_per_meter = perimeter / 1.4
+        aruco = aruco[0, :, :]  # there is only one aruco tag
+        pixels_per_meter = np.sum(np.array([np.linalg.norm(aruco[i, :] - aruco[i + 1, :])
+                                            for i in range(-1, 3)])) / 1.4
+        aruco_a = np.arctan2(aruco[0, 1] - aruco[1, 1],
+                             aruco[1, 0] - aruco[0, 0]) - np.pi / 2  # angle from ugv to uav
+        aruco_c = np.mean(aruco, axis=0)
 
-        aruco_angle = np.arctan2(aruco[0, 1, 1] - aruco[0, 0, 1],
-                                 aruco[0, 1, 0] - aruco[0, 0, 0])  # angle from ugv to uav
-        yaw_ugv = search_gnss['yaw']  # angle from global to ugv
-        yaw_uav = yaw_ugv + aruco_angle  # angle from global to uav
-        yaw = - yaw_uav  # angle from uav to global
-        R = np.array([[np.cos(yaw), -np.sin(yaw)],
-                      [np.sin(yaw), np.cos(yaw)]])
-
+        yaw_uav = yaw_ugv + aruco_a  # angle from global to uav
         patches_width = 480  # 480 ~= pixels_per_meter*2
         patches = create_matrix_front_patch(patches_width,
                                             image.shape[:2],
                                             pattern=(4, 7),
                                             margin=(20, 50))
-        c = np.mean(aruco[0, :, :], axis=0)
+        patches = apply_rotations(patches, [-yaw_uav])
         w, h = 250, 325
-        exclusion_rect = np.array([c + [-w, -h], c + [w, -h], c + [w, h], c + [-w, h]]) + [0, -100]
-        exclusion_rect = apply_rotations([exclusion_rect], [-3])[0].astype(np.int32)
+        exclusion_rect = apply_rotations([np.array([aruco_c + [-w, -h], aruco_c + [w, -h],
+                                                    aruco_c + [w, h], aruco_c + [-w, h]]) + [0, -100]],
+                                         [-3])[0].astype(np.int32)
 
         visible_nodes = []
-        for p in patches:
-            center = (np.array(image.shape)[:2] // 2 - np.mean(p, axis=0)[::-1]) / pixels_per_meter
-            coordinate = uav_2d_position + R @ center
-            n = g.get_current_node(coordinate)
-            if n is not None and not overlap(p, exclusion_rect):
-                visible_nodes.append(n)
-                n.add_patch(extract_patch(p, image, patches_width), coordinate, yaw_uav)
-            else:
-                visible_nodes.append(None)
+        # for p in patches:
+        #     from_aruco_to_p_in_tf_uav = (aruco_origin - np.mean(p, axis=0)[::-1]) / pixels_per_meter
+        #     from_aruco_to_p_in_tf_ugv = rotation_matrix(-aruco) @ from_aruco_to_p_in_tf_uav
+        #     coordinate = uav_2d_position + from_aruco_to_p_in_tf_uav
+        #     n = g.get_current_node(coordinate)
+        #     if n is not None and not overlap(p, exclusion_rect):
+        #         visible_nodes.append(n)
+        #         n.add_patch(extract_patch(p, image, patches_width), coordinate, yaw_uav)
+        #     else:
+        #         visible_nodes.append(None)
 
         if vis:
+            # draw aruco
+            cv2.polylines(image, [aruco.astype(np.int32)], isClosed=True, color=(0, 0, 0), thickness=5)
+            for i, c in enumerate([(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 255)]):
+                cv2.circle(image, aruco[i, :].astype(np.int32), radius=5, color=c, thickness=-1)
+
+            # draw ugv frame
+            a_o = from_ugv_to_pixel(np.array([0, 0]), aruco_a, aruco_c, pixels_per_meter)
+            x_uav_pixels = from_ugv_to_pixel(np.array([1, 0]), aruco_a, aruco_c, pixels_per_meter)
+            y_uav_pixels = from_ugv_to_pixel(np.array([0, 1]), aruco_a, aruco_c, pixels_per_meter)
+            cv2.circle(image, a_o, radius=50, color=(255, 255, 255), thickness=-1)
+            cv2.line(image, a_o, x_uav_pixels, (0, 0, 255), 10)
+            cv2.line(image, a_o, y_uav_pixels, (0, 255, 0), 10)
+
+            # draw exclusion zone and patches
             cv2.polylines(image, [exclusion_rect], isClosed=True, color=(0, 0, 255), thickness=10)
             for p, n in zip(patches, visible_nodes):
-                c = (0, 0, 255) if n is None else (0, 255, 0)
-                cv2.polylines(image, [p], isClosed=True, color=c, thickness=10)
+                aruco_c = (0, 0, 255) if n is None else (0, 255, 0)
+                cv2.polylines(image, [p], isClosed=True, color=aruco_c, thickness=10)
                 cv2.putText(image,
                             f"{str(n)}",
                             np.mean(p, axis=0).astype(np.int32),
@@ -242,14 +294,64 @@ def generate_scouting_data(vis):
         print(f"{node}: {len(node.patches)}")
         node.save_metadata()
 
+    cv2.destroyAllWindows()
 
-# TODO iterate over images
-#   - get patch up, down, right left (square) (/!\ ignoring uav)
-#   - get true coordinate of each patch using aruco, exclude patch not in node
-#   - get true orientation using aruco
-#   - extract score using xfeat: threshold using value
-#   - save image patch (debug) and feature (for uav nav)
+
+def filter_scouting_data(g: Graph, vis: bool):
+    xfeat = get_xfeat()
+
+    def scoring(_: Coordinate, __: float, feats: np.ndarray) -> floating[Any]:
+        return np.median(feats['scores'].cpu().numpy())
+
+    keep = 50
+    for n in g.nodes:
+        current_min_score = 0
+        for p in tqdm(n.patches):
+            image = cv2.imread(p[2])
+            output = xfeat.detectAndCompute(image, top_k=4096)[0]
+            output.update({'image_size': (image.shape[1], image.shape[0])})
+            score = scoring(p[0], p[1], output)
+            if score > current_min_score:
+                current_min_score = min(score, current_min_score)
+                n.add_correspondance(output, p, keep, scoring)
+
+    return g
+
+
+def detect_ugv_location(g: Graph, gnss: pd.DataFrame, vis: bool):
+    is_running = False
+    for (_, ugv_image), (filepath, ugv_bev) in tqdm(
+            zip(load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "images")),
+                load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "projections")))):
+        ugv_time = int(filepath.stem)
+        search_gnss = gnss.iloc[(gnss['timestamp'] - ugv_time).abs().argmin()]
+        ugv_2d_position = np.array([search_gnss['x'], search_gnss['y']])
+        yaw_ugv = search_gnss['yaw']  # angle from global to ugv
+
+    pass
 
 
 if __name__ == "__main__":
-    generate_scouting_data(False)
+
+    if (default_path / "graph.csv").exists():
+        graph = Graph()
+        graph.load()
+    else:
+        graph = create_norlab_graph()
+        graph.save()
+
+    gnss_norlab = pd.read_csv(
+        get_dataset_by_name("norlab_ulaval_datasets/test_dataset/sequence1/rtk_odom/rtk_odom.csv"))
+    # graph.plot()
+    # plot(gnss['x'], gnss['y'])
+
+    path_in_nodes = []
+    for x, y in zip(gnss_norlab['x'], gnss_norlab['y']):
+        n = graph.get_current_node(np.array([x, y]))
+        if n is not None and (len(path_in_nodes) == 0 or path_in_nodes[-1] != n):
+            path_in_nodes.append(n)
+    print(path_in_nodes)
+
+    generate_scouting_data(graph, gnss_norlab, True)
+    # graph = filter_scouting_data(graph, True)
+    # detect_ugv_location(graph, gnss_norlab, True)
