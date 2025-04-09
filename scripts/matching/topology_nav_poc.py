@@ -198,6 +198,8 @@ def overlap(rect1: np.ndarray, rect2: np.ndarray) -> bool:
     for q in rect2:
         if cv2.pointPolygonTest(rect1.reshape(-1, 1, 2), q.astype(np.float32), False) >= 0:
             return True
+    if cv2.pointPolygonTest(rect1, rect2.mean(axis=0).astype(np.float32), False) >= 0:
+        return True
     return False
 
 
@@ -247,15 +249,15 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
         tf_map_to_ugv = np.linalg.inv(tf_ugv_to_map)
 
         patches_width = 480  # 480 ~= pixels_per_meter*2
-        patches = create_matrix_front_patch(patches_width,
-                                            image.shape[:2],
-                                            pattern=(4, 7),
-                                            margin=(20, 50))
-        patches = apply_rotations(patches, [-search_gnss['yaw'] - aruco_a])  # FIXME this is wrong
+        patches = [p + [0, -90] for p in create_matrix_front_patch(patches_width,
+                                                                   image.shape[:2],
+                                                                   pattern=(4, 7),
+                                                                   margin=(20, 10))]
+        patches = apply_rotations(patches, [np.rad2deg(-search_gnss['yaw'] + aruco_a)])
         w, h = 250, 325
         exclusion_rect = apply_rotations([np.array([aruco_c + [-w, -h], aruco_c + [w, -h],
                                                     aruco_c + [w, h], aruco_c + [-w, h]]) + [0, -100]],
-                                         [-3])[0].astype(np.int32)
+                                         [3])[0].astype(np.int32)
 
         def filter_patch():
             for p in patches:
@@ -269,6 +271,7 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
                 n.add_patch(extract_patch(p, image, patches_width), coordinate, 0)
 
         if vis:
+            background = image.copy()
             # draw aruco
             for i, c in enumerate([(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 255)]):
                 cv2.circle(image, aruco[i, :].astype(np.int32), radius=5, color=c, thickness=-1)
@@ -277,11 +280,11 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
             for o, xy_list in zip([np.array([0, 0]),
                                    tf_map_to_ugv[:2, 2],
                                    np.array([0, 0])],
-                                  [[np.array([1, 0]), np.array([0, 1])],
+                                  [[(tf_map_to_ugv[:2, :2] @ np.array([1, 0])),
+                                    (tf_map_to_ugv[:2, :2] @ np.array([0, 1]))],
                                    [(tf_map_to_ugv @ np.array([1, 0, 1]))[:2],
                                     (tf_map_to_ugv @ np.array([0, 1, 1]))[:2]],
-                                   [(tf_map_to_ugv[:2, :2] @ np.array([1, 0])),
-                                    (tf_map_to_ugv[:2, :2] @ np.array([0, 1]))]
+                                   [np.array([1, 0]), np.array([0, 1])]
                                    ]):
                 ij_o = from_ugv_to_pixel(o, aruco_a, aruco_c, pixels_per_meter)
                 for xy, c in zip(xy_list, [(0, 0, 255), (0, 255, 0)]):
@@ -307,7 +310,10 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
                             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
 
             # show image
-            cv2.imshow("image", resize_image(image, 600))
+            alpha = 0.5
+            image_viz = cv2.addWeighted(resize_image(image, 600), alpha,
+                                        resize_image(background, 600), 1 - alpha, 0)
+            cv2.imshow("image", image_viz)
             k = cv2.waitKey(5 if is_running else 0) & 0xFF
             if k == ord('q'):
                 break
@@ -355,7 +361,7 @@ def detect_ugv_location(g: Graph, gnss: pd.DataFrame, vis: bool):
     pass
 
 
-if __name__ == "__main__":
+def main():
     logger.setLevel(logging.DEBUG)
 
     if (default_path / "graph.csv").exists():
@@ -373,7 +379,7 @@ if __name__ == "__main__":
                             gnss_norlab['x'][45] - gnss_norlab['x'][5])
     measured_angle = np.mean(gnss_norlab['yaw'][5:46])
     gnss_norlab['old_yaw'] = gnss_norlab['yaw']
-    gnss_norlab['yaw'] = gnss_norlab['yaw'] - measured_angle + real_angle
+    gnss_norlab['yaw'] = (gnss_norlab['yaw'] - measured_angle + real_angle) % np.pi
     logger.debug(f"{abs(3.14 / 4 - measured_angle + real_angle)}")
 
     graph.plot()
@@ -393,3 +399,7 @@ if __name__ == "__main__":
     generate_scouting_data(graph, gnss_norlab, True)
     # graph = filter_scouting_data(graph, True)
     # detect_ugv_location(graph, gnss_norlab, True)
+
+
+if __name__ == "__main__":
+    main()
