@@ -205,6 +205,14 @@ def rotation_matrix(a: float) -> np.ndarray:
                      [np.sin(a), np.cos(a)]])
 
 
+def get_transformation_matrix(xy: np.ndarray, a: float) -> np.ndarray:
+    t = np.zeros((3, 3))
+    t[:2, :2] = rotation_matrix(a)
+    t[:2, 2] = xy
+    t[2, 2] = 1
+    return t
+
+
 def from_ugv_to_pixel(xy: np.ndarray, aruco_a: float, aruco_c: np.ndarray, pixels_per_meter: float) -> np.array:
     return (aruco_c - (rotation_matrix(aruco_a) @ xy)[::-1] * pixels_per_meter).astype(np.int32)
 
@@ -216,11 +224,6 @@ def from_pixel_to_ugv(ij: np.ndarray, aruco_a: float, aruco_c: np.ndarray, pixel
 def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
     is_running = False
     for filepath, image in tqdm(load_paths_and_files(get_dataset_by_name(seq1 / "aerial" / "images"))):
-        uav_time = int(filepath.stem)
-        search_gnss = gnss.iloc[(gnss['timestamp'] - uav_time).abs().argmin()]
-        ugv_pos = np.array([search_gnss['x'], search_gnss['y']])  # x, y from global to ugv
-        yaw_ugv = search_gnss['yaw']  # angle from global to ugv
-
         aruco = get_aruco(image)
         if aruco is None:
             """
@@ -230,19 +233,23 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
             """
             continue
         aruco = aruco[0, :, :]  # there is only one aruco tag
-        pixels_per_meter = np.sum(np.array([np.linalg.norm(aruco[i, :] - aruco[i + 1, :])
-                                            for i in range(-1, 3)])) / 1.4
         aruco_a = np.arctan2(aruco[0, 1] - aruco[1, 1],
                              aruco[1, 0] - aruco[0, 0]) - np.pi / 2  # angle from ugv to uav
-        aruco_c = np.mean(aruco, axis=0)
+        aruco_c = np.mean(aruco, axis=0)  # position of the aruco in the image
+        pixels_per_meter = np.sum(np.array([np.linalg.norm(aruco[i, :] - aruco[i + 1, :])
+                                            for i in range(-1, 3)])) / 1.4  # resolution of the image
 
-        yaw_uav = yaw_ugv + aruco_a  # angle from global to uav
+        uav_time = int(filepath.stem)
+        search_gnss = gnss.iloc[(gnss['timestamp'] - uav_time).abs().argmin()]
+        tf_ugv_to_map = np.linalg.inv(get_transformation_matrix(np.array([search_gnss['x'], search_gnss['y']]),
+                                                                search_gnss['yaw']))
+
         patches_width = 480  # 480 ~= pixels_per_meter*2
         patches = create_matrix_front_patch(patches_width,
                                             image.shape[:2],
                                             pattern=(4, 7),
                                             margin=(20, 50))
-        patches = apply_rotations(patches, [-yaw_uav])
+        # patches = apply_rotations(patches, [-yaw_uav])
         w, h = 250, 325
         exclusion_rect = apply_rotations([np.array([aruco_c + [-w, -h], aruco_c + [w, -h],
                                                     aruco_c + [w, h], aruco_c + [-w, h]]) + [0, -100]],
@@ -262,17 +269,19 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 
         if vis:
             # draw aruco
-            cv2.polylines(image, [aruco.astype(np.int32)], isClosed=True, color=(0, 0, 0), thickness=5)
             for i, c in enumerate([(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 255)]):
                 cv2.circle(image, aruco[i, :].astype(np.int32), radius=5, color=c, thickness=-1)
 
             # draw ugv frame
-            a_o = from_ugv_to_pixel(np.array([0, 0]), aruco_a, aruco_c, pixels_per_meter)
-            x_uav_pixels = from_ugv_to_pixel(np.array([1, 0]), aruco_a, aruco_c, pixels_per_meter)
-            y_uav_pixels = from_ugv_to_pixel(np.array([0, 1]), aruco_a, aruco_c, pixels_per_meter)
-            cv2.circle(image, a_o, radius=50, color=(255, 255, 255), thickness=-1)
-            cv2.line(image, a_o, x_uav_pixels, (0, 0, 255), 10)
-            cv2.line(image, a_o, y_uav_pixels, (0, 255, 0), 10)
+            for o, xy_list in zip([np.array([0, 0]),
+                                   tf_ugv_to_map[:2, 2]],
+                                  [[np.array([1, 0]), np.array([0, 1])],
+                                   [(tf_ugv_to_map @ np.array([1, 0, 1]))[:2],
+                                    (tf_ugv_to_map @ np.array([0, 1, 1]))[:2]]]):  # FIXME
+                ij_o = from_ugv_to_pixel(o, aruco_a, aruco_c, pixels_per_meter)
+                for xy, c in zip(xy_list, [(0, 0, 255), (0, 255, 0)]):
+                    ij = from_ugv_to_pixel(xy, aruco_a, aruco_c, pixels_per_meter)
+                    cv2.line(image, ij_o, ij, c, 10)
 
             # draw exclusion zone and patches
             cv2.polylines(image, [exclusion_rect], isClosed=True, color=(0, 0, 255), thickness=10)
@@ -283,6 +292,8 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
                             f"{str(n)}",
                             np.mean(p, axis=0).astype(np.int32),
                             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+
+            # show image
             cv2.imshow("image", resize_image(image, 600))
             k = cv2.waitKey(5 if is_running else 0) & 0xFF
             if k == ord('q'):
