@@ -14,9 +14,10 @@ from matplotlib import pyplot as plt
 from numpy import floating
 from tqdm import tqdm
 
-from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations
+from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations, extract_patch
 from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files, resize_image
 from scripts.utils.norlab_sync_viz import seq1
+from scripts.utils.plot import plot
 
 _initiated_xfeat: Optional[torch] = None
 default_path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset"))
@@ -241,43 +242,47 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 
         uav_time = int(filepath.stem)
         search_gnss = gnss.iloc[(gnss['timestamp'] - uav_time).abs().argmin()]
-        tf_ugv_to_map = np.linalg.inv(get_transformation_matrix(np.array([search_gnss['x'], search_gnss['y']]),
-                                                                search_gnss['yaw']))
+        tf_ugv_to_map = get_transformation_matrix(np.array([search_gnss['x'], search_gnss['y']]),
+                                                  search_gnss['yaw'])
+        tf_map_to_ugv = np.linalg.inv(tf_ugv_to_map)
 
         patches_width = 480  # 480 ~= pixels_per_meter*2
         patches = create_matrix_front_patch(patches_width,
                                             image.shape[:2],
                                             pattern=(4, 7),
                                             margin=(20, 50))
-        # patches = apply_rotations(patches, [-yaw_uav])
+        patches = apply_rotations(patches, [-search_gnss['yaw'] - aruco_a])  # FIXME this is wrong
         w, h = 250, 325
         exclusion_rect = apply_rotations([np.array([aruco_c + [-w, -h], aruco_c + [w, -h],
                                                     aruco_c + [w, h], aruco_c + [-w, h]]) + [0, -100]],
                                          [-3])[0].astype(np.int32)
 
-        visible_nodes = []
-        # for p in patches:
-        #     from_aruco_to_p_in_tf_uav = (aruco_origin - np.mean(p, axis=0)[::-1]) / pixels_per_meter
-        #     from_aruco_to_p_in_tf_ugv = rotation_matrix(-aruco) @ from_aruco_to_p_in_tf_uav
-        #     coordinate = uav_2d_position + from_aruco_to_p_in_tf_uav
-        #     n = g.get_current_node(coordinate)
-        #     if n is not None and not overlap(p, exclusion_rect):
-        #         visible_nodes.append(n)
-        #         n.add_patch(extract_patch(p, image, patches_width), coordinate, yaw_uav)
-        #     else:
-        #         visible_nodes.append(None)
+        def filter_patch():
+            for p in patches:
+                coordinate_in_ugv = from_pixel_to_ugv(np.mean(p, axis=0), aruco_a, aruco_c, pixels_per_meter)
+                coordinate = (tf_ugv_to_map @ np.array([coordinate_in_ugv[0], coordinate_in_ugv[1], 1]))[:2]
+                n = g.get_current_node(coordinate)
+                yield p, n, coordinate, n is not None and not overlap(p, exclusion_rect)
+
+        for p, n, coordinate, valid in filter_patch():
+            if valid:
+                n.add_patch(extract_patch(p, image, patches_width), coordinate, 0)
 
         if vis:
             # draw aruco
             for i, c in enumerate([(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 255)]):
                 cv2.circle(image, aruco[i, :].astype(np.int32), radius=5, color=c, thickness=-1)
 
-            # draw ugv frame
+            # draw ugv/global frame
             for o, xy_list in zip([np.array([0, 0]),
-                                   tf_ugv_to_map[:2, 2]],
+                                   tf_map_to_ugv[:2, 2],
+                                   np.array([0, 0])],
                                   [[np.array([1, 0]), np.array([0, 1])],
-                                   [(tf_ugv_to_map @ np.array([1, 0, 1]))[:2],
-                                    (tf_ugv_to_map @ np.array([0, 1, 1]))[:2]]]):  # FIXME
+                                   [(tf_map_to_ugv @ np.array([1, 0, 1]))[:2],
+                                    (tf_map_to_ugv @ np.array([0, 1, 1]))[:2]],
+                                   [(tf_map_to_ugv[:2, :2] @ np.array([1, 0])),
+                                    (tf_map_to_ugv[:2, :2] @ np.array([0, 1]))]
+                                   ]):
                 ij_o = from_ugv_to_pixel(o, aruco_a, aruco_c, pixels_per_meter)
                 for xy, c in zip(xy_list, [(0, 0, 255), (0, 255, 0)]):
                     ij = from_ugv_to_pixel(xy, aruco_a, aruco_c, pixels_per_meter)
@@ -285,12 +290,20 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 
             # draw exclusion zone and patches
             cv2.polylines(image, [exclusion_rect], isClosed=True, color=(0, 0, 255), thickness=10)
-            for p, n in zip(patches, visible_nodes):
-                aruco_c = (0, 0, 255) if n is None else (0, 255, 0)
-                cv2.polylines(image, [p], isClosed=True, color=aruco_c, thickness=10)
+            for p, n, coordinate, valid in filter_patch():
+                c = (0, 255, 0) if valid else (0, 0, 255)
+                cv2.polylines(image, [p], isClosed=True, color=c, thickness=10)
                 cv2.putText(image,
-                            f"{str(n)}",
-                            np.mean(p, axis=0).astype(np.int32),
+                            f"{n}",
+                            np.mean(p, axis=0).astype(np.int32) + [-200, -200],
+                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                cv2.putText(image,
+                            f"{coordinate[0]:.1f}",
+                            np.mean(p, axis=0).astype(np.int32) + [-200, -100],
+                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                cv2.putText(image,
+                            f"{coordinate[1]:.1f}",
+                            np.mean(p, axis=0).astype(np.int32) + [-200, 0],
                             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
 
             # show image
@@ -343,6 +356,7 @@ def detect_ugv_location(g: Graph, gnss: pd.DataFrame, vis: bool):
 
 
 if __name__ == "__main__":
+    logger.setLevel(logging.DEBUG)
 
     if (default_path / "graph.csv").exists():
         graph = Graph()
@@ -353,8 +367,21 @@ if __name__ == "__main__":
 
     gnss_norlab = pd.read_csv(
         get_dataset_by_name("norlab_ulaval_datasets/test_dataset/sequence1/rtk_odom/rtk_odom.csv"))
-    # graph.plot()
-    # plot(gnss['x'], gnss['y'])
+
+    # fix yaw angle
+    real_angle = np.arctan2(gnss_norlab['y'][45] - gnss_norlab['y'][5],
+                            gnss_norlab['x'][45] - gnss_norlab['x'][5])
+    measured_angle = np.mean(gnss_norlab['yaw'][5:46])
+    gnss_norlab['old_yaw'] = gnss_norlab['yaw']
+    gnss_norlab['yaw'] = gnss_norlab['yaw'] - measured_angle + real_angle
+    logger.debug(f"{abs(3.14 / 4 - measured_angle + real_angle)}")
+
+    graph.plot()
+    for i, (x, y, yaw) in enumerate(zip(gnss_norlab['x'], gnss_norlab['y'], gnss_norlab['yaw'])):
+        if i % 10 == 0:
+            plt.arrow(x, y, 2 * np.cos(yaw), 2 * np.sin(yaw), head_width=0.5, color='g')
+    plot(gnss_norlab['x'], gnss_norlab['y'])
+    plt.show()
 
     path_in_nodes = []
     for x, y in zip(gnss_norlab['x'], gnss_norlab['y']):
