@@ -103,7 +103,7 @@ def apply_rotations(corners: List[np.ndarray], angles: List[float]) -> List[np.n
     for corner_set in corners:
         center = np.mean(corner_set, axis=0)
         for angle in angles:
-            theta = np.radians(angle)
+            theta = np.radians(-angle)
             rotation_matrix = np.array([
                 [np.cos(theta), -np.sin(theta)],
                 [np.sin(theta), np.cos(theta)]
