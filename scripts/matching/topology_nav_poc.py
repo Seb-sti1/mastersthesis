@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Optional, Tuple, Callable, Any
+from typing import Optional, Dict
 
 import cv2
 import matplotlib
@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 import torch
 from matplotlib import pyplot as plt
-from numpy import floating
 from tqdm import tqdm
 
 from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations, extract_patch
@@ -68,28 +67,17 @@ class Node:
         df = pd.read_csv(str(self.path / "metadata.csv"))
         self.patches = [((r['x'], r['y']), r['yaw'], r['path']) for _, r in df.iterrows()]
 
-    def add_correspondance(self,
-                           features: np.ndarray,
-                           patch: Tuple[np.ndarray, float, str],
-                           memory_size: int,
-                           scoring_function: Callable[[np.ndarray, float, np.ndarray], floating[Any]]) -> None:
-        self.correspondance_data.append((patch[0], patch[1], features))
-        if len(self.correspondance_data) > memory_size:
-            self.correspondance_data = sorted(self.correspondance_data, key=lambda x: scoring_function(*x),
-                                              reverse=True)
-            self.correspondance_data = self.correspondance_data[:memory_size]
-
-    def sum_correspondance(self, image: np.ndarray) -> int:
+    def find_correspondances(self, image: np.ndarray) -> list[int]:
         xfeat = get_xfeat()
         ugv_feature = xfeat.detectAndCompute(image, top_k=4096)[0]
         ugv_feature.update({'image_size': (image.shape[1], image.shape[0])})
-        sum_count = 0
+        scores = []
 
         for c, o, uav_feature in self.correspondance_data:
             mkpts_0, mkpts_1, _ = xfeat.match_lighterglue(ugv_feature, uav_feature)
-            sum_count += mkpts_0.shape[0]
+            scores.append(mkpts_0.shape[0])
 
-        return sum_count
+        return scores
 
     def __str__(self):
         return f"Node({self.name})"
@@ -340,52 +328,70 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
     cv2.destroyAllWindows()
 
 
-def filter_scouting_data(g: Graph, vis: bool):
+def filter_scouting_data(g: Graph, keep_best: int, vis: bool):
     xfeat = get_xfeat()
 
-    def scoring(_: np.ndarray, __: float, feats: np.ndarray) -> floating[Any]:
+    def median_score(_: str, __: np.ndarray, feats: Dict[str, np.ndarray]) -> float:
         return np.median(feats['scores'].cpu().numpy())
 
-    keep = 50
     for n in g.nodes:
-        current_min_score = 0
-        for p in tqdm(n.patches):
-            image = cv2.imread(p[2])
+        for c, _, path in tqdm(n.patches):
+            image = cv2.imread(path)
             output = xfeat.detectAndCompute(image, top_k=4096)[0]
             output.update({'image_size': (image.shape[1], image.shape[0])})
-            score = scoring(p[0], p[1], output)
-            if score > current_min_score:
-                current_min_score = min(score, current_min_score)
-                n.add_correspondance(output, p, keep, scoring)
+            n.correspondance_data.append((path, c, output))
+
+            if len(n.correspondance_data) > 1.5 * keep_best:
+                n.correspondance_data = sorted(n.correspondance_data, key=lambda x: median_score(*x))
+                correspondance_data_valid = [True for _ in range(len(n.correspondance_data))]
+                for i, (_, c_i, feat_i) in enumerate(n.correspondance_data):
+                    if not correspondance_data_valid[i]:
+                        continue  # if already mark as too close, ignore it
+                    for j, (_, c_j, feat_j) in enumerate(n.correspondance_data):
+                        if np.linalg.norm(c_i - c_j) < 2:
+                            correspondance_data_valid[j] = False  # n.correspondance_data[j] too close to i
+                n.correspondance_data = [d for d, v in zip(n.correspondance_data,
+                                                           correspondance_data_valid) if v]
 
     return g
 
 
-def detect_ugv_location(g: Graph, gnss: pd.DataFrame, next_nodes: list[Node], vis: bool):
+def detect_ugv_location(next_nodes: list[Node], current_nodes: list[Node], gnss: pd.DataFrame, vis: bool):
     is_running = False
 
-    for next_node, (_, ugv_image), (filepath, ugv_bev) in tqdm(
-            zip(next_nodes,
-                load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "images")),
-                load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "projections")))):
+    results = pd.DataFrame(columns=["current node", "next node", "ugv x", "ugv y"]
+                                   + 3 * [str(i) for i in range(50)])
+
+    for index, (next_node, current_node, (_, ugv_image), (filepath, ugv_bev)) in tqdm(
+            enumerate(zip(next_nodes,
+                          current_nodes,
+                          load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "images")),
+                          load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "projections"))))):
         if next_node is None:
             continue
         ugv_time = int(filepath.stem)
         search_gnss = gnss.iloc[(gnss['timestamp'] - ugv_time).abs().argmin()]
         ugv_2d_position = np.array([search_gnss['x'], search_gnss['y']])
-        yaw_ugv = search_gnss['yaw']  # angle from global to ugv
+        result = [current_node, next_node, *ugv_2d_position]
 
-        patches_width = 520
+        patches_width = 650
         patches = create_matrix_front_patch(patches_width,
                                             ugv_bev.shape[:2],
-                                            pattern=(1, 3),
-                                            margin=(0, 450))
+                                            pattern=(1, 2),
+                                            margin=(0, 400))
+        yaw_ugv = search_gnss['yaw']  # angle from global to ugv
         patches = apply_rotations(patches, [np.rad2deg(-yaw_ugv)])
 
         counts = []
         for p in patches:
             extracted_patch = extract_patch(p, ugv_bev, patches_width)
-            counts.append(next_node.sum_correspondance(extracted_patch))
+            correspondances = next_node.find_correspondances(extracted_patch)
+            counts.append(np.sum(correspondances))
+            result += correspondances
+
+        results.loc[len(results)] = result
+        if index % 100 == 0:
+            results.to_csv(str(default_path / "results.csv"), index=False)
 
         if vis:
             for p, c in zip(patches, counts):
@@ -402,9 +408,13 @@ def detect_ugv_location(g: Graph, gnss: pd.DataFrame, next_nodes: list[Node], vi
             elif k == ord(' '):
                 is_running = not is_running
 
+    results.to_csv(str(default_path / "results.csv"), index=False)
+
 
 def main():
     logger.setLevel(logging.DEBUG)
+    keep_best = 10
+    viz = True
 
     if (default_path / "graph.csv").exists():
         graph = Graph()
@@ -424,6 +434,7 @@ def main():
     gnss_norlab['yaw'] = (gnss_norlab['yaw'] - measured_angle + real_angle) % np.pi
     logger.debug(f"{abs(3.14 / 4 - measured_angle + real_angle)}")
 
+    # plot path
     graph.plot()
     for i, (x, y, yaw) in enumerate(zip(gnss_norlab['x'], gnss_norlab['y'], gnss_norlab['yaw'])):
         if i % 10 == 0:
@@ -431,32 +442,37 @@ def main():
     plot(gnss_norlab['x'], gnss_norlab['y'])
     plt.show()
 
+    # generate path done by ugv
     path_in_nodes = []
-    current_node = []
+    left_node = True
+    current_nodes = []
     for x, y in zip(gnss_norlab['x'], gnss_norlab['y']):
         n = graph.get_current_node(np.array([x, y]))
-        current_node.append(n)
-        if n is not None and (len(path_in_nodes) == 0 or path_in_nodes[-1] != n):
+        current_nodes.append(n)
+        if n is None:
+            left_node = True
+        elif left_node:
             path_in_nodes.append(n)
+            left_node = False
     print(path_in_nodes)
 
-    # same as current_node but none value are replace by the next node the robot will be visiting
+    # same as current_nodes but none value are replace by the next node the robot will be visiting
     next_nodes = []
     next_node_idx = 0
     next_node_idx_used = False
-    for i in range(len(current_node)):
-        if current_node[i] is None:
+    for i in range(len(current_nodes)):
+        if current_nodes[i] is None:
             next_nodes.append(path_in_nodes[next_node_idx] if next_node_idx < len(path_in_nodes) else None)
             next_node_idx_used = True
         else:
             if next_node_idx_used:
                 next_node_idx += 1
                 next_node_idx_used = False
-            next_nodes.append(current_node[i])
+            next_nodes.append(current_nodes[i])
 
-    # generate_scouting_data(graph, gnss_norlab, False)
-    graph = filter_scouting_data(graph, True)
-    detect_ugv_location(graph, gnss_norlab, next_nodes, True)
+    # generate_scouting_data(graph, gnss_norlab, viz)
+    filter_scouting_data(graph, keep_best, viz)
+    detect_ugv_location(next_nodes, current_nodes, gnss_norlab, viz)
 
 
 if __name__ == "__main__":
