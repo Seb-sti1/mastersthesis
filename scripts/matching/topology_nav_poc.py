@@ -23,11 +23,11 @@ _initiated_xfeat: Optional[torch] = None
 default_path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset"))
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-type Coordinate = np.ndarray
 
 
 def init_xfeat():
     global _initiated_xfeat
+    os.environ['CUDA_VISIBLE_DEVICES'] = "0"
     logger.debug(f"Cuda device(s) {os.environ['CUDA_VISIBLE_DEVICES']}"
                  if "CUDA_VISIBLE_DEVICES" in os.environ else "No CUDA devices")
     _initiated_xfeat = torch.hub.load('verlab/accelerated_features', 'XFeat', pretrained=True, top_k=4096)
@@ -41,7 +41,7 @@ def get_xfeat():
 
 
 class Node:
-    def __init__(self, name, coordinate: Coordinate, radius: float) -> None:
+    def __init__(self, name, coordinate: np.ndarray, radius: float) -> None:
         self.name = name
         self.coordinate = coordinate
         self.radius = radius
@@ -50,13 +50,13 @@ class Node:
         self.path.mkdir(parents=True, exist_ok=True)
         self.correspondance_data = []
 
-    def distance(self, c: Coordinate) -> float:
+    def distance(self, c: np.ndarray) -> float:
         return float(np.linalg.norm(self.coordinate - c))
 
-    def is_in(self, c: Coordinate) -> bool:
+    def is_in(self, c: np.ndarray) -> bool:
         return self.distance(c) < self.radius
 
-    def add_patch(self, image: np.ndarray, c: Coordinate, orientation: float) -> None:
+    def add_patch(self, image: np.ndarray, c: np.ndarray, orientation: float) -> None:
         cv2.imwrite(str(self.path / f"{len(self.patches)}.png"), image)
         self.patches.append((c, orientation, str(self.path / f"{len(self.patches)}.png")))
 
@@ -70,21 +70,32 @@ class Node:
 
     def add_correspondance(self,
                            features: np.ndarray,
-                           patch: Tuple[Coordinate, float, str],
+                           patch: Tuple[np.ndarray, float, str],
                            memory_size: int,
-                           scoring_function: Callable[[Coordinate, float, np.ndarray], floating[Any]]) -> None:
+                           scoring_function: Callable[[np.ndarray, float, np.ndarray], floating[Any]]) -> None:
         self.correspondance_data.append((patch[0], patch[1], features))
         if len(self.correspondance_data) > memory_size:
-            # FIXME test this
             self.correspondance_data = sorted(self.correspondance_data, key=lambda x: scoring_function(*x),
                                               reverse=True)
             self.correspondance_data = self.correspondance_data[:memory_size]
 
+    def sum_correspondance(self, image: np.ndarray) -> int:
+        xfeat = get_xfeat()
+        ugv_feature = xfeat.detectAndCompute(image, top_k=4096)[0]
+        ugv_feature.update({'image_size': (image.shape[1], image.shape[0])})
+        sum_count = 0
+
+        for c, o, uav_feature in self.correspondance_data:
+            mkpts_0, mkpts_1, _ = xfeat.match_lighterglue(ugv_feature, uav_feature)
+            sum_count += mkpts_0.shape[0]
+
+        return sum_count
+
     def __str__(self):
-        return self.name
+        return f"Node({self.name})"
 
     def __repr__(self):
-        return self.name
+        return str(self)
 
 
 class Graph:
@@ -130,7 +141,7 @@ class Graph:
 
         return fig
 
-    def get_current_node(self, c: Coordinate) -> Optional[Node]:
+    def get_current_node(self, c: np.ndarray) -> Optional[Node]:
         for n in self.nodes:
             if n.is_in(c):
                 return n
@@ -295,19 +306,21 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
             cv2.polylines(image, [exclusion_rect], isClosed=True, color=(0, 0, 255), thickness=10)
             for p, n, coordinate, valid in filter_patch():
                 c = (0, 255, 0) if valid else (0, 0, 255)
-                cv2.polylines(image, [p], isClosed=True, color=c, thickness=10)
-                cv2.putText(image,
-                            f"{n}",
-                            np.mean(p, axis=0).astype(np.int32) + [-200, -200],
-                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
-                cv2.putText(image,
-                            f"{coordinate[0]:.1f}",
-                            np.mean(p, axis=0).astype(np.int32) + [-200, -100],
-                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
-                cv2.putText(image,
-                            f"{coordinate[1]:.1f}",
-                            np.mean(p, axis=0).astype(np.int32) + [-200, 0],
-                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                for i, img in enumerate([image, background]):
+                    if i == 0 or n is not None:
+                        cv2.polylines(img, [p], isClosed=True, color=c, thickness=10)
+                        cv2.putText(img,
+                                    f"{n}",
+                                    np.mean(p, axis=0).astype(np.int32) + [-200, -200],
+                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                        cv2.putText(img,
+                                    f"{coordinate[0]:.1f}",
+                                    np.mean(p, axis=0).astype(np.int32) + [-200, -100],
+                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                        cv2.putText(img,
+                                    f"{coordinate[1]:.1f}",
+                                    np.mean(p, axis=0).astype(np.int32) + [-200, 0],
+                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
 
             # show image
             alpha = 0.5
@@ -330,7 +343,7 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 def filter_scouting_data(g: Graph, vis: bool):
     xfeat = get_xfeat()
 
-    def scoring(_: Coordinate, __: float, feats: np.ndarray) -> floating[Any]:
+    def scoring(_: np.ndarray, __: float, feats: np.ndarray) -> floating[Any]:
         return np.median(feats['scores'].cpu().numpy())
 
     keep = 50
@@ -348,17 +361,46 @@ def filter_scouting_data(g: Graph, vis: bool):
     return g
 
 
-def detect_ugv_location(g: Graph, gnss: pd.DataFrame, vis: bool):
+def detect_ugv_location(g: Graph, gnss: pd.DataFrame, next_nodes: list[Node], vis: bool):
     is_running = False
-    for (_, ugv_image), (filepath, ugv_bev) in tqdm(
-            zip(load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "images")),
+
+    for next_node, (_, ugv_image), (filepath, ugv_bev) in tqdm(
+            zip(next_nodes,
+                load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "images")),
                 load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "projections")))):
+        if next_node is None:
+            continue
         ugv_time = int(filepath.stem)
         search_gnss = gnss.iloc[(gnss['timestamp'] - ugv_time).abs().argmin()]
         ugv_2d_position = np.array([search_gnss['x'], search_gnss['y']])
         yaw_ugv = search_gnss['yaw']  # angle from global to ugv
 
-    pass
+        patches_width = 520
+        patches = create_matrix_front_patch(patches_width,
+                                            ugv_bev.shape[:2],
+                                            pattern=(1, 3),
+                                            margin=(0, 450))
+        patches = apply_rotations(patches, [np.rad2deg(-yaw_ugv)])
+
+        counts = []
+        for p in patches:
+            extracted_patch = extract_patch(p, ugv_bev, patches_width)
+            counts.append(next_node.sum_correspondance(extracted_patch))
+
+        if vis:
+            for p, c in zip(patches, counts):
+                cv2.polylines(ugv_bev, [p], isClosed=True, color=(255, 255, 255), thickness=10)
+                cv2.putText(ugv_bev,
+                            f"{c}",
+                            np.mean(p, axis=0).astype(np.int32),
+                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+
+            cv2.imshow("image", resize_image(ugv_bev, 600, 600))
+            k = cv2.waitKey(5 if is_running else 0) & 0xFF
+            if k == ord('q'):
+                break
+            elif k == ord(' '):
+                is_running = not is_running
 
 
 def main():
@@ -371,9 +413,9 @@ def main():
         graph = create_norlab_graph()
         graph.save()
 
+    # load position of robots
     gnss_norlab = pd.read_csv(
         get_dataset_by_name("norlab_ulaval_datasets/test_dataset/sequence1/rtk_odom/rtk_odom.csv"))
-
     # fix yaw angle
     real_angle = np.arctan2(gnss_norlab['y'][45] - gnss_norlab['y'][5],
                             gnss_norlab['x'][45] - gnss_norlab['x'][5])
@@ -390,15 +432,31 @@ def main():
     plt.show()
 
     path_in_nodes = []
+    current_node = []
     for x, y in zip(gnss_norlab['x'], gnss_norlab['y']):
         n = graph.get_current_node(np.array([x, y]))
+        current_node.append(n)
         if n is not None and (len(path_in_nodes) == 0 or path_in_nodes[-1] != n):
             path_in_nodes.append(n)
     print(path_in_nodes)
 
-    generate_scouting_data(graph, gnss_norlab, True)
-    # graph = filter_scouting_data(graph, True)
-    # detect_ugv_location(graph, gnss_norlab, True)
+    # same as current_node but none value are replace by the next node the robot will be visiting
+    next_nodes = []
+    next_node_idx = 0
+    next_node_idx_used = False
+    for i in range(len(current_node)):
+        if current_node[i] is None:
+            next_nodes.append(path_in_nodes[next_node_idx] if next_node_idx < len(path_in_nodes) else None)
+            next_node_idx_used = True
+        else:
+            if next_node_idx_used:
+                next_node_idx += 1
+                next_node_idx_used = False
+            next_nodes.append(current_node[i])
+
+    # generate_scouting_data(graph, gnss_norlab, False)
+    graph = filter_scouting_data(graph, True)
+    detect_ugv_location(graph, gnss_norlab, next_nodes, True)
 
 
 if __name__ == "__main__":
