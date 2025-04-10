@@ -23,3 +23,6 @@ detectree
 # for benchmarking
 psutil
 pynvml
+
+# lighterglue
+kornia
