@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import time
 from typing import Dict
 
@@ -50,6 +51,9 @@ def create_norlab_graph() -> Graph:
 
 
 def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
+    for n in g.nodes:
+        n.patches = []
+
     is_running = False
     for filepath, image in tqdm(load_paths_and_files(get_dataset_by_name(seq1 / "aerial" / "images"))):
         aruco = get_aruco(image)
@@ -147,15 +151,14 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
             elif k == ord(' '):
                 is_running = not is_running
 
-    if not vis:
-        for node in g.nodes:
-            print(f"{node}: {len(node.patches)}")
-            node.save_patches_metadata()
-    else:
+    if vis:
         cv2.destroyAllWindows()
 
 
 def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float):
+    for n in g.nodes:
+        n.correspondance_data = []
+
     xfeat = get_xfeat()
 
     def median_score(_: str, __: np.ndarray, feats: Dict[str, np.ndarray]) -> float:
@@ -182,7 +185,6 @@ def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float):
                 n.correspondance_data = [d for d, v in zip(n.correspondance_data,
                                                            correspondance_data_valid) if v]
         n.correspondance_data = n.correspondance_data[:keep_best]
-        n.save_correspondances()
 
 
 def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: list[Node],
@@ -261,15 +263,18 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
-    logger.setLevel(logging.DEBUG)
-
-    # TODO argparse
-    keep_best = 10
-    too_close_thresh = 1.8
-    viz = False
-    should_generate_scouting_data = True
-    should_filter_scouting_data = True
+    parser = (
+        argparse.ArgumentParser())
+    parser.add_argument('--keep_best', type=int, default=10)
+    parser.add_argument('--too_close_thresh', type=float, default=1.8)
+    parser.add_argument('--viz', action='store_true')
+    parser.add_argument('--no-scouting', dest='should_generate_scouting_data', action='store_false')
+    parser.add_argument('--no-filter', dest='should_filter_scouting_data', action='store_false')
+    parser.add_argument('--log_level', type=str, default='DEBUG',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+    args = parser.parse_args()
+    logging.basicConfig(level=getattr(logging, args.log_level.upper()))
+    logger.setLevel(getattr(logging, args.log_level.upper()))
 
     if (default_path / "graph.csv").exists():
         graph = Graph()
@@ -288,28 +293,17 @@ def main():
     gnss_norlab['old_yaw'] = gnss_norlab['yaw']
     gnss_norlab['yaw'] = (gnss_norlab['yaw'] - measured_angle + real_angle) % np.pi
 
-    # plot path
-    # graph.plot()
-    # for i, (x, y, yaw) in enumerate(zip(gnss_norlab['x'], gnss_norlab['y'], gnss_norlab['yaw'])):
-    #     if i % 10 == 0:
-    #         plt.arrow(x, y, 2 * np.cos(yaw), 2 * np.sin(yaw), head_width=0.5, color='g')
-    # plot(gnss_norlab['x'], gnss_norlab['y'])
-    # plt.show()
-
-    if should_generate_scouting_data:
+    viz = args.viz
+    if args.should_generate_scouting_data:
         generate_scouting_data(graph, gnss_norlab, viz)
-    else:
-        for n in graph.nodes:
-            n.load_patches_metadata()
+        graph.save()
 
-    if should_filter_scouting_data:
-        filter_scouting_data(graph, keep_best, too_close_thresh)
-    else:
-        for n in graph.nodes:
-            n.load_correspondances()
+    if args.should_filter_scouting_data:
+        filter_scouting_data(graph, args.keep_best, args.too_close_thresh)
+        graph.save()
 
     next_nodes, current_nodes = get_path_in_node(gnss_norlab, graph)
-    detect_ugv_location(graph, next_nodes, current_nodes, gnss_norlab, keep_best)
+    detect_ugv_location(graph, next_nodes, current_nodes, gnss_norlab, args.keep_best)
 
 
 if __name__ == "__main__":
