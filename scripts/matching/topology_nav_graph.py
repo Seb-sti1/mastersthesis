@@ -10,6 +10,7 @@ import matplotlib
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
 
 from scripts.utils.datasets import get_dataset_by_name
 
@@ -60,7 +61,7 @@ class Node:
     def load(self):
         if self.patches_metadata_path.exists():
             df = pd.read_csv(str(self.patches_metadata_path))
-            self.patches = [(np.array([r['x'], r['y']]), r['yaw'], r['path']) for _, r in df.iterrows()]
+            self.patches = [(np.array([r['x'], r['y']]), r['path']) for _, r in df.iterrows()]
 
         if self.feat_metadata_path.exists():
             df = pd.read_csv(str(self.feat_metadata_path))
@@ -105,20 +106,19 @@ class Graph:
         if n1 not in self.edges[n2]:
             self.edges[n2].append(n1)
 
-    def plot(self):
-        fig, ax = plt.subplots()
-        ax.add_collection(matplotlib.collections.PatchCollection([plt.Circle(n.coordinate,
-                                                                             radius=n.radius,
-                                                                             linewidth=0) for n in self.nodes],
-                                                                 facecolor='purple'))
+    def plot(self, ax: Axes) -> Axes:
+        ax.add_collection(matplotlib.collections.PatchCollection(
+            [plt.Circle(n.coordinate, radius=n.radius, linewidth=0) for n in self.nodes],
+            facecolor='purple'
+        ))
 
         for n1 in self.edges:
             for n2 in self.edges[n1]:
                 x_values = [n1.coordinate[0], n2.coordinate[0]]
                 y_values = [n1.coordinate[1], n2.coordinate[1]]
-                ax.plot(x_values, y_values, color='black')  # Ensure color is set for visibility
+                ax.plot(x_values, y_values, color='black')
 
-        return fig
+        return ax
 
     def get_current_node(self, c: np.ndarray) -> Optional[Node]:
         for n in self.nodes:

@@ -165,7 +165,7 @@ def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float):
         return np.median(feats['scores'].cpu().numpy())
 
     for n in g.nodes:
-        for c, _, path in tqdm(n.patches):
+        for c, path in tqdm(n.patches):
             image = cv2.imread(path)
             output = xfeat.detectAndCompute(image, top_k=4096)[0]
             output.update({'image_size': (image.shape[1], image.shape[0])})
@@ -196,7 +196,7 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
     results = pd.DataFrame(columns=["current node", "next node", "ugv x", "ugv y", "naive is in node",
                                     "inference duration"]
                                    + number_ugv_patch * [str(i) for i in range(keep_best)])
-    anim = RobotAnimator(graph.plot)
+    anim = RobotAnimator(graph)
 
     for index, (next_node, current_node, (_, ugv_image), (filepath, ugv_bev)) in tqdm(
             enumerate(zip(next_nodes,
@@ -234,7 +234,9 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
             correspondances_each_pairs.append(correspondances)
         dt = time.time_ns() - dt
         anim.update_robot_pose(*ugv_2d_position, yaw_ugv)
-        anim.update_node_display(next_node, np.array(correspondances_each_pairs))
+        anim.update_node_display(next_node, np.array([[mkpts_0.shape[0] for mkpts_0, _ in correspondances]
+                                                      for correspondances in correspondances_each_pairs])
+                                 .max(axis=0) > 600)
 
         results.loc[len(results)] = [current_node, next_node, *ugv_2d_position, is_in_node, dt / 10 ** 9,
                                      *[mkpts_0.shape[0] for correspondances in correspondances_each_pairs
@@ -253,6 +255,8 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
         match_grid = generate_match_grid(next_node, ugv_2d_position, extracted_patches, correspondances_each_pairs)
         cv2.imshow("match_grid", resize_image(match_grid, 1500, 1500))
 
+        cv2.imshow("location", anim.render())
+
         k = cv2.waitKey(5 if is_running else 0) & 0xFF
         if k == ord('q'):
             break
@@ -268,8 +272,8 @@ def main():
     parser.add_argument('--keep_best', type=int, default=10)
     parser.add_argument('--too_close_thresh', type=float, default=1.8)
     parser.add_argument('--viz', action='store_true')
-    parser.add_argument('--no-scouting', dest='should_generate_scouting_data', action='store_false')
-    parser.add_argument('--no-filter', dest='should_filter_scouting_data', action='store_false')
+    parser.add_argument('--scouting', dest='should_generate_scouting_data', action='store_true')
+    parser.add_argument('--filter', dest='should_filter_scouting_data', action='store_true')
     parser.add_argument('--log_level', type=str, default='DEBUG',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
     args = parser.parse_args()
