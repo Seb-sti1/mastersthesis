@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import logging
 import os
+import pickle
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 import cv2
 import matplotlib
@@ -44,9 +45,9 @@ class Node:
         self.name = name
         self.coordinate = coordinate
         self.radius = radius
-        self.patches = []
         self.path = default_path / self.name
         self.path.mkdir(parents=True, exist_ok=True)
+        self.patches = []
         self.correspondance_data = []
 
     def distance(self, c: np.ndarray) -> float:
@@ -55,17 +56,35 @@ class Node:
     def is_in(self, c: np.ndarray) -> bool:
         return self.distance(c) < self.radius
 
-    def add_patch(self, image: np.ndarray, c: np.ndarray, orientation: float) -> None:
+    def add_patch(self, image: np.ndarray, c: np.ndarray) -> None:
         cv2.imwrite(str(self.path / f"{len(self.patches)}.png"), image)
-        self.patches.append((c, orientation, str(self.path / f"{len(self.patches)}.png")))
+        self.patches.append((c, str(self.path / f"{len(self.patches)}.png")))
 
-    def save_metadata(self):
+    def save_patches_metadata(self):
         df = pd.DataFrame([(c[0], c[1], o, path) for (c, o, path) in self.patches], columns=["x", "y", "yaw", "path"])
         df.to_csv(str(self.path / "metadata.csv"), index=False)
 
-    def load_metadata(self):
+    def load_patches_metadata(self):
         df = pd.read_csv(str(self.path / "metadata.csv"))
-        self.patches = [((r['x'], r['y']), r['yaw'], r['path']) for _, r in df.iterrows()]
+        self.patches = [(np.array([r['x'], r['y']]), r['yaw'], r['path']) for _, r in df.iterrows()]
+
+    def save_correspondances(self):
+        for i, (_, _, feat) in enumerate(self.correspondance_data):
+            with open(str(self.path / f"feat_{i}.pkl"), "wb") as f:
+                pickle.dump(feat, f)
+        df = pd.DataFrame([(image_path, c[0], c[1], str(self.path / f"feat_{i}.pkl"))
+                           for i, (image_path, c, _) in enumerate(self.correspondance_data)],
+                          columns=["image_path", "x", "y", "feat_path"])
+        df.to_csv(str(self.path / "feat_metadata.csv"), index=False)
+
+    def load_correspondances(self):
+        df = pd.read_csv(str(self.path / "feat_metadata.csv"))
+
+        for _, row in df.iterrows():
+            with open(row["feat_path"], "rb") as f:
+                self.correspondance_data.append((row['image_path'],
+                                                 np.array([row['x'], row['y']]),
+                                                 pickle.load(f)))
 
     def find_correspondances(self, image: np.ndarray) -> list[int]:
         xfeat = get_xfeat()
@@ -73,7 +92,7 @@ class Node:
         ugv_feature.update({'image_size': (image.shape[1], image.shape[0])})
         scores = []
 
-        for c, o, uav_feature in self.correspondance_data:
+        for img_path, c, uav_feature in self.correspondance_data:
             mkpts_0, mkpts_1, _ = xfeat.match_lighterglue(ugv_feature, uav_feature)
             scores.append(mkpts_0.shape[0])
 
@@ -149,7 +168,6 @@ class Graph:
         for _, row in df.iterrows():
             constructed_node[str(row["name"])] = Node(str(row["name"]), (row["x"], row["y"]), row["r"])
             self.add_node(constructed_node[str(row["name"])])
-            constructed_node[str(row["name"])].load_metadata()
 
         for _, row in df.iterrows():
             for connected_node_name in row["connected"].split(","):
@@ -267,7 +285,7 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 
         for p, n, coordinate, valid in filter_patch():
             if valid:
-                n.add_patch(extract_patch(p, image, patches_width), coordinate, 0)
+                n.add_patch(extract_patch(p, image, patches_width), coordinate)
 
         if vis:
             background = image.copy()
@@ -323,12 +341,12 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 
     for node in g.nodes:
         print(f"{node}: {len(node.patches)}")
-        node.save_metadata()
+        node.save_patches_metadata()
 
     cv2.destroyAllWindows()
 
 
-def filter_scouting_data(g: Graph, keep_best: int, vis: bool):
+def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float, vis: bool):
     xfeat = get_xfeat()
 
     def median_score(_: str, __: np.ndarray, feats: Dict[str, np.ndarray]) -> float:
@@ -342,25 +360,68 @@ def filter_scouting_data(g: Graph, keep_best: int, vis: bool):
             n.correspondance_data.append((path, c, output))
 
             if len(n.correspondance_data) > 1.5 * keep_best:
-                n.correspondance_data = sorted(n.correspondance_data, key=lambda x: median_score(*x))
+                n.correspondance_data = sorted(n.correspondance_data, key=lambda x: median_score(*x), reverse=True)
                 correspondance_data_valid = [True for _ in range(len(n.correspondance_data))]
-                for i, (_, c_i, feat_i) in enumerate(n.correspondance_data):
+                for i, (path_i, c_i, feat_i) in enumerate(n.correspondance_data):
                     if not correspondance_data_valid[i]:
                         continue  # if already mark as too close, ignore it
-                    for j, (_, c_j, feat_j) in enumerate(n.correspondance_data):
-                        if np.linalg.norm(c_i - c_j) < 2:
+                    for j, (path_j, c_j, feat_j) in enumerate(n.correspondance_data):
+                        if not i < j:
+                            continue
+                        if np.linalg.norm(c_i - c_j) < too_close_thresh:
                             correspondance_data_valid[j] = False  # n.correspondance_data[j] too close to i
                 n.correspondance_data = [d for d, v in zip(n.correspondance_data,
                                                            correspondance_data_valid) if v]
+        n.correspondance_data = n.correspondance_data[:keep_best]
+        n.save_correspondances()
 
-    return g
+
+def generate_match_grid(n: Node,
+                        ugv_c: np.ndarray,
+                        extracted_patches: List[np.ndarray]) -> np.ndarray:
+    grid_images = []
+    xfeat = get_xfeat()
+
+    for img_path, uav_c, uav_feature in n.correspondance_data:
+        row_images = []
+        full_img = cv2.imread(img_path)
+
+        for extracted_patch in extracted_patches:
+            ugv_feature = xfeat.detectAndCompute(extracted_patch, top_k=4096)[0]
+            ugv_feature.update({'image_size': (extracted_patch.shape[1], extracted_patch.shape[0])})
+            mkpts_0, mkpts_1, _ = xfeat.match_lighterglue(ugv_feature, uav_feature)
+
+            if mkpts_0.shape[0] == 0:
+                h1, w1 = extracted_patch.shape[:2]
+                h2, w2 = full_img.shape[:2]
+                match_img = np.zeros((max(h1, h2), w1 + w2, 3), dtype=np.uint8)
+            else:
+                kp1 = [cv2.KeyPoint(float(x[0]), float(x[1]), 1) for x in mkpts_0]
+                kp2 = [cv2.KeyPoint(float(x[0]), float(x[1]), 1) for x in mkpts_1]
+                matches = [cv2.DMatch(i, i, 0) for i in range(len(mkpts_0))]
+
+                match_img = cv2.drawMatches(
+                    extracted_patch, kp1,
+                    full_img, kp2,
+                    matches, None,
+                    flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
+                )
+            text = f'{mkpts_0.shape[0]} matches. {uav_c[0]:.1f}, {uav_c[1]:.1f}. {np.linalg.norm(uav_c - ugv_c):.1f}'
+            cv2.putText(match_img, text, (10, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 3)
+
+            row_images.append(match_img)
+        grid_images.append(np.hstack(row_images))
+    return np.vstack(grid_images)
 
 
-def detect_ugv_location(next_nodes: list[Node], current_nodes: list[Node], gnss: pd.DataFrame, vis: bool):
+def detect_ugv_location(next_nodes: list[Node], current_nodes: list[Node],
+                        gnss: pd.DataFrame, keep_best: int, vis: bool):
     is_running = False
+    number_ugv_patch = 2
 
-    results = pd.DataFrame(columns=["current node", "next node", "ugv x", "ugv y"]
-                                   + 3 * [str(i) for i in range(50)])
+    # results = pd.DataFrame(columns=["current node", "next node", "ugv x", "ugv y"]
+    #                                + number_ugv_patch * [str(i) for i in range(keep_best)])
 
     for index, (next_node, current_node, (_, ugv_image), (filepath, ugv_bev)) in tqdm(
             enumerate(zip(next_nodes,
@@ -372,49 +433,55 @@ def detect_ugv_location(next_nodes: list[Node], current_nodes: list[Node], gnss:
         ugv_time = int(filepath.stem)
         search_gnss = gnss.iloc[(gnss['timestamp'] - ugv_time).abs().argmin()]
         ugv_2d_position = np.array([search_gnss['x'], search_gnss['y']])
-        result = [current_node, next_node, *ugv_2d_position]
+        # result = [current_node, next_node, *ugv_2d_position]
 
         patches_width = 650
         patches = create_matrix_front_patch(patches_width,
                                             ugv_bev.shape[:2],
-                                            pattern=(1, 2),
+                                            pattern=(1, number_ugv_patch),
                                             margin=(0, 400))
         yaw_ugv = search_gnss['yaw']  # angle from global to ugv
         patches = apply_rotations(patches, [np.rad2deg(-yaw_ugv)])
+        extracted_patches = [extract_patch(p, ugv_bev, patches_width) for p in patches]
 
-        counts = []
-        for p in patches:
-            extracted_patch = extract_patch(p, ugv_bev, patches_width)
-            correspondances = next_node.find_correspondances(extracted_patch)
-            counts.append(np.sum(correspondances))
-            result += correspondances
-
-        results.loc[len(results)] = result
-        if index % 100 == 0:
-            results.to_csv(str(default_path / "results.csv"), index=False)
+        # counts = []
+        # for extracted_patch in extracted_patches:
+        #     correspondances = next_node.find_correspondances(extracted_patch)
+        #     counts.append(np.sum(correspondances))
+        #     result += correspondances + (keep_best - len(correspondances)) * [0]
+        #
+        # results.loc[len(results)] = result
+        # if index % 100 == 0:
+        #     results.to_csv(str(default_path / "results.csv"), index=False)
 
         if vis:
-            for p, c in zip(patches, counts):
+            for p in patches:
                 cv2.polylines(ugv_bev, [p], isClosed=True, color=(255, 255, 255), thickness=10)
                 cv2.putText(ugv_bev,
-                            f"{c}",
+                            f"{'-> ' + str(next_node) if current_node is None else 'at' + str(current_node)}",
                             np.mean(p, axis=0).astype(np.int32),
                             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
-
             cv2.imshow("image", resize_image(ugv_bev, 600, 600))
+
+            match_grid = generate_match_grid(next_node, ugv_2d_position, extracted_patches)
+            cv2.imshow("match_grid", resize_image(match_grid, 1500, 1500))
+
             k = cv2.waitKey(5 if is_running else 0) & 0xFF
             if k == ord('q'):
                 break
             elif k == ord(' '):
                 is_running = not is_running
 
-    results.to_csv(str(default_path / "results.csv"), index=False)
+    # results.to_csv(str(default_path / "results.csv"), index=False)
 
 
 def main():
     logger.setLevel(logging.DEBUG)
     keep_best = 10
+    too_close_thresh = 1.8
     viz = True
+    should_generate_scouting_data = False
+    should_filter_scouting_data = False
 
     if (default_path / "graph.csv").exists():
         graph = Graph()
@@ -432,7 +499,6 @@ def main():
     measured_angle = np.mean(gnss_norlab['yaw'][5:46])
     gnss_norlab['old_yaw'] = gnss_norlab['yaw']
     gnss_norlab['yaw'] = (gnss_norlab['yaw'] - measured_angle + real_angle) % np.pi
-    logger.debug(f"{abs(3.14 / 4 - measured_angle + real_angle)}")
 
     # plot path
     graph.plot()
@@ -470,9 +536,19 @@ def main():
                 next_node_idx_used = False
             next_nodes.append(current_nodes[i])
 
-    # generate_scouting_data(graph, gnss_norlab, viz)
-    filter_scouting_data(graph, keep_best, viz)
-    detect_ugv_location(next_nodes, current_nodes, gnss_norlab, viz)
+    if should_generate_scouting_data:
+        generate_scouting_data(graph, gnss_norlab, viz)
+    else:
+        for n in graph.nodes:
+            n.load_patches_metadata()
+
+    if should_filter_scouting_data:
+        filter_scouting_data(graph, keep_best, too_close_thresh, viz)
+    else:
+        for n in graph.nodes:
+            n.load_correspondances()
+
+    detect_ugv_location(next_nodes, current_nodes, gnss_norlab, keep_best, viz)
 
 
 if __name__ == "__main__":
