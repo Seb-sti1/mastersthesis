@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import pickle
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import Optional
 
 import cv2
 import matplotlib
@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from matching.topology_nav_utils import get_xfeat
 from scripts.utils.datasets import get_dataset_by_name
 
 default_path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset"))
@@ -63,16 +62,6 @@ class Node:
                 self.correspondance_data.append((row['image_path'],
                                                  np.array([row['x'], row['y']]),
                                                  pickle.load(f)))
-
-    def find_correspondances(self, image: np.ndarray) -> List[Tuple[np.ndarray, np.ndarray]]:
-        xfeat = get_xfeat()
-        ugv_feature = xfeat.detectAndCompute(image, top_k=4096)[0]
-        ugv_feature.update({'image_size': (image.shape[1], image.shape[0])})
-        correspondance = []
-        for img_path, c, uav_feature in self.correspondance_data:
-            mkpts_0, mkpts_1, _ = xfeat.match_lighterglue(ugv_feature, uav_feature)
-            correspondance.append((mkpts_0, mkpts_1))  # TODO check if type is np.ndarray
-        return correspondance
 
     def __str__(self):
         return f"Node({self.name})"
