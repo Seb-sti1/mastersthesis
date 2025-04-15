@@ -188,10 +188,13 @@ def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float):
 
 
 def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: list[Node],
-                        gnss: pd.DataFrame, keep_best: int):
+                        gnss: pd.DataFrame, keep_best: int, save_to_image: bool):
     is_running = False
     number_ugv_patch = 2
     patches_width = 650
+
+    if save_to_image:
+        (default_path / "results").mkdir(exist_ok=True)
 
     results = pd.DataFrame(columns=["current node", "next node", "ugv x", "ugv y", "naive is in node",
                                     "inference duration"]
@@ -204,7 +207,7 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
                           load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "images")),
                           load_paths_and_files(get_dataset_by_name(seq1 / "ground" / "projections"))))):
         if next_node is None:
-            continue
+            break
 
         dt = time.time_ns()
         ugv_time = int(filepath.stem)
@@ -239,8 +242,10 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
                                  .max(axis=0) > 600)
 
         results.loc[len(results)] = [current_node, next_node, *ugv_2d_position, is_in_node, dt / 10 ** 9,
-                                     *[mkpts_0.shape[0] for correspondances in correspondances_each_pairs
-                                       for mkpts_0, _ in correspondances]]
+                                     *[correspondances_each_pairs[i][j][0].shape[0] if
+                                       len(correspondances_each_pairs[i]) > j else 0
+                                       for j in range(10)
+                                       for i in range(number_ugv_patch)]]
         if index % 100 == 0:
             results.to_csv(str(default_path / "results.csv"), index=False)
 
@@ -250,12 +255,22 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
                         f"{'-> ' + str(next_node) if current_node is None else 'at' + str(current_node)}",
                         np.mean(p, axis=0).astype(np.int32),
                         cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+        ugv_bev = resize_image(ugv_bev, 600, 600)
         cv2.imshow("image", resize_image(ugv_bev, 600, 600))
+        if save_to_image:
+            cv2.imwrite(str(default_path / "results" / f"bev{index}.png"), ugv_bev)
 
-        match_grid = generate_match_grid(next_node, ugv_2d_position, extracted_patches, correspondances_each_pairs)
-        cv2.imshow("match_grid", resize_image(match_grid, 1500, 1500))
+        match_grid = resize_image(
+            generate_match_grid(next_node, ugv_2d_position, extracted_patches, correspondances_each_pairs),
+            1500, 1500)
+        cv2.imshow("match_grid", match_grid)
+        if save_to_image:
+            cv2.imwrite(str(default_path / "results" / f"match{index}.png"), match_grid)
 
-        cv2.imshow("location", anim.render())
+        location = anim.render()
+        cv2.imshow("location", location)
+        if save_to_image:
+            cv2.imwrite(str(default_path / "results" / f"location{index}.png"), location)
 
         k = cv2.waitKey(5 if is_running else 0) & 0xFF
         if k == ord('q'):
@@ -306,8 +321,8 @@ def main():
         filter_scouting_data(graph, args.keep_best, args.too_close_thresh)
         graph.save()
 
-    next_nodes, current_nodes = get_path_in_node(gnss_norlab, graph)
-    detect_ugv_location(graph, next_nodes, current_nodes, gnss_norlab, args.keep_best)
+    current_nodes, next_nodes = get_path_in_node(gnss_norlab, graph)
+    detect_ugv_location(graph, next_nodes, current_nodes, gnss_norlab, args.keep_best, True)
 
 
 if __name__ == "__main__":

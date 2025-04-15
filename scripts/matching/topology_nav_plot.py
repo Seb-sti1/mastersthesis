@@ -37,19 +37,13 @@ def generate_match_grid(n: Node,
 
 
 class RobotAnimator:
-    def __init__(self, graph: Graph,
-                 node_plot_origin=(0.05, 0.05), node_plot_size=(0.3, 0.3),
-                 node_plot_scale=10, figsize=(8, 8)):
+    def __init__(self, graph: Graph, figsize=(8, 8)):
+        self.graph = graph
+
         # Matplotlib figure setup
         self.fig, self.ax = plt.subplots(figsize=figsize)
         self.canvas = FigureCanvas(self.fig)
         self.ax.set_aspect('equal')
-        self.graph = graph
-
-        # Inset (node) axes
-        self.node_ax = self.fig.add_axes([*node_plot_origin, *node_plot_size])
-        self.node_ax.set_aspect('equal')
-        self.node_scale = node_plot_scale
 
         # Data holders
         self.path_x = []
@@ -69,12 +63,6 @@ class RobotAnimator:
 
     def render(self):
         self.ax.cla()
-
-        # draw nodes
-        # self.ax.add_collection(matplotlib.collections.PatchCollection(
-        #     [plt.Circle(n.coordinate, radius=n.radius, linewidth=0) for n in self.graph.nodes],
-        #     facecolor='purple'
-        # ))
 
         # draw nodes and patches
         for n in self.graph.nodes:
