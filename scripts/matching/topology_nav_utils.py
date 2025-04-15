@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from matching.topology_nav_graph import Graph, Node
+from scripts.matching.topology_nav_graph import Graph, Node
 
 _initiated_xfeat: Optional[torch] = None
 logger = logging.getLogger(__name__)

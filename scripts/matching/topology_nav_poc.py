@@ -6,8 +6,8 @@ from typing import Dict
 
 from tqdm import tqdm
 
-from matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations, extract_patch
-from matching.topology_nav_graph import default_path
+from scripts.matching.generate_test_data import get_aruco, create_matrix_front_patch, apply_rotations, extract_patch
+from scripts.matching.topology_nav_graph import default_path
 from scripts.matching.topology_nav_plot import *
 from scripts.matching.topology_nav_utils import *
 from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files, resize_image
@@ -256,7 +256,7 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
                         np.mean(p, axis=0).astype(np.int32),
                         cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
         ugv_bev = resize_image(ugv_bev, 600, 600)
-        cv2.imshow("image", resize_image(ugv_bev, 600, 600))
+        cv2.imshow("bev", resize_image(ugv_bev, 600, 600))
         if save_to_image:
             cv2.imwrite(str(default_path / "results" / f"bev{index}.png"), ugv_bev)
 
@@ -282,11 +282,11 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
 
 
 def main():
-    parser = (
-        argparse.ArgumentParser())
+    parser = argparse.ArgumentParser()
     parser.add_argument('--keep_best', type=int, default=10)
     parser.add_argument('--too_close_thresh', type=float, default=1.8)
     parser.add_argument('--viz', action='store_true')
+    parser.add_argument('--only-show-results', dest='only_show_results', action='store_true')
     parser.add_argument('--scouting', dest='should_generate_scouting_data', action='store_true')
     parser.add_argument('--filter', dest='should_filter_scouting_data', action='store_true')
     parser.add_argument('--log_level', type=str, default='DEBUG',
@@ -294,6 +294,22 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.log_level.upper()))
     logger.setLevel(getattr(logging, args.log_level.upper()))
+
+    if args.only_show_results:
+        indexes = list(set(sorted([int(f.stem
+                                       .replace("match", "")
+                                       .replace("bev", "")
+                                       .replace("location", "")) for f in (default_path / "results").glob(f"*.png")])))
+
+        for i in indexes:
+            cv2.imshow("bev", cv2.imread(default_path / "results" / f"bev{i}.png"))
+            cv2.imshow("match_grid", cv2.imread(default_path / "results" / f"match{i}.png"))
+            cv2.imshow("location", cv2.imread(default_path / "results" / f"location{i}.png"))
+
+            k = cv2.waitKey(200) & 0xFF
+            if k == ord('q'):
+                break
+        exit(0)
 
     if (default_path / "graph.csv").exists():
         graph = Graph()
@@ -310,7 +326,7 @@ def main():
                             gnss_norlab['x'][45] - gnss_norlab['x'][5])
     measured_angle = np.mean(gnss_norlab['yaw'][5:46])
     gnss_norlab['old_yaw'] = gnss_norlab['yaw']
-    gnss_norlab['yaw'] = (gnss_norlab['yaw'] - measured_angle + real_angle) % np.pi
+    gnss_norlab['yaw'] = (gnss_norlab['yaw'] - measured_angle + real_angle + np.pi) % (2 * np.pi) - np.pi
 
     viz = args.viz
     if args.should_generate_scouting_data:
