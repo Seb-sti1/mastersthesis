@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import pickle
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict, Tuple
 
 import cv2
 import matplotlib
@@ -19,13 +19,18 @@ logger = logging.getLogger(__name__)
 
 class Node:
     def __init__(self, name, coordinate: np.ndarray, radius: float) -> None:
+        # Node core definition
         self.name = name
         self.coordinate = coordinate
         self.radius = radius
+        # Node data
+        self.patches: List[Tuple[np.ndarray, str]] = []
+        self.correspondance_data: List[Tuple[str, np.ndarray, str]] = []
+        # Node path
         self.path = default_path / self.name
+        self.patches_metadata_path = self.path / "patches_metadata.csv"
+        self.feat_metadata_path = self.path / "feat_metadata.csv"
         self.path.mkdir(parents=True, exist_ok=True)
-        self.patches = []
-        self.correspondance_data = []
 
     def distance(self, c: np.ndarray) -> float:
         return float(np.linalg.norm(self.coordinate - c))
@@ -37,31 +42,33 @@ class Node:
         cv2.imwrite(str(self.path / f"{len(self.patches)}.png"), image)
         self.patches.append((c, str(self.path / f"{len(self.patches)}.png")))
 
-    def save_patches_metadata(self):
-        df = pd.DataFrame([(c[0], c[1], o, path) for (c, o, path) in self.patches], columns=["x", "y", "yaw", "path"])
-        df.to_csv(str(self.path / "metadata.csv"), index=False)
+    def save(self):
+        if len(self.patches) > 0:
+            df = pd.DataFrame([(c[0], c[1], path) for (c, path) in self.patches],
+                              columns=["x", "y", "path"])
+            df.to_csv(str(self.patches_metadata_path), index=False)
 
-    def load_patches_metadata(self):
-        df = pd.read_csv(str(self.path / "metadata.csv"))
-        self.patches = [(np.array([r['x'], r['y']]), r['yaw'], r['path']) for _, r in df.iterrows()]
+        if len(self.correspondance_data) > 0:
+            for i, (_, _, feat) in enumerate(self.correspondance_data):
+                with open(str(self.path / f"feat_{i}.pkl"), "wb") as f:
+                    pickle.dump(feat, f)
+            df = pd.DataFrame([(image_path, c[0], c[1], str(self.path / f"feat_{i}.pkl"))
+                               for i, (image_path, c, _) in enumerate(self.correspondance_data)],
+                              columns=["image_path", "x", "y", "feat_path"])
+            df.to_csv(str(self.feat_metadata_path), index=False)
 
-    def save_correspondances(self):
-        for i, (_, _, feat) in enumerate(self.correspondance_data):
-            with open(str(self.path / f"feat_{i}.pkl"), "wb") as f:
-                pickle.dump(feat, f)
-        df = pd.DataFrame([(image_path, c[0], c[1], str(self.path / f"feat_{i}.pkl"))
-                           for i, (image_path, c, _) in enumerate(self.correspondance_data)],
-                          columns=["image_path", "x", "y", "feat_path"])
-        df.to_csv(str(self.path / "feat_metadata.csv"), index=False)
+    def load(self):
+        if self.patches_metadata_path.exists():
+            df = pd.read_csv(str(self.patches_metadata_path))
+            self.patches = [(np.array([r['x'], r['y']]), r['yaw'], r['path']) for _, r in df.iterrows()]
 
-    def load_correspondances(self):
-        df = pd.read_csv(str(self.path / "feat_metadata.csv"))
-
-        for _, row in df.iterrows():
-            with open(row["feat_path"], "rb") as f:
-                self.correspondance_data.append((row['image_path'],
-                                                 np.array([row['x'], row['y']]),
-                                                 pickle.load(f)))
+        if self.feat_metadata_path.exists():
+            df = pd.read_csv(str(self.feat_metadata_path))
+            for _, row in df.iterrows():
+                with open(row["feat_path"], "rb") as f:
+                    self.correspondance_data.append((row['image_path'],
+                                                     np.array([row['x'], row['y']]),
+                                                     pickle.load(f)))
 
     def __str__(self):
         return f"Node({self.name})"
@@ -72,8 +79,8 @@ class Node:
 
 class Graph:
     def __init__(self):
-        self.nodes = []
-        self.edges = {}
+        self.nodes: List[Node] = []
+        self.edges: Dict[Node, List[Node]] = {}
 
     def add_node(self, node: Node):
         """
@@ -125,6 +132,9 @@ class Graph:
                           columns=["name", "x", "y", "r", "connected"])
         df.to_csv(path, index=False)
 
+        for n in self.nodes:
+            n.save()
+
     def load(self):
         path = default_path / "graph.csv"
         df = pd.read_csv(str(path))
@@ -137,3 +147,6 @@ class Graph:
         for _, row in df.iterrows():
             for connected_node_name in row["connected"].split(","):
                 self.add_edge(constructed_node[str(row["name"])], constructed_node[connected_node_name])
+
+        for n in self.nodes:
+            n.load()
