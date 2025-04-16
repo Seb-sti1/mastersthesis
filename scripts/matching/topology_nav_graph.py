@@ -25,7 +25,7 @@ class Node:
         self.coordinate = coordinate
         self.radius = radius
         # Node data
-        self.patches: List[Tuple[np.ndarray, str]] = []
+        self.patches: List[Tuple[np.ndarray, str, str, np.ndarray, float, float]] = []
         self.correspondance_data: List[Tuple[str, np.ndarray, str]] = []
         # Node path
         self.path = default_path / self.name
@@ -39,14 +39,19 @@ class Node:
     def is_in(self, c: np.ndarray) -> bool:
         return self.distance(c) < self.radius
 
-    def add_patch(self, image: np.ndarray, c: np.ndarray) -> None:
+    def add_patch(self, image: np.ndarray, c: np.ndarray,
+                  original_path: str, patch_center: np.ndarray, patch_width: float, patch_angle: float) -> None:
         cv2.imwrite(str(self.path / f"{len(self.patches)}.png"), image)
-        self.patches.append((c, str(self.path / f"{len(self.patches)}.png")))
+        self.patches.append((c, str(self.path / f"{len(self.patches)}.png"),
+                             original_path, patch_center, patch_width, patch_angle))
 
     def save(self):
         if len(self.patches) > 0:
-            df = pd.DataFrame([(c[0], c[1], path) for (c, path) in self.patches],
-                              columns=["x", "y", "path"])
+            df = pd.DataFrame([(c[0], c[1], path,
+                                original_path, patch_center[0], patch_center[1], patch_width, patch_angle)
+                               for (c, path, original_path, patch_center, patch_width, patch_angle) in self.patches],
+                              columns=["x", "y", "path",
+                                       "original_path", "x_c", "y_c", "width", "angle"])
             df.to_csv(str(self.patches_metadata_path), index=False)
 
         if len(self.correspondance_data) > 0:
@@ -61,7 +66,8 @@ class Node:
     def load(self):
         if self.patches_metadata_path.exists():
             df = pd.read_csv(str(self.patches_metadata_path))
-            self.patches = [(np.array([r['x'], r['y']]), r['path']) for _, r in df.iterrows()]
+            self.patches = [(np.array([r['x'], r['y']]), r['path'],r['original_path'],
+                             np.array([r['x_c'], r['y_c']]), r["width"], r["angle"]) for _, r in df.iterrows()]
 
         if self.feat_metadata_path.exists():
             df = pd.read_csv(str(self.feat_metadata_path))
@@ -124,6 +130,7 @@ class Graph:
         for n in self.nodes:
             if n.is_in(c):
                 return n
+        return None
 
     def save(self):
         path = default_path / "graph.csv"

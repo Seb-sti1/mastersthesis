@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import time
-from typing import Dict
 
 from tqdm import tqdm
 
@@ -97,7 +96,8 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
 
         for p, n, coordinate, valid in filter_patch():
             if valid:
-                n.add_patch(extract_patch(p, image, patches_width), coordinate)
+                n.add_patch(extract_patch(p, image, patches_width), coordinate,
+                            str(filepath), np.mean(p, axis=0), patches_width, np.rad2deg(-search_gnss['yaw'] + aruco_a))
 
         if vis:
             background = image.copy()
@@ -188,7 +188,9 @@ def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float):
 
 
 def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: list[Node],
-                        gnss: pd.DataFrame, keep_best: int, save_to_image: bool):
+                        gnss: pd.DataFrame,
+                        keep_best: int, match_count_thresh: int, match_count_probable_thresh: int,
+                        viz: bool, save_to_image: bool):
     is_running = False
     number_ugv_patch = 2
     patches_width = 650
@@ -199,7 +201,7 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
     results = pd.DataFrame(columns=["current node", "next node", "ugv x", "ugv y", "naive is in node",
                                     "inference duration"]
                                    + number_ugv_patch * [str(i) for i in range(keep_best)])
-    anim = RobotAnimator(graph)
+    anim = RobotAnimator(graph, match_count_thresh, match_count_probable_thresh)
 
     for index, (next_node, current_node, (_, ugv_image), (filepath, ugv_bev)) in tqdm(
             enumerate(zip(next_nodes,
@@ -232,14 +234,13 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
             for img_path, c, uav_feature in next_node.correspondance_data:
                 mkpts_0, mkpts_1, _ = xfeat.match_lighterglue(ugv_feature, uav_feature)
                 correspondances.append((mkpts_0, mkpts_1))
-                if not is_in_node and mkpts_0.shape[0] > 600:
+                if not is_in_node and mkpts_0.shape[0] > match_count_thresh:
                     is_in_node = True
             correspondances_each_pairs.append(correspondances)
         dt = time.time_ns() - dt
         anim.update_robot_pose(*ugv_2d_position, yaw_ugv)
         anim.update_node_display(next_node, np.array([[mkpts_0.shape[0] for mkpts_0, _ in correspondances]
-                                                      for correspondances in correspondances_each_pairs])
-                                 .max(axis=0) > 600)
+                                                      for correspondances in correspondances_each_pairs]).max(axis=0))
 
         results.loc[len(results)] = [current_node, next_node, *ugv_2d_position, is_in_node, dt / 10 ** 9,
                                      *[correspondances_each_pairs[i][j][0].shape[0] if
@@ -251,26 +252,67 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
 
         for p in patches:
             cv2.polylines(ugv_bev, [p], isClosed=True, color=(255, 255, 255), thickness=10)
-            cv2.putText(ugv_bev,
-                        f"{'-> ' + str(next_node) if current_node is None else 'at' + str(current_node)}",
-                        np.mean(p, axis=0).astype(np.int32),
-                        cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
-        ugv_bev = resize_image(ugv_bev, 600, 600)
-        cv2.imshow("bev", resize_image(ugv_bev, 600, 600))
-        if save_to_image:
-            cv2.imwrite(str(default_path / "results" / f"bev{index}.png"), ugv_bev)
+            # cv2.putText(ugv_bev,
+            #             f"{'-> ' + str(next_node) if current_node is None else 'at ' + str(current_node)}",
+            #             np.mean(p, axis=0).astype(np.int32),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+        if viz:
+            cv2.imshow("bev", resize_image(ugv_bev, 800, 800))
 
-        match_grid = resize_image(
-            generate_match_grid(next_node, ugv_2d_position, extracted_patches, correspondances_each_pairs),
-            1500, 1500)
-        cv2.imshow("match_grid", match_grid)
+        match_grid = generate_match_grid(next_node, ugv_2d_position, extracted_patches,
+                                         correspondances_each_pairs, match_count_thresh)
+        if viz:
+            cv2.imshow("match_grid", resize_image(match_grid, 2500, 1000))
         if save_to_image:
-            cv2.imwrite(str(default_path / "results" / f"match{index}.png"), match_grid)
+            cv2.imwrite(str(default_path / "results" / f"match_grid_{index}.png"), match_grid)
+
+        patch_location = generate_patch_location(next_node, correspondances_each_pairs, match_count_thresh)
+        if patch_location is not None:
+            patch_location = resize_image(patch_location, 1000, 1000)
+            if viz:
+                cv2.imshow("patch_location", patch_location)
 
         location = anim.render()
-        cv2.imshow("location", location)
+        if viz:
+            cv2.imshow("location", location)
+
+        bottom = np.hstack([location[:, :, 0:3],
+                            resize_image(ugv_image, max_height=800),
+                            resize_image(ugv_bev, max_height=800)])
+        presentation = np.vstack([resize_image(match_grid, bottom.shape[1]), bottom])
+        presentation = resize_image(presentation, 1920, 1080)
+        if presentation.shape[0] < 1080:
+            bottom = 255 * np.ones((1080 - presentation.shape[0],
+                                    presentation.shape[1], 3),
+                                   dtype=np.uint8)
+            cv2.putText(bottom,
+                        "The top shows matching between each UGV patch (rows) and each UAV patch of the next node (columns)."
+                        " When there are enough correspondences, a blue rectangle indicates corresponding areas.",
+                        (0, 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1)
+            cv2.putText(bottom,
+                        "The bottom left image is the topological map where the UGV evolves."
+                        " The rectangles represents the collected UAV patches."
+                        " They turn green when the patch is detected by the UGV.",
+                        (0, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1)
+            cv2.putText(bottom,
+                        "The bottom center image is the view of the UGV while the bottom right shows the same image deformed to obtain a BEV.",
+                        (0, 80),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1)
+            cv2.putText(bottom,
+                        "The white rectangles correspond to the UGV patches used in the matching.",
+                        (0, 100),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1)
+            presentation = np.vstack([presentation, bottom])
+        if presentation.shape[1] < 1920:
+            presentation = np.hstack([presentation, 255 * np.ones((presentation.shape[0],
+                                                                   1920 - presentation.shape[1], 3),
+                                                                  dtype=np.uint8)])
+        if viz:
+            cv2.imshow("Presentation", presentation)
         if save_to_image:
-            cv2.imwrite(str(default_path / "results" / f"location{index}.png"), location)
+            cv2.imwrite(str(default_path / "results" / f"presentation_{index}.png"), presentation)
 
         k = cv2.waitKey(5 if is_running else 0) & 0xFF
         if k == ord('q'):
@@ -285,6 +327,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--keep_best', type=int, default=10)
     parser.add_argument('--too_close_thresh', type=float, default=1.8)
+    parser.add_argument('--match_count_thresh', type=float, default=600)
+    parser.add_argument('--match_count_probable_thresh', type=float, default=250)
     parser.add_argument('--viz', action='store_true')
     parser.add_argument('--only-show-results', dest='only_show_results', action='store_true')
     parser.add_argument('--scouting', dest='should_generate_scouting_data', action='store_true')
@@ -338,7 +382,9 @@ def main():
         graph.save()
 
     current_nodes, next_nodes = get_path_in_node(gnss_norlab, graph)
-    detect_ugv_location(graph, next_nodes, current_nodes, gnss_norlab, args.keep_best, True)
+    detect_ugv_location(graph, next_nodes, current_nodes, gnss_norlab,
+                        args.keep_best, args.match_count_thresh, args.match_count_probable_thresh,
+                        False, True)
 
 
 if __name__ == "__main__":
