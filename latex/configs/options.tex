@@ -8,19 +8,35 @@
 \setcounter{tocdepth}{1}
 \renewcommand{\baselinestretch}{1.2}
 \parindent=0pt
-\pagestyle{fancy}
 \setlength{\headheight}{15pt}
 
-
-\title{\huge{Collaborative navigation in unstructured environments using an aerial drone and a terrestrial robot}}
+\newcommand{\thesistitle}{Collaborative navigation in unstructured environments using an aerial drone and a terrestrial robot}
+\title{\Huge \thesistitle}
 \newcommand{\subtitle}{\Large{CoHoMa III}}
 \newcommand{\location}{U2IS, ENSTA, IP Paris\\Palaiseau, Ile-de-France, France}
 \author{Sébastien Yvon Claude KERBOURC'H}
 \newcommand{\mastersname}{Master of Science (MSc) in Autonomous Systems}
 \date{February 2025 - July 2025}
 
-%\lhead{}
-\chead{Master's thesis}
-%\rhead{}
+\fancypagestyle{main}{
+    \fancyhead{}
+    \fancyfoot{}
+    \renewcommand{\headrulewidth}{1px}
+    \fancyhead[LE]{\footnotesize \leftmark}
+    \fancyhead[LO]{\footnotesize \rightmark}
+    \fancyhead[RE]{}
+    \fancyhead[RO]{}
+    \fancyfoot[LE,RO]{\footnotesize \thepage}
+    \fancyfoot[RE,LO]{\footnotesize \thesistitle}
+    \fancyhfoffset[E,O]{0pt}
+}
+\pagestyle{main}
 
-\cfoot{\thepage/\pageref{LastPage}} % bas de page
+\fancypagestyle{plain}{
+    \fancyhead{}
+    \fancyfoot{}
+    \renewcommand{\headrulewidth}{0pt}
+    \fancyfoot[LE,RO]{\footnotesize \thepage}
+    \fancyfoot[RE,LO]{\footnotesize \thesistitle} % - \leftmark
+    \fancyhfoffset[E,O]{0pt}
+}
