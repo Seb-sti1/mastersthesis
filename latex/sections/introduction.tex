@@ -1,3 +1,119 @@
-\section{Introduction}\label{sec:introduction}
+\chapter{Introduction}\label{ch:introduction}
 
-This is a beautiful introduction \acrshort{bev} and one citation \cite{zhang_dual-bev_2025}
+The idea for this thesis originated from the observation that autonomous navigation in outdoor environments
+remains far from viable.
+This is not surprising, as true autonomous navigation in complex, unstructured environments
+requires multiple robust systems and algorithms—any of which, if failing, can compromise the entire system.
+
+For the autonomous navigation to work, the robot requires notably a precise estimation of its localization,
+a way to perceive the environment, a way to establish a plan using those raw data and something that can
+execute the plan.
+
+At each step, there are challenges.
+For the localization, no one sensor can provide accurate and high frequency data.
+This lead the aggregation of multiple sources of localization that come with different noise.
+
+Perceiving the environment, especially negative objects (holes in the ground), can also be quite challenging.
+A range of sensors (e.g.\ LiDAR, RGBD Camera etc.) are used to sense the world around the robot.
+These raw datas are then combined and process to produce higher level of understand of the environment.
+
+With this understanding of the environment, new steps allows to create a plan for the robot to execute.
+To ensure reactivity to new information received and/or a changing environment, this planning along with the
+already mentioned systems, need to be constantly refreshed.
+
+Finally, with all these processes the robot can execute the elaborated plan.
+
+
+\section{Background}\label{sec:background}
+
+traversability
+
+local nav
+
+localization
+
+start to be okay ish
+
+
+\section{The project}\label{sec:the-project}
+
+Local navigation is a necessary first step toward autonomous navigation.
+However, it must be complemented by global navigation, which provides overall direction and guides the robot toward its final goal.
+This global navigation won't have the same level of the detail, it will happen at a higher level of abstraction.
+Its objective is not, contrary to the local navigation, to provide velocity command to perform for the robot, but
+to give a rough path towards the end goal.
+
+
+some use satelite vikingnav
+
+
+This idea behind this project is to use an \gls{uav} to gather terrain data like roads, crossroads, obstacles, distinctive
+elements\ldots This features would then be used, depending on the objective point to reach, to determine a global
+path and recognizable places for the \gls{ugv} to locate.
+
+
+\section{State of the art}\label{sec:state-of-the-art}
+
+use projectplan, extend on other articles
+
+
+\section{Context}\label{sec:context}
+
+This master's thesis took place at the U2IS, the computer science lab of ENSTA Paris.
+The lab has some robots and sensors with each of them having their particularities.
+
+Also, while I was working at the lab, my team was participating in a robotics challenge named CoHoMa.
+This challenge aims at making a fleet of UAV and UGV move and recognize red boxes on an unstructured terrain.
+
+
+robot available in u2is lab
+
+tundra drone with gimbal and jetson
+
+barakuda robot with lidar, ptz, zed, jetson
+
+zed is not inclined a lot
+
+difficulty of making dataset
+
+\subsection{Robots}
+
+The main UGV of the lab are now two \href{https://www.shark-robotics.com/robots/barakuda-mule-robot}{Barakuda from SharkRobotics}
+and the main UAV are two \href{https://www.hexadrone.fr/produits/drone-tundra/}{Tundra 1 from hexadrone}.
+
+% TODO add pictures of barakuda
+
+On the Barakuda multiple sensors are added.
+Two cameras, the \href{https://www.stereolabs.com/en-fr/products/zed-2}{ZED 2i} and the \href{https://www.axis.com/products/axis-q62-series}{AXIS Q62 PTZ}
+are added to the robot.
+The ZED 2i is attached at the front of the robot in order to obtain \Gls{rgbd} image of the robot immediate surroundings.
+On the other hand, the PTZ, which is a controllable camera (along pitch and yaw axes), is placed about XX cm above the center of the
+robot.
+% TODO fill the heigh of the PTZ
+Currently, the main purpose of this camera is to give a better perspective to the user when the robot is used in
+teleoperation mode.
+Additionally, to these two cameras, a \Gls{lidar} is added at the front a robot.
+On one of the Barakuda it is an \href{https://ouster.com/products/hardware/osdome-lidar-sensor}{OSDome} while on the
+other one it is an \href{https://ouster.com/products/hardware/os1-lidar-sensor}{OS1}.
+All these sensors are connected to an NVIDIA Jetson Orin AGX\@.
+
+% TODO add schematics of barakuda
+% TODO add jetson spec in appendix?
+
+On the Jetson is running docker containers running ROS noetic.
+The docker containers are needed as the software environment on the Jetson, especially for libraries, can be difficult
+to get right.
+Inside the container, ROS noetic nodes are running to enable the robot to sense, process, and react to command and the
+environment.
+
+
+
+
+detailed explanation of the robots: sensors, software, how then interact
+
+\subsection{CoHoMa}
+
+current challenges/direction of the lab
+
+
+\section{Objectives}

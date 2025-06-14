@@ -35,7 +35,7 @@ def resize_image(img: np.ndarray, max_width: Optional[int] = None, max_height: O
     if max_height is None:
         max_height = 100_000
 
-    ratio = min(max_width / img.shape[0], max_height / img.shape[1], 1.0)
+    ratio = min(max_width / img.shape[1], max_height / img.shape[0], 1.0)
     return cv2.resize(img, (0, 0), fx=ratio, fy=ratio, interpolation=cv2.INTER_AREA)
 
 

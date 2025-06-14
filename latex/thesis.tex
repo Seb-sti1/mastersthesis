@@ -1,15 +1,23 @@
 %! Author = seb-sti1
 %! Date = 03/02/2025
 
-\documentclass[11pt, a4paper]{article}
+\documentclass[11pt, a4paper, twoside]{report}
 \input{configs/preamble}
 
 % Document
 \begin{document}
+    \pagenumbering{roman}
     \input{configs/cover}
+    % Change cover page if image
+    % Better Chapter pages
+    \newpage
+
+    \input{sections/forewords}
+    \newpage
 
     \tableofcontents
     \newpage
+    \pagenumbering{arabic}
 
     \input{sections/introduction}
 
