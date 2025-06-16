@@ -1,0 +1,12 @@
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1ex \hfill \kern \z@}
+\def\@makechapterhead#1{{%
+    \vspace*{4em}%
+    {\sffamily \Huge \textsc{\@chapapp}\space \thechapter \par\nobreak}%
+    \vspace*{3em}%
+    {\hfill \scalebox{1.1}{\Huge \textsc{#1}} \par\nobreak}%
+    \vspace*{10\p@}%
+    \hrule%
+    \vskip 100\p@}}
+\def\@makeschapterhead#1{} % Remove chapter for TOC, Glossary
+\makeatother
