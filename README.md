@@ -39,6 +39,14 @@ and [Thibault TORALBA](http://u2is.ensta-paris.fr/members/toralba/index.php?lang
 
 ## License
 
-All the code (scripts, latex, etc.) is under [GNU GPL](LICENSE) license.
-The graph, datasets, images, etc. (excluding items mentioned but not present in this repository) are
-under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.
+Given that this repository contains multiple type of document, two licenses are used:
+
+- The files in [scripts](scripts) and [docker](docker) (mostly python and dockerfile) are under [GNU GPL](LICENSE)
+  license.
+- The files in [latex](latex) and [notes](notes) (mostly images, markdown, latex files), except for images in
+  [logo](latex/logo), are under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.
+- The images in [logo](latex/logo) are copyrighted, belong to their rightfully owner and should be used only when
+  permitted by law.
+- No datasets will be stored in [datasets](datasets), please refer to the license given by the author of the dataset.
+
+If you have any doubt regarding the licensing of part of this repository, please consider submitting an issue.

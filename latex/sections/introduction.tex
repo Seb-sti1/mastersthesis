@@ -44,76 +44,24 @@ Its objective is not, contrary to the local navigation, to provide velocity comm
 to give a rough path towards the end goal.
 
 
-some use satelite vikingnav
-
-
 This idea behind this project is to use an \gls{uav} to gather terrain data like roads, crossroads, obstacles, distinctive
 elements\ldots This features would then be used, depending on the objective point to reach, to determine a global
 path and recognizable places for the \gls{ugv} to locate.
 
 
-\section{State of the art}\label{sec:state-of-the-art}
+\section{Objectives}
 
-use projectplan, extend on other articles
+define
 
 
-\section{Context}\label{sec:context}
-
-This master's thesis took place at the U2IS, the computer science lab of ENSTA Paris.
-The lab has some robots and sensors with each of them having their particularities.
-
-Also, while I was working at the lab, my team was participating in a robotics challenge named CoHoMa.
-This challenge aims at making a fleet of UAV and UGV move and recognize red boxes on an unstructured terrain.
+\section{Limitations}\label{sec:limitations}
 
 
 robot available in u2is lab
 
-tundra drone with gimbal and jetson
-
-barakuda robot with lidar, ptz, zed, jetson
-
-zed is not inclined a lot
-
 difficulty of making dataset
 
-\subsection{Robots}
+cohoma
 
-The main UGV of the lab are now two \href{https://www.shark-robotics.com/robots/barakuda-mule-robot}{Barakuda from SharkRobotics}
-and the main UAV are two \href{https://www.hexadrone.fr/produits/drone-tundra/}{Tundra 1 from hexadrone}.
+\section{Thesis outline}
 
-% TODO add pictures of barakuda
-
-On the Barakuda multiple sensors are added.
-Two cameras, the \href{https://www.stereolabs.com/en-fr/products/zed-2}{ZED 2i} and the \href{https://www.axis.com/products/axis-q62-series}{AXIS Q62 PTZ}
-are added to the robot.
-The ZED 2i is attached at the front of the robot in order to obtain \Gls{rgbd} image of the robot immediate surroundings.
-On the other hand, the PTZ, which is a controllable camera (along pitch and yaw axes), is placed about XX cm above the center of the
-robot.
-% TODO fill the heigh of the PTZ
-Currently, the main purpose of this camera is to give a better perspective to the user when the robot is used in
-teleoperation mode.
-Additionally, to these two cameras, a \Gls{lidar} is added at the front a robot.
-On one of the Barakuda it is an \href{https://ouster.com/products/hardware/osdome-lidar-sensor}{OSDome} while on the
-other one it is an \href{https://ouster.com/products/hardware/os1-lidar-sensor}{OS1}.
-All these sensors are connected to an NVIDIA Jetson Orin AGX\@.
-
-% TODO add schematics of barakuda
-% TODO add jetson spec in appendix?
-
-On the Jetson is running docker containers running ROS noetic.
-The docker containers are needed as the software environment on the Jetson, especially for libraries, can be difficult
-to get right.
-Inside the container, ROS noetic nodes are running to enable the robot to sense, process, and react to command and the
-environment.
-
-
-
-
-detailed explanation of the robots: sensors, software, how then interact
-
-\subsection{CoHoMa}
-
-current challenges/direction of the lab
-
-
-\section{Objectives}
