@@ -1,0 +1,53 @@
+\chapter{Context}
+
+This master's thesis took place at the U2IS, the computer science lab of ENSTA Paris.
+The lab has some robots and sensors with each of them having their particularities.
+
+Also, while I was working at the lab, my team was participating in a robotics challenge named CoHoMa.
+This challenge aims at making a fleet of UAV and UGV move and recognize red boxes on an unstructured terrain.
+
+
+\section{Robots}
+
+The primary \gls{ugv}s in the lab are currently two \href{https://www.shark-robotics.com/robots/barakuda-mule-robot}{Barakuda from SharkRobotics}
+and the main \gls{uav}s are two \href{https://www.hexadrone.fr/produits/drone-tundra/}{Tundra 1 from hexadrone}.
+Before acquiring the Barakuda robots, the lab used several
+\href{https://clearpathrobotics.com/husky-a300-unmanned-ground-vehicle-robot/}{Husky from Clearpath Robotics} for
+outdoors robotics experiments.
+
+\subsection{Barakuda}
+
+% TODO add pictures of barakuda, tundra, husky
+
+Multiple sensors have been integrated onto the Barakuda robots to enhance their perception capabilities.
+Among them, two main cameras have been installed: the \href{https://www.stereolabs.com/en-fr/products/zed-2}{ZED 2i} stereo RGB-D camera and the \href{https://www.axis.com/products/axis-q62-series}{AXIS Q62 PTZ} camera.
+The ZED 2i is mounted at the front of the robot and is used to capture RGB-D images of the immediate environment, providing depth information for navigation and mapping tasks.
+The AXIS Q62 PTZ camera is mounted on a mast approximately XX cm above the robot's center and can be remotely controlled along the pitch and yaw axes, enabling wide-area visual coverage. % TODO fill the height of the PTZ
+This is particularly useful during teleoperation, as it provides the operator with improved awareness of the \gls{ugv}'s footprint relative to its environment.
+In addition to the two cameras, a \gls{lidar} sensor is mounted at the front of each robot: one Barakuda is equipped with an \href{https://ouster.com/products/hardware/osdome-lidar-sensor}{OSDome}, while the other uses an \href{https://ouster.com/products/hardware/os1-lidar-sensor}{OS1}.
+All sensors are connected to an NVIDIA Jetson AGX Orin.
+
+% TODO add schematics of barakuda
+% TODO add jetson spec in appendix?
+
+Docker containers running ROS Noetic are deployed on the Jetson.
+These containers are used to manage the software environment, which can be challenging to configure directly on the Jetson, particularly for library dependencies.
+Within the containers, ROS Noetic nodes handle sensing, data processing, and interaction with commands and the environment.
+
+\subsection{Tundra}
+
+tundra drone with gimbal and jetson
+
+\subsection{Husky}
+
+\subsection{Wireless connection, teleoperation, monitoring}
+
+detailed explanation of the robots: sensors, software, how then interact
+
+
+\section{Perception and autonomous capabilities}
+
+
+\section{CoHoMa}
+
+current challenges/direction of the lab
