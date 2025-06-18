@@ -1,21 +1,14 @@
-\newpage
-
-
-\chapter{Appendix}\label{sec:appendix}
+\chapter{Appendix}\label{ch:appendix}
 
 \newpage
 
 
-\chapter{Glossary}\label{sec:glossary}
+\chapter{Glossary}\label{ch:glossary}
 
-% TODO remove newpage
-
+\begingroup
+\renewcommand{\clearpage}{\relax}
 \printglossary[type=\acronymtype]
-
 \printglossary
-
-\newpage
-
-%\chapter{Bibliography}\label{sec:bibliography}
+\endgroup
 
 \printbibliography[heading=bibnumbered, title={Bibliography}]
