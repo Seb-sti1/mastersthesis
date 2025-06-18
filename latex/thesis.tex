@@ -15,7 +15,12 @@
     \input{sections/forewords}
     \newpage
 
+    \begingroup
+    \renewcommand{\clearpage}{\relax}
+    \section*{Table of contents}
+    \addcontentsline{toc}{section}{Table of contents}
     \tableofcontents
+    \endgroup
     \newpage
     \pagenumbering{arabic}
 
@@ -25,7 +30,11 @@
 
     \input{sections/context}
 
+    \input{sections/topological_map}
+
     \input{sections/pairing_uav_ugv}
+
+    \input{sections/conclusion}
 
     \input{appendices/appendix}
 \end{document}
