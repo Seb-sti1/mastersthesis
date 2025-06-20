@@ -1,0 +1,79 @@
+\chapter{Topological map creation}\label{ch:topological-map-creation}
+
+As discussed in~\ref{sec:problem-at-hand}, the main purpose of using a topological map is to retain only the necessary information about the environment.
+A traditional map scales quadratically with the area’s width, whereas a topological map grows linearly with the number of nodes.
+These nodes, typically representing intersections, are the key locations where information is stored.
+The number of generated node is an important subject as it is the main parameter to regulate the final map size.
+This approach relies on the assumption that the \gls{ugv} can use local navigation to reach a target when the required trajectory is approximately a straight line.
+
+
+\section{Fast Color/Texture Segmentation For Outdoor Robots}
+
+In~\cite{rasmussen_appearance_2009}, the team at the university of Delaware, uses the method describe in~\cite{rufus_blas_fast_2008},
+lidar data and geometric constraints, in order to detect a forest trail and make an \gls{ugv} follow it.\\
+As both articles seemed to gave promising results, a first attempt to segment \gls{uav} imagery using the method describe in
+~\cite{rufus_blas_fast_2008}.
+
+As, at this point, as no dataset using U2IS' \gls{uav} was available, the publicly available~\cite{noauthor_aukerman_nodate} was used.
+It is a dataset of the Aukerman Park\footnote{15561 York Rd, North Royalton, OH 44133, United States}, containing 78
+4896 x 3672 images captured with a Sony DSC-WX220.
+It was chosen as it contains trails, grass, trees, gravel/sand paths and asphalt roads from an aerial perspective which
+seemed like a good variety of terrains (see \cref{ch:aukerman-park-overview}).
+
+\cite{rufus_blas_fast_2008} article's method, starts by converting the input RGB image to the \textit{CIE-Lab} space.
+Then for each pixel, descriptors are computed using~\cref{eq:fast_color:descriptor} where the first three features
+describe color while the remaining eight describe the local texture.
+\begin{align}
+    \label{eq:fast_color:descriptor}
+    p_{i,j} = \begin{bmatrix}
+                  W_1 \times L_c         \\
+                  W_2 \times a_c         \\
+                  W_2 \times b_c         \\
+                  W_3 \times (L_1 - L_c) \\
+                  \vdots                 \\
+                  W_3 \times (L_8 - L_c) \\
+    \end{bmatrix}
+\end{align}
+The pixel descriptors are then clusterized using the well-known k-means algorithm, which returns clusters of similar
+pixel (in the sense of close in the descriptor space) and their centroid, called \textit{textons}.
+At this time a filtering of the outliers is applied to remove descriptor too far away from their \textit{textons}.
+For each pixel, a new feature vector is created by looking at the repartition/histogram of the clusters in a local
+window centered on the pixel.
+In a sense the \textit{textons} describe the image at a micro level while the histograms describe the composition in terms
+of quantity of each \textit{textons} in a local area.
+Furthermore, the histograms are clustered again use k-means and a final step uses the earthmover's distance to
+merge histogram cluster having a centroid too close to each other.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=5cm]{illustrations/topological_map_creation/fast_color_raw1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{illustrations/topological_map_creation/fast_color_hist1}
+\end{figure}
+
+% TODO show results
+%      interesting frequency stuff
+%      not good enough results
+
+
+\section{Detecting trees in order to find traversable region}
+
+absence of consequent properly formated dataset at the lab, segment anything retrained or~\cite{ronneberger_u-net_2015} trained (like done in~\cite{zhang_dual-bev_2025}
+and other) is not viable
+
+but there is~\cite{bosch_journal_2020}, pretrained to segment trees on satellite imagery.
+A clever tricks is to segment trees and consider that everywhere there is no trees the robot would be able to traverse
+or at least find a traversable path avoiding not exclude obstacle (e.g.\ negative obstacles, rocks, etc.).
+
+
+% TODO show results
+%      different resolution
+%      post-processing
+%      on satellite map (not good enough)
+
+- good results but not enough to try to use that to create topological map backbone
+
+- not that that much added value as it would easy doable by a user with a properly designed gui

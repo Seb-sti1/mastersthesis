@@ -1,4 +1,4 @@
-\chapter{Context}
+\chapter{Context}\label{ch:context}
 
 This master's thesis took place at the U2IS, the computer science lab of ENSTA Paris.
 The lab has some robots and sensors with each of them having their particularities.
@@ -7,7 +7,7 @@ Also, while I was working at the lab, my team was participating in a robotics ch
 This challenge aims at making a fleet of UAV and UGV move and recognize red boxes on an unstructured terrain.
 
 
-\section{Robots}
+\section{Robots}\label{sec:robots}
 
 The primary \gls{ugv}s in the lab are currently two \href{https://www.shark-robotics.com/robots/barakuda-mule-robot}{Barakuda from SharkRobotics}
 and the main \gls{uav}s are two \href{https://www.hexadrone.fr/produits/drone-tundra/}{Tundra 1 from hexadrone}.
@@ -15,39 +15,164 @@ Before acquiring the Barakuda robots, the lab used several
 \href{https://clearpathrobotics.com/husky-a300-unmanned-ground-vehicle-robot/}{Husky from Clearpath Robotics} for
 outdoors robotics experiments.
 
-\subsection{Barakuda}
-
-% TODO add pictures of barakuda, tundra, husky
+\subsection{Barakuda}\label{subsec:barakuda}
 
 Multiple sensors have been integrated onto the Barakuda robots to enhance their perception capabilities.
 Among them, two main cameras have been installed: the \href{https://www.stereolabs.com/en-fr/products/zed-2}{ZED 2i} stereo RGB-D camera and the \href{https://www.axis.com/products/axis-q62-series}{AXIS Q62 PTZ} camera.
 The ZED 2i is mounted at the front of the robot and is used to capture RGB-D images of the immediate environment, providing depth information for navigation and mapping tasks.
-The AXIS Q62 PTZ camera is mounted on a mast approximately XX cm above the robot's center and can be remotely controlled along the pitch and yaw axes, enabling wide-area visual coverage. % TODO fill the height of the PTZ
+The AXIS Q62 PTZ camera is mounted on a mast approximately 30 cm above the robot's center and can be remotely controlled along the pitch and yaw axes, enabling wide-area visual coverage.
 This is particularly useful during teleoperation, as it provides the operator with improved awareness of the \gls{ugv}'s footprint relative to its environment.
-In addition to the two cameras, a \gls{lidar} sensor is mounted at the front of each robot: one Barakuda is equipped with an \href{https://ouster.com/products/hardware/osdome-lidar-sensor}{OSDome}, while the other uses an \href{https://ouster.com/products/hardware/os1-lidar-sensor}{OS1}.
-All sensors are connected to an NVIDIA Jetson AGX Orin.
+In addition to the two cameras, a \gls{lidar} sensor is mounted at the front of each robot: one Barakuda is equipped with an Ouster \href{https://ouster.com/products/hardware/osdome-lidar-sensor}{OSDome},
+while the other uses an \href{https://ouster.com/products/hardware/os1-lidar-sensor}{OS1}.
+Furthermore, a SBG \href{https://www.sbg-systems.com/ins/ellipse-d/}{Ellipse-D} is fixed to the robot in order to precisely measure its position.
+As show by \cref{fig:context:barakuda_schematics}, all sensors are connected to an \href{https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/#nv-title-8b7137e4b5}{Jetson AGX Orin}.
+\cref{fig:context:barakuda_image} show the physical positioning of the discussed components.
 
-% TODO add schematics of barakuda
+
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}{.35\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{illustrations/context/barakuda_image}
+        \caption{The different places of the components on the Barakuda.}
+        \label{fig:context:barakuda_image}
+    \end{subfigure}%
+    \hfill%
+    \begin{subfigure}{.63\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{illustrations/context/barakuda_schema}
+        \caption{How the different elements interconnect between them.
+        In blue, the remote controller of the manufacturer.
+        In green, the components that were added at the lab.
+        In orange, the original platform provided by the manufacturer.
+        When a connection is wireless the associated line is dashed.}
+        \label{fig:context:barakuda_schematics}
+    \end{subfigure}
+    \caption{Description of the places and interactions of components of the Barakuda.}
+    \label{fig:context:barakuda}
+\end{figure}
 % TODO add jetson spec in appendix?
 
 Docker containers running ROS Noetic are deployed on the Jetson.
 These containers are used to manage the software environment, which can be challenging to configure directly on the Jetson, particularly for library dependencies.
 Within the containers, ROS Noetic nodes handle sensing, data processing, and interaction with commands and the environment.
 
-\subsection{Tundra}
+\subsection{Tundra}\label{subsec:tundra}
 
-tundra drone with gimbal and jetson
+Tundra drone is equipped with a \href{https://www.viewprotech.com/index.php?ac=article&at=read&did=279}{ViewPro Q10F} gimbal-mounted camera
+offering stabilized imaging with remote control over roll, pitch, yaw, and zoom.
+A GNSS antenna is also integrated for precise positioning.
+These components are places as shown in \cref{fig:context:tundra_image}.
 
-\subsection{Husky}
+Low-level control is managed by a \href{https://www.cubepilot.com/#/cube/features}{Cube Orange} flight controller,
+which communicates with the onboard computer, sensors (e.g.\ GNSS antenna), and remote control.
+It runs the open-source \href{https://github.com/ArduPilot/ardupilot}{ArduPilot} firmware.
 
-\subsection{Wireless connection, teleoperation, monitoring}
+An NVIDIA \href{https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/#nv-title-8b7137e4b5}{Jetson Orin Nano}
+is embedded on each Tundra to handle higher-level processing.
+The Jetson is interconnected with other sensors and controller as describe by the schema in \cref{fig:context:tundra_schematics}.
+Unlike the Barakuda robots, no Docker containers are used.
+ROS Noetic runs natively and manages sensing, data processing, and autonomy, though autonomous functions are currently limited.
 
-detailed explanation of the robots: sensors, software, how then interact
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}{.35\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{illustrations/context/tundra_image}
+        \caption{The different places of the components on the Tundra.}
+        \label{fig:context:tundra_image}
+    \end{subfigure}%
+    \hfill%
+    \begin{subfigure}{.63\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{illustrations/context/tundra_schema}
+        \caption{How the different elements interconnect between them.
+        In blue, the remote controller of the manufacturer.
+        In green, the components that were added at the lab.
+        In orange, the original platform provided by the manufacturer.
+        When a connection is wireless the associated line is dashed.}
+        \label{fig:context:tundra_schematics}
+    \end{subfigure}
+    \caption{Description of the places and interactions of components of the Tundra.}
+    \label{fig:context:tundra}
+\end{figure}
+
+% TODO add jetson spec in appendix?
+%\subsection{Husky} % TODO Husky ?
+
+\subsection{Wireless connection, teleoperation, monitoring}\label{subsec:wireless-connection-teleoperation-monitoring}
+
+To enable inter-robot communication and remote control, the robots are interconnected via a mesh Wi-Fi network.
+For teleoperation, each robot supports both the manufacturer's control solution and an in-house developed
+remote controller integrated into a custom monitoring software.
+
+The mesh Wi-Fi follows the~\cite{noauthor_ieee_2021} standard and operates on the 5 GHz band to ensure high-speed communication.
+Each robot is equipped with a compatible, properly configured router connected to its onboard computer,
+allowing both the robots and our remote controller to access the RO S environment and retrieve relevant
+data (e.g., GNSS coordinates, battery level, robot status, etc.). A key advantage over traditional 5 GHz Wi-Fi is that each router can extend the network range.
+For example, an \gls{uav}, which more easily has line of sight to both the operator and the \gls{ugv}, can act as a relay to maintain communication and control.
+
+The teleoperation and monitoring are done via the lab solution, called mirador.
+It is a Node.js app that can subscribe and publish ROS messages on each robot.
+This makes it possible to see all the robot in the same \gls{ui} and control them in a centralized manner.
+Mirador is usually used when to lab participate in robotics challenges
 
 
-\section{Perception and autonomous capabilities}
+\section{Current lab activities}\label{sec:current-lab-activities}
+
+During my stay at the U2IS Lab, it finished the first milestone of Mobilex and was preparing the CoHoMa challenge.
+Theses two robotics challenge have different goals while still sharing many of the same problematics.
+
+Mobilex stands for \textit{MOBILité en environnement complEXe} (Mobility in complex environement) and is a
+challenge organised by a French state entity that aims to foster defense innovation in France.
+Mobilex consist of three milestone, increasingly difficult, that aims to develop autonomous mobile robotics
+in complex environment.
+It focuses on one \gls{ugv} and aims to make it able to perceive complex terrain (e.g.\ slopes, unstructured roads, landslides, etc.) in
+order to be able to manage its local trajectory.
+The automation of such tasks would allow to reduce cognitive burden on operators using robots in construction,
+fire fighting or military vehicle.
+
+CoHoMa\footnote{\textit{Collaboration Homme Machine}, Human Machin Collaboration} on the other hand is a challenge organised
+by a section of the French army.
+In this challenge, teams have to prepare at least two pairs of \gls{uav} and \gls{ugv}.
+For the third challenge, the goal was to protect a static camp from other, teleoperated, robots.
+The team's robot could go explore the surrounding to prepare for the enemy robots.
+All traps are red cubes while enemy robots have red cubes on them.
+On the red cubes are QR Codes that contain code to deactivate traps and enemy robots.
+Conversely, to Mobilex, the only constraint is to have strictly fewer operators than robots.
+Hence, CoHoMa does not aim for full autonomous but of course reward teams that automate as much as possible tedious
+and time-consuming tasks as it gives operators more time to do more complex overarching operation, harder to
+automate properly.
+For an autonomous navigation standpoint, the constraints and needs are very similar to Mobilex making it possible
+reuse working technical bricks.
+
+These two challenges are used by the lab as landmark to tests the current capabilities of its mobile robots.
+It confronts theory with the real world and allows to better understand shortcomings and possible improvements
+for the algorithms used on the robots.
 
 
-\section{CoHoMa}
+\section{Current perception and autonomous capabilities}\label{sec:current-perception-and-autonomous-capabilities}
 
-current challenges/direction of the lab
+On these platform, the U2IS has tried to develop perception to allow for autonomous navigation on unstructured terrain.
+Some work, created on \href{https://clearpathrobotics.com/husky-a300-unmanned-ground-vehicle-robot/}{Husky} - the previous
+\gls{ugv} platform of the lab, used the front camera and the inertial information to infer the traversability of three
+possible path (left, forward, right)~\parencite{thomas_whojospatially-coherent-costmap_2024}.
+In some ways it is similar to~\cite{fortin_uav-assisted_2024} as it uses IMU data to predict from a monocular image but
+it does not actually try to create actually IMU data maps.\\
+Although this work gave promising results, it is not the current navigation stack used on the robot.
+
+Currently, the Barakuda robots use LiDAR data to determine traversable areas.
+Using the ROS package from~\cite{miki_elevation_2022}, the LiDAR point cloud is processed to generate a 2.5D elevation map of the surroundings.
+To accurately estimate the ground surface, \gls{csf} is applied to the inverted point cloud.
+The resulting 2.5D map is converted into multiple occupancy grids using various height thresholds.
+These grids are then aggregated and passed to a~\cite{noauthor_teb_local_planner_nodate} for local planning, while
+global path planning is handled by the basic~\cite{noauthor_carrot_planner_nodate}, which only provides a straight-line path toward the goal.
+Regarding the low level control of the Barakuda's wheels, additional linear control steps were added as the manufacturer's
+control only gave decent results when the motors were not underload.
+Those added linear control algorithms are not idea as they also are constraint by the available input/output of the
+Barakuda itself.
+
+The main limitation for local autonomous navigation is currently the significant drift in the output of the SBG device (which uses GNSS and IMU data).
+There is ongoing work to identify and resolve the issue, which may come from erroneous raw sensor data, poor calibration, incorrect configuration, or faulty data fusion.
+
+%% TODO dlio ?
