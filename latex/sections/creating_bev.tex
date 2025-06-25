@@ -1,0 +1,138 @@
+\chapter{Creating \gls{bev} from \gls{ugv}'s image}\label{ch:creating-bev-from-ugv's-image}
+
+
+% TODO check the following paragraph
+As discussed in~\cref{ch:analysis} and more specifically in~\cref{sec:problem-at-hand} one of the main challenge of
+finding correspondences between \gls{ugv} and \gls{uav} data is the difference in perspective.
+Indeed, the \gls{ugv} sees from the ground and is inevitably close to it while the \gls{uav} has more a god's eye
+perspective and has a more global picture of its surrounding.
+This very difficulty is also what makes so interesting to create a system that can leverage both point of view.
+
+In the literature, the usual way to reduce the gap in perspective in the imagery between the \gls{ugv} and the \gls{uav} is to transform
+the images in what is called a \gls{bev}.
+As its name implies, the goal is to transform the image so that it appears like it was taken from above, like what a
+bird eye would see.\\
+There are several methods to this, the following subsections explore two tries of creating a \gls{bev} from the
+\gls{ugv}'s image.
+
+
+\section{Pointcloud reprojection of an RGBD image}
+
+On possibility to obtain a \gls{bev} image is to use a \gls{rgbd} image, project its associated point cloud and then
+flatten the point cloud from the top perspective.
+Here, this is possible as the ground robots have a ZED 2i embedded as the front.
+The intrinsics parameters of the ZED $f_x$, $f_y$, $c_x$, $c_y$, respectively the focal along x/y-axes of the camera
+and the optical center (all in pixels), are given by the camera as additional metadata.
+Using a pinhole camera model, the associated coordinates in the camera frame of each pixel are computed as follows.
+Let the origin of the coordinate system be the centre of projection, then the image plane, where the image forms, is at $z = f$.
+Using the intercept theorem the point $\begin{bmatrix} % TODO add triangle intercept?
+                                           x & y & z
+\end{bmatrix}^T$ is projected at $\begin{bmatrix}
+                                      \dfrac{f}{z} x & \dfrac{f}{z} y & f
+\end{bmatrix}^T$.
+Let the 2D coordinates on the image plane be $u$, $v$ along, respectively, the x and y axes and $i$, $j$ be the pixel
+coordinates.
+Finally, let $s_x$ and $s_y$ be, respectively the horizontal and vertical dimension of one pixel of the sensor array.
+Using these notations and the previous results give \cref{eq:pcd_rgbd:u} and \cref{eq:pcd_rgbd:v}.%
+\begin{align}
+    u &= \dfrac{f}{z} x & \dfrac{u}{s_x} &= (j - c_x) \label{eq:pcd_rgbd:u} \\
+    v &= \dfrac{f}{z} y & \dfrac{v}{s_y} &= (i - c_y) \label{eq:pcd_rgbd:v}
+\end{align}
+Combining each set of equations and that by definition $f_x = \dfrac{f}{s_x}$ and $f_y = \dfrac{f}{s_y}$ gives the final result.%
+\begin{align}
+    x &= (j - c_x) \dfrac{z}{f_x} \label{eq:pcd_rgbd:x} \\
+    y &= (i - c_y) \dfrac{z}{f_y} \label{eq:pcd_rgbd:y}
+\end{align}
+As underlined by \cref{eq:pcd_rgbd:x} and \cref{eq:pcd_rgbd:y}, only the position of the pixel in the image, the intrinsics
+parameters and the depth are required to compute the actual coordinate in the camera frame of the said pixel.
+This is why using a \gls{rgbd} camera is important as it gives the depth of each pixel.
+These equations result in, for instance, create the colorized point cloud shown in \cref{fig:pcd_rgbd:pcd} using
+\cref{fig:pcd_rgbd:rgb} and \cref{fig:pcd_rgbd:depth} as inputs.
+
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=0.99\linewidth]{illustrations/bev/zed_rgbd_rgb}
+        \caption{The RGB image.}
+        \label{fig:pcd_rgbd:rgb}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=0.99\linewidth]{illustrations/bev/zed_rgbd_d}
+        \caption{The depth image.}
+        \label{fig:pcd_rgbd:depth}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=0.99\linewidth]{illustrations/bev/zed_rgbd_pcd}
+        \caption{The resulting colorized point cloud.}
+        \label{fig:pcd_rgbd:pcd}
+    \end{subfigure}
+    \caption{Example of reconstruction of the point cloud using an RGBD image.}
+    \label{fig:pcd_rgbd:pcd_construction}
+\end{figure}
+
+Once the point cloud is computed, it needs to be flattened to a 2D image from the top perspective.
+A simple way to do that is to consider rectangle columns with a square base.
+The points, representing pixels, in the columns will be aggregated into one pixel.
+The smaller the base is the more detailed the resulting \gls{bev} is.
+
+One parameter that can greatly influence the result is the aggregation function used.
+The main goal here is to ensure that resulting \gls{bev} image keeps as much of the recognisable details.
+The choice that was made is to use an average of all the pixels in the column.
+On the one hand, one of the advantage of using an average, unlike for instance using the highest pixel, is that a single outlier will not affect the end results.
+On the other hand, it will give new colors, not existing in the original image, when a column has different object present in it which is not ideal.
+Other aggregation functions, like median or histograms to select the most representative pixel, were considered but the first (and only)
+attempt was using an average.
+
+The first major inconvenient arise from the use of python.
+Python is very good to quickly create small snippet of code but is far from perfect when trying to obtain an efficient algorithm.
+The current implementation, using numpy and other libraries, is taking slightly less than 9s on average for each input image with a base width of ten centimeters.
+Using~\cite{lam_numba_2015} to parallelize the computation of each column reduced it down to about 750 ms, corresponding to an 11.8x speedup.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{illustrations/bev/zed_rgbd_bev_0.05}
+    \caption{The \gls{bev} obtained with a base width of 0.05m}
+    \label{fig:pcd_rgbd:bev_0.05}
+\end{figure}
+
+Following all the described steps with \cref{fig:pcd_rgbd:rgb} and \cref{fig:pcd_rgbd:depth} results in \cref{fig:pcd_rgbd:bev_0.05}.
+Particular objects present in the image can be distinguished in the bev : the white walls, the shadow of the tree and the tree itself.
+The \gls{bev} is very (very) noisy, which is not satisfactory at all.
+For instance, noise in the point cloud close to the tree branches create a white trace starting around the branches and ending at the right wall.
+Another unacceptable issue is the sparseness of the image as the density of pixels drastically fall after about six meters and a half.
+
+So, to try and fix these issue, a new version of the technique was implemented.
+This time instead of only using points from one image, it accumulated them across multiple images similar to one of the weekly project
+done in \textit{Perception for Autonomous Systems}. % 34759 Perception for autonomous systems Weekly Project Day 9 2024
+To ensure proper alignment between two consecutive point cloud, ICP~\parencite{besl_method_1992} is used to line them up.
+Then two filtering steps are added to reduce the final size of the point cloud.
+The first one exclude points too far away from the center and the second apply a voxel sampling with a size of $\dfrac{\text{column base width}}{2}$.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.4\textwidth]{illustrations/bev/zed_rgbd_merged_cloud_bev_0.05} % TODO add the accumulated bev
+    \caption{A \gls{bev} generated using an accumulated point cloud and a column base width of 0.05m}
+    \label{fig:pcd_rgbd:accumulated_bev_0.05}
+\end{figure}
+
+Sadly, after couple hundred iterations corresponding to about twenty secondes, the point cloud rise from hundred
+thousand points to four hundred fifty points, reducing the computation speed from about 1hz to 0.5Hz, and the ICP does not
+manage to keep the point cloud enough aligned.
+This results in poor \gls{bev}, with one example shown in \cref{fig:pcd_rgbd:accumulated_bev_0.05}.
+It shows that the issue of sparseness is resolved by the accumulation, but it creates massive shift aberration as the walls and
+the grass are mixing.
+
+Therefore, as these techniques did not yield the expected results, a new simpler technic based on using an homography to
+transform the image was implemented.
+
+
+\section{Traditional homography}
+
+% TODO finish code for this
+
+do the code and finish this

@@ -1,4 +1,4 @@
-\chapter{Context}\label{ch:context}
+\chapter{The context of the project}\label{ch:context}
 
 This master's thesis took place at the U2IS, the computer science lab of ENSTA Paris.
 The lab has some robots and sensors with each of them having their particularities.
@@ -26,30 +26,18 @@ In addition to the two cameras, a \gls{lidar} sensor is mounted at the front of 
 while the other uses an \href{https://ouster.com/products/hardware/os1-lidar-sensor}{OS1}.
 Furthermore, a SBG \href{https://www.sbg-systems.com/ins/ellipse-d/}{Ellipse-D} is fixed to the robot in order to precisely measure its position.
 As show by \cref{fig:context:barakuda_schematics}, all sensors are connected to an \href{https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/#nv-title-8b7137e4b5}{Jetson AGX Orin}.
-\cref{fig:context:barakuda_image} show the physical positioning of the discussed components.
+\Cref{fig:appendix:barakuda_image} show the physical positioning of the discussed components.
 
 
 \begin{figure}[ht!]
     \centering
-    \begin{subfigure}{.35\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{illustrations/context/barakuda_image}
-        \caption{The different places of the components on the Barakuda.}
-        \label{fig:context:barakuda_image}
-    \end{subfigure}%
-    \hfill%
-    \begin{subfigure}{.63\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{illustrations/context/barakuda_schema}
-        \caption{How the different elements interconnect between them.
-        In blue, the remote controller of the manufacturer.
-        In green, the components that were added at the lab.
-        In orange, the original platform provided by the manufacturer.
-        When a connection is wireless the associated line is dashed.}
-        \label{fig:context:barakuda_schematics}
-    \end{subfigure}
-    \caption{Description of the places and interactions of components of the Barakuda.}
-    \label{fig:context:barakuda}
+    \includegraphics[width=.9\linewidth]{illustrations/context/barakuda_schema}
+    \caption{How the different elements interconnect between them.
+    In blue, the remote controller of the manufacturer.
+    In green, the components that were added at the lab.
+    In orange, the original platform provided by the manufacturer.
+    When a connection is wireless the associated line is dashed.}
+    \label{fig:context:barakuda_schematics}
 \end{figure}
 % TODO add jetson spec in appendix?
 
@@ -62,11 +50,22 @@ Within the containers, ROS Noetic nodes handle sensing, data processing, and int
 Tundra drone is equipped with a \href{https://www.viewprotech.com/index.php?ac=article&at=read&did=279}{ViewPro Q10F} gimbal-mounted camera
 offering stabilized imaging with remote control over roll, pitch, yaw, and zoom.
 A GNSS antenna is also integrated for precise positioning.
-These components are places as shown in \cref{fig:context:tundra_image}.
+These components are places as shown in \cref{fig:appendix:tundra_image}.
 
 Low-level control is managed by a \href{https://www.cubepilot.com/#/cube/features}{Cube Orange} flight controller,
 which communicates with the onboard computer, sensors (e.g.\ GNSS antenna), and remote control.
 It runs the open-source \href{https://github.com/ArduPilot/ardupilot}{ArduPilot} firmware.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=.9\linewidth]{illustrations/context/tundra_schema}
+    \caption{How the different elements interconnect between them.
+    In blue, the remote controller of the manufacturer.
+    In green, the components that were added at the lab.
+    In orange, the original platform provided by the manufacturer.
+    When a connection is wireless the associated line is dashed.}
+    \label{fig:context:tundra_schematics}
+\end{figure}
 
 An NVIDIA \href{https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/#nv-title-8b7137e4b5}{Jetson Orin Nano}
 is embedded on each Tundra to handle higher-level processing.
@@ -74,28 +73,6 @@ The Jetson is interconnected with other sensors and controller as describe by th
 Unlike the Barakuda robots, no Docker containers are used.
 ROS Noetic runs natively and manages sensing, data processing, and autonomy, though autonomous functions are currently limited.
 
-\begin{figure}[ht!]
-    \centering
-    \begin{subfigure}{.35\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{illustrations/context/tundra_image}
-        \caption{The different places of the components on the Tundra.}
-        \label{fig:context:tundra_image}
-    \end{subfigure}%
-    \hfill%
-    \begin{subfigure}{.63\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{illustrations/context/tundra_schema}
-        \caption{How the different elements interconnect between them.
-        In blue, the remote controller of the manufacturer.
-        In green, the components that were added at the lab.
-        In orange, the original platform provided by the manufacturer.
-        When a connection is wireless the associated line is dashed.}
-        \label{fig:context:tundra_schematics}
-    \end{subfigure}
-    \caption{Description of the places and interactions of components of the Tundra.}
-    \label{fig:context:tundra}
-\end{figure}
 
 % TODO add jetson spec in appendix?
 %\subsection{Husky} % TODO Husky ?
@@ -115,7 +92,7 @@ For example, an \gls{uav}, which more easily has line of sight to both the opera
 The teleoperation and monitoring are done via the lab solution, called mirador.
 It is a Node.js app that can subscribe and publish ROS messages on each robot.
 This makes it possible to see all the robot in the same \gls{ui} and control them in a centralized manner.
-Mirador is usually used when to lab participate in robotics challenges
+Mirador is usually used when to lab participate in robotics challenges.
 
 
 \section{Current lab activities}\label{sec:current-lab-activities}

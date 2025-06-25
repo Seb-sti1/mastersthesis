@@ -1,4 +1,4 @@
-\chapter{Analysis}\label{ch:analysis}
+\chapter{Background}\label{ch:analysis}
 
 The subject can be decomposed into several layers, each with its own complexity.
 The first task is for the drone to perform reconnaissance of the area of interest.
@@ -7,35 +7,6 @@ These features must be selected such that the \gls{ugv} can later use them for l
 
 Once the \gls{uav} mapping is complete, the \gls{ugv} receives the topological map and begins navigation.
 During navigation, the \gls{ugv} uses its sensors—potentially after preprocessing—and compares its measurements with the data collected by the \gls{uav}.
-
-
-\section{Problem at hand}\label{sec:problem-at-hand}
-
-segmentation -> lot of different cases
-
-uav constraints and advantages
-- not a lot of computing power
-- high (constraints and advantage): helpful to keep com and far from the ground
-- better perspective to understand the environment
-- fewer sensors (weight constraints)
-
-ugv constraints and advantages
-- more lot of computing power
-- on the ground (constraints and advantage): problem keep com and close to the ground
-- more sensors
-
-
-terrain types
-%    In my case, the goal is to improve the global navigation while keeping the amount of computation power and storage
-%    in a reasonable range.
-
-com issues
-
-why topological map
-
-hypothesis on the ugv/uav
-- able to locally locate between to node
-- able to navigate from one node to the other (under the assumption that nodes are generated in a way that render it possible)
 
 
 \section{State of the art}\label{sec:state-of-the-art}
@@ -83,3 +54,33 @@ This difference is the main challenge that sets this work apart from solution si
 % TODO read \cite{wang_vggt_2025}
 % TODO read \cite{deng_spatiotemporal_2025}
 % TODO read \cite{sun_road_2025}
+
+
+\section{Problem at hand}\label{sec:problem-at-hand}
+
+segmentation -> lot of different cases
+
+uav constraints and advantages
+- not a lot of computing power
+- high (constraints and advantage): helpful to keep com and far from the ground
+- better perspective to understand the environment
+- fewer sensors (weight constraints)
+
+ugv constraints and advantages
+- more lot of computing power
+- on the ground (constraints and advantage): problem keep com and close to the ground
+- more sensors
+
+
+terrain types
+%    In my case, the goal is to improve the global navigation while keeping the amount of computation power and storage
+%    in a reasonable range.
+
+com issues
+
+why topological map
+
+hypothesis on the ugv/uav
+- able to locally locate between to node
+- able to navigate from one node to the other (under the assumption that nodes are generated in a way that render it possible)
+
