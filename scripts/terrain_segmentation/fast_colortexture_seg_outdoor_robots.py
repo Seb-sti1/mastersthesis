@@ -31,11 +31,11 @@ def compute_descriptor(image: np.ndarray, neighbor_size: int) -> np.ndarray:
     k = (neighbor_size - 1) // 2
     w1, w2, w3 = 0.5, 1.0, 0.5
 
-    descriptor = np.zeros((h - 2 * k, w - 2 * k, 11), dtype=np.float32)
+    descriptor = np.zeros((h - 2 * k, w - 2 * k, 3 + (neighbor_size ** 2 - 1)), dtype=np.float32)
 
     for i in range(k, h - k):
         for j in range(k, w - k):
-            descriptor[i - k, j - k, 0:3] = image[i, j, 0:3] * [w1, w2, w3]
+            descriptor[i - k, j - k, 0:3] = image[i, j, 0:3] * [w1, w2, w2]
             neighbor = w3 * (np.absolute(image[i, j, 0] - image[i - k:i + k + 1, j - k:j + k + 1, 0])
                              .reshape(neighbor_size ** 2))
             descriptor[i - k, j - k, 3:(neighbor_size ** 2 - 1) // 2 + 3] = neighbor[0:(neighbor_size ** 2 - 1) // 2]
@@ -74,6 +74,9 @@ def compute_histograms(clusters_desc: np.ndarray, n_clusters_desc: int, histogra
                     + [hist[:, :, i] for i in range(n_clusters_desc)],
                     (2, n_clusters_desc),
                     f"Integral and histogram images for each clusters")
+        show_images([hist[:, :, i] for i in [2, 3, 4]],
+                    (1, 3),
+                    "")
     return hist
 
 
@@ -81,8 +84,8 @@ def main(image_iterator, n_clusters_desc: int, n_clusters_hist: int,
          neighbor_size: int, histogram_window: int,
          emd_threshold: float, outlier_threshold: float):
     # colors to show clusters
-    colors_desc = get_color_map(n_clusters_desc)
-    colors_hist = get_color_map(n_clusters_hist)
+    colors_desc = get_color_map(n_clusters_desc + 1)
+    colors_hist = get_color_map(n_clusters_hist + 1)
 
     edge = neighbor_size // 2
 
@@ -158,6 +161,7 @@ def main(image_iterator, n_clusters_desc: int, n_clusters_hist: int,
 
             legend = {i: {'color': colors_hist[i], 'name': str(i)} for i in clusters_mapping.keys()}
             show_image(colors_hist[clusters_hist], "Clusters (before emd)", legend)
+            legend = {i: {'color': colors_hist[i], 'name': str(i)} for i in clusters_mapping.values()}
             show_image(colors_hist[clusters], "Clusters (final)", legend)
 
         # === display
@@ -192,4 +196,4 @@ if __name__ == "__main__":
     main(itera,
          32, 16,
          neighbor_size, hist_window,
-         9, 200)
+         10, 200)
