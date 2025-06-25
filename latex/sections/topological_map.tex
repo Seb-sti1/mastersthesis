@@ -18,7 +18,7 @@ As, at this point, as no dataset using U2IS' \gls{uav} was available, the public
 It is a dataset of the Aukerman Park\footnote{15561 York Rd, North Royalton, OH 44133, United States}, containing 78
 4896 x 3672 images captured with a Sony DSC-WX220.
 It was chosen as it contains trails, grass, trees, gravel/sand paths and asphalt roads from an aerial perspective which
-seemed like a good variety of terrains (see \cref{ch:aukerman-park-overview}).
+seemed like a good variety of terrains (see~\cref{ch:aukerman-park-overview}).
 
 \cite{rufus_blas_fast_2008} article's method, starts by converting the input RGB image to the \textit{CIE-Lab} space.
 Then for each pixel, descriptors are computed using~\cref{eq:fast_color:descriptor} where the first three features
@@ -40,40 +40,128 @@ At this time a filtering of the outliers is applied to remove descriptor too far
 For each pixel, a new feature vector is created by looking at the repartition/histogram of the clusters in a local
 window centered on the pixel.
 In a sense the \textit{textons} describe the image at a micro level while the histograms describe the composition in terms
-of quantity of each \textit{textons} in a local area.
-Furthermore, the histograms are clustered again use k-means and a final step uses the earthmover's distance to
+of density of each \textit{textons} in a local area.
+Furthermore, the histograms are clustered again use k-means and a final step uses the \gls{emd} to
 merge histogram cluster having a centroid too close to each other.
 
-\begin{figure}
+\begin{figure}[ht!]
     \centering
-    \includegraphics[width=5cm]{illustrations/topological_map_creation/fast_color_raw1}
+    \begin{subfigure}[t]{.29\textwidth}
+        \includegraphics[width=.99\textwidth]{illustrations/topological_map_creation/fast_color_raw1}
+        \caption{Raw image used as input}
+        \label{fig:fast_color:raw_image}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{.69\textwidth}
+        \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_hist1}
+        \caption{2D histogram for three given texons. The greener, the higher the density of the texton.}
+        \label{fig:fast_color:histograms}
+    \end{subfigure}
+    \caption{Intermediate results of the algorithm.}
+    \label{fig:fast_color:intermediate_histograms}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{illustrations/topological_map_creation/fast_color_hist1}
-\end{figure}
+The first step of find the textons ensures that the algorithm is able to segment very different environment, by
+creating a solution tailored to its specificities.
+The second step of creating histograms is where the intermediate results already reveal structural information of the image.
+\Cref{fig:fast_color:intermediate_histograms} shows carefully selected histogram of three textons obtain when using % TODO don't like  carefully selected
+\Cref{fig:fast_color:raw_image} as input.
+\Cref{fig:fast_color:histograms} shows that the density of texton reveals interesting areas of the image.
+For instance, the first histogram gives high density to grass and low density to the paths, while the second one
+seems to give higher average values for trees and the last one gives higher average density for the grass.
 
-% TODO show results
-%      interesting frequency stuff
-%      not good enough results
+The final steps start from the histograms and create new feature vectors for each pixel, the features being the
+value of each histogram at that given pixel.
+With this mechanism, the last clusterization occurs on features representing the composition of a local area not the
+local patterns themselves.
+The very final step of the \gls{emd} is here to merge clusters too close to each other as the output of the
+k-means algorithm will always be k clusters which is not necessary the number of clusters in the image.
+By varying the minimal distance under which the clusters are merged together, it gives different segmentation as shown by
+\cref{fig:fast_color:final_cluters_comparaison}.
+
+For this particular example, The cluster one, two, four seem to correspond to the path and grass while other clusters
+are have meaning.
+Making the parameters vary (number of textons, number of cluster for the histogram, histogram window size) gave different
+results, none seemed clear enough to be used to properly segment traversable \\
+This seems like the main limitation of using k-means to find textons to find very specific areas in a picture.
+Given a properly and exhaustive dataset, an interesting change to try would be to define textons for different surfaces
+and create the initial cluster using KNN algorithm.
+
+% TODO another limitation it is that is slow
+
+\begin{figure}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_before_emd}
+        \caption{The clusters before merging using the \gls{emd}. minimal distance of 0.}
+        \label{fig:fast_color:before_emd}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+        \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_emd_10}
+        \caption{Final clusters using \gls{emd} minimal distance of 10.}
+        \label{fig:fast_color:emd_10}
+    \end{subfigure}
+    \hfill
+    \caption{Final clusters given two values of minimal \gls{emd}.}
+    \label{fig:fast_color:final_cluters_comparaison}
+\end{figure}
 
 
 \section{Detecting trees in order to find traversable region}
 
-absence of consequent properly formated dataset at the lab, segment anything retrained or~\cite{ronneberger_u-net_2015} trained (like done in~\cite{zhang_dual-bev_2025}
-and other) is not viable
+As mentioned in the previous section, having a dataset to improve different method by applying machine learning, seems
+like an interesting idea to try.
+For instance,~\cite{zhang_dual-bev_2025} uses a retrained version of~\cite{ronneberger_u-net_2015} to segment satellite imagery.
+Sadly, after some research, in the available timeframe, nothing seemed to correspond to what was needed in order to
+apply the same technic to this subject.
+Fortunately, during those research, the already pretrained model~\cite{bosch_journal_2020} was found.
+It applies an already existing technics to segment tree/non-tree pixels.
+Therefore, the goal becomes to segment trees and consider that everywhere else, the robot would be able to traverse
+or at least find a traversable path avoiding not segmented out obstacles (e.g.\ negative obstacles, rocks, etc.).
 
-but there is~\cite{bosch_journal_2020}, pretrained to segment trees on satellite imagery.
-A clever tricks is to segment trees and consider that everywhere there is no trees the robot would be able to traverse
-or at least find a traversable path avoiding not exclude obstacle (e.g.\ negative obstacles, rocks, etc.).
+The \gls{ai} model proposed is train using supervised learning using the following steps.
+First, images are split in tiles and in order to reduce cost of labelling tiles while keeping variety in the dataset,
+using GIST descriptors, k means clusters the tiles.
+k is chosen so that the number of clusters is about 1\% the number of tiles.
+Then only the tiles closest to the centroids are labelled, either manually or using other available data (e.g.\ LiDAR measurements)
+Using these labelled tiles as ground truth, a binary Adaboost classifier is train.
+The input vector is twenty-seven features long, six encoding color, 18 texture and 3 entropy.
+Finally, a refinement method is used to avoid sparse pixels.
+
+\begin{figure}
+    \begin{subfigure}[t]{.32\textwidth}
+        \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b50_r10000}
+        \caption{Segmentation of detect tree using the default refinement parameters ($\beta = 50$, $\text{rescale} = 10000$)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{.32\textwidth}
+        \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b1000_r10000}
+        \caption{Segmentation of detect tree using $\beta = 1000$, $\text{rescale} = 10000$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{.32\textwidth}
+        \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b1000_r30000}
+        \caption{Segmentation of detect tree using $\beta = 1000$, $\text{rescale} = 30000$}
+    \end{subfigure}
+    \caption{Segmentation of detect tree using \cref{fig:fast_color:raw_image} as input.}
+    \label{fig:detect_tree:results}
+\end{figure}
 
 
-% TODO show results
-%      different resolution
-%      post-processing
-%      on satellite map (not good enough)
+The authors provide a version of their model trained Zurich's Orthofoto Sommer 2014/15.
+Inferring with this model and \cref{fig:fast_color:raw_image} as input gives the results in \cref{fig:detect_tree:results}.
+Furthermore, it shows different refinement parameters and how it affects the final results of the segmentation.
+A higher value of $\beta$ seems to make the classification less noisy while a higher value does the opposite.
 
-- good results but not enough to try to use that to create topological map backbone
+% TODO performance
+% TODO manually label trees in aukerman and make a metric
 
-- not that that much added value as it would easy doable by a user with a properly designed gui
+
+% TODO post-processing (refined using erosion dilation)
+% TODO on satellite map (not good enough)
+
+Even though detect tree gave very promising results on \gls{uav} imagery, many more steps are required to be able
+to use this in order to create the backbone of the topological map (i.e.\ placement of node and vertices).
+As, with a carefully though \gls{ui}, this task can be done by a user in matter of minutes if not seconds, it seemed
+more reasonable to focus the remaining time on developing methods to gather \gls{uav} data in chosen nodes and
+make than recognisable by the \gls{ugv}.
