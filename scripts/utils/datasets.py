@@ -21,7 +21,7 @@ known_file_loaders: Dict[str, FileLoader] = {
 }
 
 
-def get_dataset_by_name(name: str | Path) -> str:
+def get_dataset_by_name(name: Union[str, Path]) -> str:
     name = str(name)
     path = os.path.join(os.path.dirname(__file__), "..", "..", "datasets", name)
     if not os.path.exists(path):
