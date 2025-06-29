@@ -133,6 +133,80 @@ transform the image was implemented.
 
 \section{Traditional homography}
 
-% TODO finish code for this
+A more common approach at creating \gls{bev} images, is to use homography.
+In this specific case, a homography is a function that will be used to shift, rotate and scale the image.
+Moreover, with the assumption of a locally flat ground, it is possible to compute the real world
+position on the ground of specific pixels.
+Once computed the pixel coordinates and the real world coordinates on the ground can be used to determine the
+homography that needs to be done to transform the image from the \gls{ugv} to a \gls{bev}.
 
-do the code and finish this
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{illustrations/bev/homography}
+    \caption{The camera of the \gls{ugv} is slightly rotated toward the ground. As it is rotated and under
+    the assumption of a locally flat ground, the pixels below the vertical middle will intersect the ground.
+    The intersection A, B, C, D of the image are determined to create the \gls{bev}.}
+    \label{fig:homography:homography}
+\end{figure}
+
+
+\Cref{fig:homography:homography} shows the setup of the camera on the \gls{ugv}.
+In the case of the lab, the ZED 2i is rotated by 15.5 degrees.
+For a given point $P$ of the ground in the camera field of view, let $x_c$, $y_c$, $z_c$ and $x_r$, $y_r$, $z_r$ be its
+coordinates in, respectively, the camera and robot frame.
+Using the locally flat ground hypothesis (and defining the ground in the robot frame as $z=0$), $z_r = 0$.
+Furthermore, as the geometry of the robot is fix and determined, there is a transformation $T_{c\rightarrow r}$ that
+transforms the position vector in the camera frame to its counterpart in the robot frame.
+Finally, as $P$ is in the camera field of view, \cref{eq:pcd_rgbd:x} and \cref{eq:pcd_rgbd:y} still holds, which gives
+the \cref{eq:homography:complete}.
+
+\begin{align}
+    \label{eq:homography:complete}
+    \begin{bmatrix}
+        x_r \\
+        y_r \\
+        0   \\
+        1
+    \end{bmatrix} &= T_{c\rightarrow r} \times
+    \begin{bmatrix}
+    (j - c_x)
+        \dfrac{z_c}{f_x}\\
+        (j - c_y) \dfrac{y_c}{f_y} \\
+        z_c                        \\
+        1
+    \end{bmatrix}
+\end{align}
+
+\cref{eq:homography:complete} is solvable, as $z_c$ can be determined using the third row, which then leads to $x_r$ and $y_r$.
+Doing this for each the middle and bottom points of the image (A, B, C, D in \cref{fig:homography:homography}), gives
+the projected corners of the bottom half of the image.
+The last step is to convert the units from meter to pixels, flipping and shifting the origin and axes to transform from the robot's frame
+to the \gls{bev}'s frame as in the bev's frame the origin is in the top-left corner while the x and y axes are in the opposite direction.
+
+
+Now that the original pixel coordinates and the new pixel coordinates are computed, the homography can be computed.
+Here, it is done using~\citetitle{bradski_opencv_nodate}'s implementation which uses~\citetitle{fischler_random_1981}.
+The final step of transforming the image using the homography is also done by a function from~\citetitle{bradski_opencv_nodate}.
+
+
+\begin{figure}[ht!]
+    \begin{subfigure}[t]{0.35\textwidth}
+        \includegraphics[width=0.99\textwidth]{illustrations/bev/homography_zed}
+        \caption{The raw image from the ZED 2i.}
+        \label{fig:homography:zed}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.58\textwidth}
+        \includegraphics[width=0.99\textwidth]{illustrations/bev/homography_zed_bev}
+        \caption{The resulting \gls{bev}.}
+        \label{fig:homography:zed_bev}
+    \end{subfigure}
+    \hfill
+    \caption{Result of the transformation to a \gls{bev} using an homography.}
+    \label{fig:homography:example}
+\end{figure}
+
+The final result, an example of which is shown in \cref{fig:homography:example}, highlights limitations of this technique.
+First, the more an object is from the camera, the more it is deformed and blured.
+Second, any object that is not on the flat ground will not be deformed as it should be to obtain the \textit{perfect} \gls{bev}.
+That being said, the result is clearer than expected and is the one used in the rest of this work.
