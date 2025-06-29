@@ -179,7 +179,7 @@ Worse than not knowing the orientation of the \gls{ugv} when it will navigate, i
 However, a hypothesis that can be made is that both know their orientation and can agree, ahead of time with a reference
 orientation defining how the patches should be oriented when created.
 Now, Xfeat and Omniglue would only have to be robust to small rotation of -10° to +10°.
-In order to test this, the absolute orientation of the \gls{ugv} and \gls{uav} in~\cite{fortin_uav-assisted_2024}'s dataset
+In order to test this, the absolute orientation of the \gls{ugv} and \gls{uav} in~\cite{fortin_uav-assisted_2024} dataset
 were computed with the available telemetric data.
 A reference orientation was chosen and allow patches were extracted accordingly.
 
@@ -232,18 +232,76 @@ the reconnaissance flight of an \gls{uav} followed by an \gls{ugv} navigating wh
 recognized by the \gls{uav}.
 
 
-\section{Simulation of the scenario}
+\section{Simulation of the real world scenario}
 
-simulation of the real algorithm
+As explained in previous chapters, the end goal of this work is to develop algorithms that enable an \gls{uav} to
+provide environmental data to an \gls{ugv}, improving its global path planning.
+For this purpose, the choice was made to structure the algorithms around a topological map of the area.
+The nodes are areas where the \gls{uav} collects data while the edges are constructed so that the \gls{ugv}
+has the capacity of navigating along them on its own using its on board capacities.
 
-discuss will ugv in frame is not ideal
+Regarding the implementation, \textit{Graph} and \textit{Node} classes were created.
+The \textit{Graph} consists of an array of \textit{Node} objects and a dictionary representing the edges
+\footnote{The edges are undirected, as the \gls{ugv} is assumed to be able to traverse in both directions.}.
+For each \textit{Node}, the dictionary stores the array of connected \textit{Nodes}.
+A \textit{Node} mainly contains the following information:
+\begin{itemize}
+    \item a name to identify more easily the node,
+    \item the GNSS coordinates,
+    \item the radius which define the size of the node,
+    \item the images patches extracted during the \gls{uav} reconnaissance flight,
+    \item the extracted features of the best patches.
+\end{itemize}
 
-explain algorithm architecture
+Then the whole system works around three steps:
+\begin{itemize}
+    \item Generating patches during the \gls{uav} reconnaissance flight,
+    \item Filter those patches to find the \textit{best} possible ones,
+    \item Sending the \gls{ugv} in the area and using the best scouting data with the \gls{ugv}'s \gls{bev} to recognize area.
+\end{itemize}
+Note that the first two steps can be combined in a production setup to ensure maximum performance.
+In this simulation, it has been split for convenience and better results analysis.
 
-show results, how many nodes detected vs how many node traversed, estimated position vs actual position
+This simulation reproduces the same steps that would be done in the real world.
+Few part were adapted as they are not possible to replicate.
+For instance, the path of the \gls{ugv} is decided when the dataset used in the simulation is created, it is not generated after the reconnaissance as it would.
+Also, as the dataset from~\cite{fortin_uav-assisted_2024} only provides the GNSS position and the orientation of the \gls{ugv},
+the position and orientation of the \gls{ugv} is determined using the aruco tag present on top of the \gls{ugv}.ugv
+
+\subsection{Generate scouting data}
+
+Firstly, in the \gls{uav}'s image, a four by seven grid of potential patches is created.
+They all are oriented toward a yaw angle of 0 degree to neutralize the rotation.
+As mentioned earlier, a specific feature of the~\cite{fortin_uav-assisted_2024} dataset is that the \gls{ugv} appears in the frame.
+This lead to a necessary step, specific to this dataset, where the patches overlapping with an exclusion zone around the
+\gls{ugv} are disregarded.
+For the remaining patches, the coordinates of their centers are computed using their position in the image, the position
+and orientation of the \gls{uav} and the resolution of the image in terms of how many pixels make a meter on the ground
+\footnote{For~\cite{fortin_uav-assisted_2024} dataset, the resolution is determined using the known aruco perimeter.}.
+It allows to verify if a patch is in one of the defined node.
+When it is the case, the patch is extracted and saved for further processing.
+On the specific case of~\cite{fortin_uav-assisted_2024} dataset, this manner of the generating patches is not ideal as it
+will sometimes save patches were the \gls{ugv}'s wheels left marks on the ground that can't exist in the \gls{ugv}'s images.
+
+\subsection{Filter scouting data}
+
+Then, for each node, as there are too many patches, they need to be filtered.
 
 
-\section{Limitations of these algorithms}
+\begin{itemize}
+    \item keep the "best" "valid" extracted features
+    \item sort with median scores
+    \item filter to remove features at position too close (cover more area)
+    \item keep a maximum number of features
+    \item detect\_ugv\_location
+\end{itemize}
 
-limitations
+\subsection{Detect \gls{ugv} location}
 
+\begin{itemize}
+    \item generate three patches (\& rotate)
+    \item match with all image of the next node
+    \item consider matches above a given threshold
+\end{itemize}
+
+TODO show results, how many nodes detected vs how many node traversed, estimated position vs actual position
