@@ -61,11 +61,11 @@ def from_pixel_to_ugv(ij: np.ndarray, aruco_a: float, aruco_c: np.ndarray, pixel
     return rotation_matrix(-aruco_a) @ ((aruco_c - ij.astype(np.float32)) / pixel_per_meter)[::-1]
 
 
-def get_path_in_node(gnss_norlab: pd.DataFrame, graph: Graph) -> Tuple[List[Node], List[Node]]:
+def get_path_in_node(gnss: pd.DataFrame, graph: Graph) -> Tuple[List[Node], List[Node]]:
     path_in_nodes = []
     left_node = True
     current_nodes = []
-    for x, y in zip(gnss_norlab['x'], gnss_norlab['y']):
+    for x, y in zip(gnss['longitude'], gnss['latitude']):
         n = graph.get_current_node(np.array([x, y]))
         current_nodes.append(n)
         if n is None:

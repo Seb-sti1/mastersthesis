@@ -52,7 +52,7 @@ def generate_match_grid(n: Node,
                 match_img = cv2.drawMatches(ugv_image_cnt, [], uav_image, [],
                                             [], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
 
-            text = f'{mkpts_0.shape[0]} matches. {uav_c[0]:.1f}, {uav_c[1]:.1f}. {np.linalg.norm(uav_c - ugv_c):.1f}'
+            text = f'{mkpts_0.shape[0]} m. {uav_c[0]:.1f}, {uav_c[1]:.1f}. {np.linalg.norm(uav_c - ugv_c):.1f}'
             cv2.putText(match_img, text, (10, 50),
                         cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 3)
             row_images.append(match_img)
@@ -112,41 +112,40 @@ class RobotAnimator:
         self.correspondence_count = count
 
     def render(self):
+        rect_w = 0.00005
         self.ax.cla()
+
+        # plot node and edges
+        self.graph.plot(self.ax)
 
         # draw nodes and patches
         for n in self.graph.nodes:
-            cx, cy = n.coordinate
-            r = n.radius
-            circ = plt.Circle((cx, cy), r, color='gray', fill=False)
-            self.ax.add_patch(circ)
+            # cx, cy = n.coordinate
+            # r = n.radius
+            # circ = plt.Circle((cx, cy), r, color='gray', fill=False)
+            # self.ax.add_patch(circ)
             if n == self.node:
                 for (_, pt, _), count in zip(n.correspondance_data, self.correspondence_count):
-                    c = (1.,0.,0.)
+                    c = (1., 0., 0.)
                     if count > self.match_count_probable_thresh:
                         c = (1., 0.65, 0.)
                     if count > self.match_count_thresh:
                         c = (0., 1., 0.)
-                    rect = plt.Rectangle((pt[0] - 1, pt[1] - 1), 2, 2,
-                                         color=c)
+                    rect = plt.Rectangle((pt[0] - rect_w / 2, pt[1] - rect_w / 2),
+                                         rect_w, rect_w, color=c)
                     self.ax.add_patch(rect)
             else:
                 for _, pt, _ in n.correspondance_data:
-                    rect = plt.Rectangle((pt[0] - 1, pt[1] - 1), 2, 2, color=(1., 0., 0.))
+                    rect = plt.Rectangle((pt[0] - rect_w / 2, pt[1] - rect_w / 2),
+                                         rect_w, rect_w, color=(0.8, 0.8, 0.8))
                     self.ax.add_patch(rect)
-
-        # draw edges
-        for n1 in self.graph.edges:
-            for n2 in self.graph.edges[n1]:
-                x_values = [n1.coordinate[0], n2.coordinate[0]]
-                y_values = [n1.coordinate[1], n2.coordinate[1]]
-                self.ax.plot(x_values, y_values, color='black')
 
         # draw robot path
         self.ax.plot(self.path_x, self.path_y, 'b-')
         if self.path_x:
             x, y, yaw = self.path_x[-1], self.path_y[-1], self.yaws[-1]
-            self.ax.arrow(x, y, 2 * np.cos(yaw), 2 * np.sin(yaw), head_width=0.5, color='g')
+            self.ax.arrow(x, y, 0.0001 * np.cos(yaw), 0.0001 * np.sin(yaw),
+                          width=0.0001 / 8, head_width=0.0001 / 4, color='g')
 
         # convert to image
         self.canvas.draw()
