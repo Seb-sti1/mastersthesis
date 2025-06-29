@@ -8,6 +8,7 @@ from typing import Callable, Dict, Any, Iterator
 import cv2
 import numpy as np
 from cv_bridge import CvBridge
+from scipy.spatial.transform import Rotation
 from tqdm import tqdm
 
 import rosbag
@@ -17,6 +18,15 @@ bridge = CvBridge()
 
 def withTimestamp(func):
     return lambda msg, t: (t, func(msg, t))
+
+
+def toEuler(func):
+    def lambda_builder(msg, t):
+        imu = func(msg, t)
+        rot = Rotation.from_quat(imu["orientation"])
+        return rot.as_euler('xyz')
+
+    return lambda_builder
 
 
 def msg2gnss(msg, t):
