@@ -1,67 +1,93 @@
 \chapter{Introduction}\label{ch:introduction}
+\glsresetall
 
-The idea for this thesis originated from the observation that autonomous navigation in outdoor environments
-remains far from viable.
-This is not surprising, as true autonomous navigation in complex, unstructured environments
-requires multiple robust systems and algorithms—any of which, if failing, can compromise the entire system.
+The idea for this thesis originated from the observation that autonomous navigation in outdoor environments remains far from viable, especially in real-world, unstructured terrains
+This is not surprising, as such autonomy demands a combination of reliable systems and algorithms, all operating simultaneously and consistently---any single failure can compromise the entire system.
 
-For the autonomous navigation to work, the robot requires notably a precise estimation of its localization,
-a way to perceive the environment, a way to establish a plan using those raw data and something that can
-execute the plan.
+For autonomous navigation to be functional, several core capabilities are required.
+The robot must be able to localize itself accurately, perceive its environment effectively, generate a plan based on this information, and physically execute that plan.
+Each of these components introduces its own challenges and complexity.
 
-At each step, there are challenges.
-For the localization, no one sensor can provide accurate and high frequency data.
-This lead the aggregation of multiple sources of localization that come with different noise.
+In localization, for instance, no single sensor provides both the accuracy and high frequency needed across all environments.
+\gls{gnss} is usually too infrequent, while \glspl{imu} and odometry suffer from drift.
+This necessitates the fusion of multiple sensor inputs---each with its own noise profile and limitations---into a consistent and reliable estimate of the robot’s pose, often through complex filtering or optimization methods.
 
-Perceiving the environment, especially negative objects (holes in the ground), can also be quite challenging.
-A range of sensors (e.g.\ LiDAR, RGBD Camera etc.) are used to sense the world around the robot.
-These raw datas are then combined and process to produce higher level of understand of the environment.
+Environmental perception is equally demanding, particularly for detecting negative obstacles such as holes, ditches,
+or sudden drops, which are inherently harder to sense.
+A combination of sensors such as \gls{lidar}, stereo or \gls{rgbd} cameras is typically used to gather spatial information.
+However, raw data alone is insufficient---processing pipelines must filter, fuse, and interpret these data streams into
+higher-level representations like elevation maps or obstacle grids, which are then usable by the planning algorithms.
 
-With this understanding of the environment, new steps allows to create a plan for the robot to execute.
-To ensure reactivity to new information received and/or a changing environment, this planning along with the
-already mentioned systems, need to be constantly refreshed.
+With an understanding of the terrain and obstacles, the robot must be able to generate a feasible plan that accounts for
+both short-term reactivity and long-term goals.
+This requires layered planning architectures, typically involving a global planner for strategic pathfinding and a local
+planner for real-time adjustments.
+Because the environment can change unpredictably or new information may become available, both perception and planning
+modules must operate continuously and update their outputs at high frequency.
 
-Finally, with all these processes the robot can execute the elaborated plan.
+Finally, with all these processes in place, the robot must execute the elaborated plan through its actuators,
+which serve as the interface between computation and physical action.
+Actuators must accurately translate velocity and steering commands into real-world movement, despite variability in
+terrain, load, and mechanical resistance.
+In practice, real-time feedback from low-level sensors like encoders is used to monitor and adjust actuation.
+In challenging outdoor conditions, reliable execution is critical, as poor control can quickly degrade the performance
+of even the most sophisticated planning system.
 
-
-\section{Background}\label{sec:background}
-
-traversability
-
-local nav
-
-localization
-
-start to be okay ish
+% {\color{dtured}Introduction, start at the level of any high-school student and end in broad terms with the purpose and content of this thesis.}
 
 
 \section{The project}\label{sec:the-project}
 
-Local navigation is a necessary first step toward autonomous navigation.
-However, it must be complemented by global navigation, which provides overall direction and guides the robot toward its final goal.
-This global navigation won't have the same level of the detail, it will happen at a higher level of abstraction.
-Its objective is not, contrary to the local navigation, to provide velocity command to perform for the robot, but
-to give a rough path towards the end goal.
+This project focuses on global navigation, treating local navigation as fixed and outside its scope.
+Global navigation operates at a higher level of abstraction than local navigation and does not require the same level of detail
+understanding of the robot surrounding.
+Its role is not to generate low-level velocity commands for the robot but to provide an overall path or sequence of
+waypoints that guide the robot toward its final goal.
+It acts as a strategic coordinator for local navigation, which is then responsible for real-time adjustments and obstacle avoidance.
+Naturally, the more traversable the global path is, the easier it becomes for local navigation to execute it successfully.
 
-
-This idea behind this project is to use an \gls{uav} to gather terrain data like roads, crossroads, obstacles, distinctive
-elements\ldots This features would then be used, depending on the objective point to reach, to determine a global
-path and recognizable places for the \gls{ugv} to locate.
+The objective of this thesis is to explore techniques to construct the backbone of a topological map from aerial reconnaissance.
+This includes identifying paths and intersections from \gls{uav} imagery and defining how they can be represented within a navigable map structure.
+Subsequently, the focus shifts to enabling cooperation between the \gls{uav} and \gls{ugv}.
+Using different algorithms, each robot collects and transforms the sensor data available to it.
+The goal is to allow the reconnaissance performed by the \gls{uav} to support the \gls{ugv} in identifying its location
+within the topological map and navigating through it.
 
 
 \section{Objectives}
 
-define
+\begin{itemize}
+    \item Develop an algorithm to identify paths and intersections in unstructured terrain.
+    \item Design techniques to reduce perspective differences between the \gls{uav} and the \gls{ugv}.
+    \item Develop algorithms to identify common areas in both \gls{uav} and \gls{ugv} data.
+    \item Implement a computationally efficient correspondence-finding system to recognize areas detected by the \gls{uav} from the \gls{ugv} perspective.
+    \item Ensure and quantify the reliability of the proposed implementation.
+\end{itemize}
 
 
 \section{Limitations}\label{sec:limitations}
 
+Several important limitations affect this project.
+First, all datasets and experiments are constrained to the robots described in \Cref{ch:context},
+meaning no additional sensors or hardware modifications can be used to address the objectives.
+Furthermore, local navigation is outside the scope of this thesis; existing software components, also detailed in \Cref{ch:context},
+are used as-is, with their respective advantages and shortcomings.
+Due to regulatory constraints, \gls{uav} flights must be performed under strict conditions---limited to specific locations,
+times, and flight height---which significantly restricts the possibility of creating \gls{uav}-collected datasets.
+Lastly, during the thesis period, the \gls{u2is} participated in the CoHoMa III robotics challenge, occasionally making some robots unavailable for use.
 
-robot available in u2is lab
-
-difficulty of making dataset
-
-cohoma
 
 \section{Thesis outline}
+
+The following chapters explore several key aspects of this thesis:
+
+\begin{itemize}
+    \item \textbf{Analysis} --- Reviews the current state of the art and introduces the specific challenges addressed in this work.
+    \item \textbf{The Context of the Project} --- Describes the equipment available at the \gls{u2is}, including hardware configurations and existing software components.
+    \item \textbf{Topological Map Creation} --- Presents techniques for segmenting \gls{uav} imagery to identify paths and intersections, forming the basis for constructing a topological map.
+    \item \textbf{Creating \gls{bev} from \gls{ugv} Images} --- Evaluates two methods for generating \gls{bev} images from \gls{ugv}-mounted cameras.
+    \item \textbf{Finding Correspondences between \gls{ugv} and \gls{uav} Data} --- Explores several algorithms for establishing sparse correspondences between \gls{uav} and \gls{ugv} data.
+    \item \textbf{System Test} --- Implements and evaluates a simulated real world
+    scenario using two different datasets and compare it against prior results.
+\end{itemize}
 

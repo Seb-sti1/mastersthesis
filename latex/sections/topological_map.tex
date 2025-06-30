@@ -2,27 +2,29 @@
 
 As discussed in~\ref{sec:problem-at-hand}, the main purpose of using a topological map is to retain only the necessary information about the environment.
 A traditional map scales quadratically with the area’s width, whereas a topological map grows linearly with the number of nodes.
-These nodes, typically representing intersections, are the key locations where information is stored.
-The number of generated node is an important subject as it is the main parameter to regulate the final map size.
-This approach relies on the assumption that the \gls{ugv} can use local navigation to reach a target when the required trajectory is approximately a straight line.
+These nodes, typically representing intersections, are key locations where information is gathered.
+The number of generated nodes is an important factor, as it is the main parameter controlling the final map size.
+The robustness of the local navigation system directly constrains the required number of nodes: more robust navigation
+allows for fewer nodes, while less capable systems require denser node placement.
+However, beyond a certain point, a minimal number of nodes is always necessary regardless of local navigation performance.
 
 
 \section{Fast Color/Texture Segmentation For Outdoor Robots}
 
-In~\cite{rasmussen_appearance_2009}, the team at the university of Delaware, uses the method describe in~\cite{rufus_blas_fast_2008},
-lidar data and geometric constraints, in order to detect a forest trail and make an \gls{ugv} follow it.\\
-As both articles seemed to gave promising results, a first attempt to segment \gls{uav} imagery using the method describe in
-~\cite{rufus_blas_fast_2008}.
+In~\textcite{rasmussen_appearance_2009}, the team at the University of Delaware uses the method described in~\textcite{rufus_blas_fast_2008},
+\gls{lidar} data, and geometric constraints to detect a forest trail and make an \gls{ugv} follow it.\\
+As both articles seemed to give promising results, a first attempt was made to segment \gls{uav} imagery using the method
+described in~\textcite{rufus_blas_fast_2008}.
 
-As, at this point, as no dataset using U2IS' \gls{uav} was available, the publicly available~\cite{noauthor_aukerman_nodate} was used.
-It is a dataset of the Aukerman Park\footnote{15561 York Rd, North Royalton, OH 44133, United States}, containing 78
-4896 x 3672 images captured with a Sony DSC-WX220.
-It was chosen as it contains trails, grass, trees, gravel/sand paths and asphalt roads from an aerial perspective which
-seemed like a good variety of terrains (see~\cref{ch:aukerman-park-overview}).
+At this point, no dataset using \gls{u2is}' \gls{uav} was available, so the publicly available~\textcite{noauthor_aukerman_nodate} dataset was used.
+It is a dataset of Aukerman Park\footnote{15561 York Rd, North Royalton, OH 44133, United States}, containing 78 images
+(4896 × 3672) captured with a Sony DSC-WX220.
+It was chosen because it contains trails, grass, trees, gravel/sand paths, and asphalt roads from an aerial perspective,
+which seemed like a good variety of terrains (see~\Cref{ch:aukerman-park-overview}).
 
-\cite{rufus_blas_fast_2008} article's method, starts by converting the input RGB image to the \textit{CIE-Lab} space.
-Then for each pixel, descriptors are computed using~\cref{eq:fast_color:descriptor} where the first three features
-describe color while the remaining eight describe the local texture.
+The method from the article~\textcite{rufus_blas_fast_2008} starts by converting the input RGB image to the \textit{CIE-Lab} color space.
+Then, for each pixel, descriptors are computed using~\Cref{eq:fast_color:descriptor}, where the first three features
+describe color while the remaining eight describe local texture.
 \begin{align}
     \label{eq:fast_color:descriptor}
     p_{i,j} = \begin{bmatrix}
@@ -32,17 +34,17 @@ describe color while the remaining eight describe the local texture.
                   W_3 \times (L_1 - L_c) \\
                   \vdots                 \\
                   W_3 \times (L_8 - L_c) \\
-    \end{bmatrix}
+    \end{bmatrix} \text{$W_i$ are weights that can be adjusted}
 \end{align}
-The pixel descriptors are then clusterized using the well-known k-means algorithm, which returns clusters of similar
-pixel (in the sense of close in the descriptor space) and their centroid, called \textit{textons}.
-At this time a filtering of the outliers is applied to remove descriptor too far away from their \textit{textons}.
-For each pixel, a new feature vector is created by looking at the repartition/histogram of the clusters in a local
-window centered on the pixel.
-In a sense the \textit{textons} describe the image at a micro level while the histograms describe the composition in terms
-of density of each \textit{textons} in a local area.
-Furthermore, the histograms are clustered again use k-means and a final step uses the \gls{emd} to
-merge histogram cluster having a centroid too close to each other.
+
+The pixel descriptors are first grouped using the well-known k-means clustering algorithm, which organizes similar
+pixels---those that are close in the descriptor space---into clusters.
+Each cluster's centroid, referred to as a \textit{texton}.
+These \textit{textons} serve as representative that capture local color and texture features.
+After clustering, an outlier filtering step is performed to remove descriptors that lie too far from their associated
+\textit{texton}, ensuring better cluster consistency.
+Next, for each pixel, a local histogram is computed by analyzing the distribution of \textit{textons} within a neighborhood
+window centered on that pixel.
 
 \begin{figure}[ht!]
     \centering
@@ -54,38 +56,52 @@ merge histogram cluster having a centroid too close to each other.
     \hfill
     \begin{subfigure}[t]{.69\textwidth}
         \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_hist1}
-        \caption{2D histogram for three given texons. The greener, the higher the density of the texton.}
+        \caption{2D histogram for three given \textit{textons}. The greener, the higher the density of the \textit{texton}.}
         \label{fig:fast_color:histograms}
     \end{subfigure}
     \caption{Intermediate results of the algorithm.}
     \label{fig:fast_color:intermediate_histograms}
 \end{figure}
 
-The first step of find the textons ensures that the algorithm is able to segment very different environment, by
-creating a solution tailored to its specificities.
-The second step of creating histograms is where the intermediate results already reveal structural information of the image.
-\Cref{fig:fast_color:intermediate_histograms} shows carefully selected histogram of three textons obtain when using % TODO don't like  carefully selected
-\Cref{fig:fast_color:raw_image} as input.
-\Cref{fig:fast_color:histograms} shows that the density of texton reveals interesting areas of the image.
-For instance, the first histogram gives high density to grass and low density to the paths, while the second one
-seems to give higher average values for trees and the last one gives higher average density for the grass.
 
-The final steps start from the histograms and create new feature vectors for each pixel, the features being the
-value of each histogram at that given pixel.
-With this mechanism, the last clusterization occurs on features representing the composition of a local area not the
-local patterns themselves.
-The very final step of the \gls{emd} is here to merge clusters too close to each other as the output of the
-k-means algorithm will always be k clusters which is not necessary the number of clusters in the image.
-By varying the minimal distance under which the clusters are merged together, it gives different segmentation as shown by
-\cref{fig:fast_color:final_cluters_comparaison}.
+In this framework, \textit{textons} provide a fine-grained (micro-level) description of the image, while the histograms
+represent the spatial composition and density of different \textit{textons} in a local region.
+The initial step of extracting \textit{textons} ensures that the algorithm can adapt to and segment very different
+environments by generating a representation tailored to the specific visual characteristics of the input.
+The second step, which involves constructing local histograms, begins to reveal structural information about the scene.
 
-For this particular example, The cluster one, two, four seem to correspond to the path and grass while other clusters
-are have meaning.
-Making the parameters vary (number of textons, number of cluster for the histogram, histogram window size) gave different
-results, none seemed clear enough to be used to properly segment traversable \\
+\Cref{fig:fast_color:intermediate_histograms} presents representative histograms of three \textit{textons} obtained from
+the input image shown in~\Cref{fig:fast_color:raw_image}.
+As seen in~\Cref{fig:fast_color:histograms}, the spatial distribution (density) of \textit{textons} highlights distinct areas in the image.
+For instance, the first histogram shows high density over grassy areas and low density over paths, the second appears to
+emphasize trees, and the third again highlights grassy regions.
+
+Following this, new feature vectors are constructed for each pixel, where each feature corresponds to the value of one
+of the histograms at that pixel location.
+To further abstract this information, the local histograms---through these new feature vectors---are clustered again using the
+k-means algorithm, grouping together similar regional patterns based on their distribution of \textit{textons}.
+In this way, the final clustering step operates not on raw local patterns, but on higher-level features that
+describe the composition of the surrounding area.
+This shift allows the segmentation to capture more meaningful regional structures rather than isolated texture or color variations.
+
+Finally, a refinement step employs the \gls{emd} to merge histogram clusters whose centroids are too close in distribution
+space, reducing redundancy and enhancing the semantic consistency of the segmentation.
+This step compensates for the limitation of the k-means algorithm, which always produces a fixed number of $k$ clusters,
+regardless of the actual number of meaningful regions in the image.
+By merging clusters that are too similar, the final segmentation becomes more representative of the true structure of the scene.
+Adjusting the minimum distance threshold for merging allows control over the segmentation granularity.
+
+
+In the example shown in~\Cref{fig:fast_color:emd_10}, clusters one, two, and four appear to correspond
+to paths and grassy areas, while the remaining clusters have no well-defined meaning.
+Varying the parameters---such as the number of \textit{textons}, the number of clusters for the histograms, the histogram
+window size, etc.---produced different results, but none seemed clear or reliable enough to be used for accurately segmenting
+traversable terrain for topological map construction.\\
 This seems like the main limitation of using k-means to find textons to find very specific areas in a picture.
-Given a properly and exhaustive dataset, an interesting change to try would be to define textons for different surfaces
-and create the initial cluster using KNN algorithm.
+Given a properly and exhaustive dataset, an interesting change would be to define textons for different surfaces
+and create the initial cluster using K-Nearest Neighbors (KNN) or similar supervised algorithms instead of k-means.
+The idea is that this would prioritize low-level patterns relevant to this use case, potentially enabling the algorithm
+to extract more meaningful and task-specific information.
 
 % TODO another limitation it is that is slow
 
@@ -109,23 +125,23 @@ and create the initial cluster using KNN algorithm.
 
 \section{Detecting trees in order to find traversable region}
 
-As mentioned in the previous section, having a dataset to improve different method by applying machine learning, seems
+As mentioned in the previous section, having a dataset to improve different methods by applying machine learning, seems
 like an interesting idea to try.
-For instance,~\cite{zhang_dual-bev_2025} uses a retrained version of~\cite{ronneberger_u-net_2015} to segment satellite imagery.
+For instance,~\textcite{zhang_dual-bev_2025} uses a retrained version of U-Net~\cite{ronneberger_u-net_2015} to segment satellite imagery.
 Sadly, after some research, in the available timeframe, nothing seemed to correspond to what was needed in order to
-apply the same technic to this subject.
-Fortunately, during those research, the already pretrained model~\cite{bosch_journal_2020} was found.
+apply the same technic to this work.
+Fortunately, during those research, the already pretrained model~\textcite{bosch_journal_2020} was found.
 It applies an already existing technics to segment tree/non-tree pixels.
 Therefore, the goal becomes to segment trees and consider that everywhere else, the robot would be able to traverse
-or at least find a traversable path avoiding not segmented out obstacles (e.g.\ negative obstacles, rocks, etc.).
+or at least find a traversable path avoiding not segmented out obstacles (\textit{e.g.}\ negative obstacles, rocks, etc.).
 
 The \gls{ai} model proposed is train using supervised learning using the following steps.
 First, images are split in tiles and in order to reduce cost of labelling tiles while keeping variety in the dataset,
 using GIST descriptors, k means clusters the tiles.
 k is chosen so that the number of clusters is about 1\% the number of tiles.
-Then only the tiles closest to the centroids are labelled, either manually or using other available data (e.g.\ LiDAR measurements)
+Then only the tiles closest to the centroids are labelled, either manually or using other available data (\textit{e.g.}\ \gls{lidar} measurements).
 Using these labelled tiles as ground truth, a binary Adaboost classifier is train.
-The input vector is twenty-seven features long, six encoding color, 18 texture and 3 entropy.
+The input vector for each pixel is twenty-seven features long, 6 encoding color, 18 texture and 3 entropy.
 Finally, a refinement method is used to avoid sparse pixels.
 
 \begin{figure}
@@ -143,15 +159,15 @@ Finally, a refinement method is used to avoid sparse pixels.
         \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b1000_r30000}
         \caption{Segmentation of detect tree using $\beta = 1000$, $\text{rescale} = 30000$}
     \end{subfigure}
-    \caption{Segmentation of detect tree using \cref{fig:fast_color:raw_image} as input.}
+    \caption{Segmentation of detect tree using \Cref{fig:fast_color:raw_image} as input.}
     \label{fig:detect_tree:results}
 \end{figure}
 
 
-The authors provide a version of their model trained Zurich's Orthofoto Sommer 2014/15.
-Inferring with this model and \cref{fig:fast_color:raw_image} as input gives the results in \cref{fig:detect_tree:results}.
+The authors provide a version of their model trained on Zurich's Orthofoto Sommer 2014/15.
+Inferring with this model on \Cref{fig:fast_color:raw_image} as input, gives the results in \Cref{fig:detect_tree:results}.
 Furthermore, it shows different refinement parameters and how it affects the final results of the segmentation.
-A higher value of $\beta$ seems to make the classification less noisy while a higher value does the opposite.
+A higher value of $\beta$ seems to make the classification less noisy while a lower value does the opposite.
 
 % TODO performance
 % TODO manually label trees in aukerman and make a metric
@@ -161,7 +177,7 @@ A higher value of $\beta$ seems to make the classification less noisy while a hi
 % TODO on satellite map (not good enough)
 
 Even though detect tree gave very promising results on \gls{uav} imagery, many more steps are required to be able
-to use this in order to create the backbone of the topological map (i.e.\ placement of node and vertices).
+to use it, to create the backbone of the topological map (\textit{i.e.}\ placement of node and vertices).
 As, with a carefully though \gls{ui}, this task can be done by a user in matter of minutes if not seconds, it seemed
 more reasonable to focus the remaining time on developing methods to gather \gls{uav} data in chosen nodes and
-make than recognisable by the \gls{ugv}.
+make them recognisable by the \gls{ugv}.

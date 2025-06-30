@@ -1,33 +1,433 @@
 \chapter{System test}
-\section{Introduction}
-
-{\color {dtured} This chapter, just before the conclusion, is where the full system is tested or discussed.
-
-The chapter title could also be Results, Perspective, or similar.
-
-This chapter is where the results are compared or seen from the perspective of the overall objectives in Chapter 1.
-
-Future works could be a part of this chapter.
-
-The chapter brings all the threads from the previous chapters together.
-The red thread starts with the title, explained in the introduction, expanded in the analysis chapter, and detailed in the remaining chapters are recombined into one thread here, ready for the conclusion in the next chapter.
-}
-
-\section{Scenario}
-
-{\color{dtured}Test scenario or method to test against the thesis objectives.
-}
 
 
-\section{Test result analysis}
+%{\color {dtured} This chapter, just before the conclusion, is where the full system is tested or discussed.
+%
+%The chapter title could also be Results, Perspective, or similar.
+%
+%This chapter is where the results are compared or seen from the perspective of the overall objectives in Chapter 1.
+%
+%Future works could be a part of this chapter.
+%
+%The chapter brings all the threads from the previous chapters together.
+%The red thread starts with the title, explained in the introduction, expanded in the analysis chapter, and detailed in the remaining chapters are recombined into one thread here, ready for the conclusion in the next chapter.
+%}
 
-\section{Future works}
+As explained in previous chapters, the end goal of this work is to develop algorithms that enable an \gls{uav} to
+provide environmental data to an \gls{ugv}, improving its global navigation.
+For this purpose, the choice was made to structure the algorithms around a topological map of the area.
+The nodes are areas where the \gls{uav} collects data while the edges are constructed so that the \gls{ugv}
+has the capacity of navigating along them on its own using its on board capacities.
 
-{\color{dtured}
-Recommendation for future works on the thesis subject or project.
-}
+As the first technological brick of creating the backbone of the topological map is not ready yet, it is done by hand in the two following examples.
+It is to be noted that it was fairly quick even without the use of a specialized \gls{ui}.
+While for the Montmorency datasets, the \gls{ugv} \gls{bev} were already part of it, the method describe in \Cref{sec:traditional-homography} was
+used to create \gls{bev} for the dataset that was collected during this thesis.
+Finally, the use of XFeat with lighterglue, benchmarked in \Cref{ch:finding-correspondances-between-ugv-and-uav-data},
+made it possible to simulate the described real world scenario.
 
 
-\section{Summary}
+\section{Implementation of a simulated real world scenario}\label{sec:implementation-of-a-simulated-real-world-scenario}
+
+Regarding the implementation, \textit{Graph} and \textit{Node} classes were created.
+The \textit{Graph} consists of an array of \textit{Node} objects and a dictionary representing the edges
+\footnote{The edges are undirected, as the \gls{ugv} is assumed to be able to traverse in both directions.}.
+For each \textit{Node}, the dictionary stores the array of connected \textit{Nodes}.
+A \textit{Node}, circular in shape, mainly contains the following information:
+\begin{itemize}
+    \item a name to identify more easily the node,
+    \item the \gls{gnss} coordinates of the center,
+    \item the radius which define the size of the node,
+    \item an array of the patches extracted during the \gls{uav} reconnaissance flight,
+    \item the extracted features of the best patches.
+\end{itemize}
+
+The entire system operates through three main steps: generating patches during the \gls{uav} reconnaissance flight,
+filtering these patches to identify the best candidates, and deploying the \gls{ugv} to the area to use the selected
+scouting data alongside the \gls{ugv}'s \gls{bev} for area recognition.
+Note that, in a production environment, the first two steps would typically be combined to optimize performance.
+Here, they are separated for clarity and improved analysis of results.
+
+This simulation reproduces the same steps that would be done in the real world.
+Few part were adapted as they are not possible to replicate.
+For instance, the path of the \gls{ugv} is decided when the dataset used in the simulation is created, it is not generated
+after the reconnaissance, as it would in the real world.
+
+\subsection{Generate scouting data}\label{subsec:generate-scouting-data}
+
+Firstly, in the \gls{uav}'s image, a 4-by-7 grid of potential patches is generated, with each patch oriented to a
+yaw angle of 0° to eliminate rotational differences with the patches that will later be generated in the \gls{ugv}.
+For each patch, the \gls{gnss} coordinates of its center is computed using a combination of their pixel positions in
+the image, the \gls{uav}'s precise position and orientation, and the image scale expressed in pixels per meter on
+the ground.
+This calculation allows verification of whether a given patch falls within a predefined node on the topological map.
+When a patch lies within such a node, it is extracted and saved for the next steps.
+
+\subsection{Filter scouting data}
+
+Then for each node, the large number of generated patches must be filtered to keep only the most valuable
+ones, meaning those that will maximize the \gls{ugv}’s ability to recognize and use them effectively during navigation.
+The first filtering step evaluates the median feature scores within each patch.
+This approach was chosen because, as was observed while testing with XFeat~\cite{potje_xfeat_2024}, patches with higher
+feature scores tend to produce more valid matches, making them more reliable for correspondence.
+Next, to ensure minimal spatial coverage and avoid redundancy, patches that are located too close to another patch are discarded.
+Of the two close patches, the one with a higher median score is kept.
+This distance-based filtering helps distribute the selected patches more evenly across the node’s area.
+Finally, if more than ten patches remain after these two filtering steps, the selection is further narrowed down
+by retaining only the best ten patches in terms of highest median feature scores.
+This limit balances the need for good coverage with computational efficiency.
+
+\subsection{Detect \gls{ugv} location}
 
 
+Finally comes the \gls{ugv}.
+As briefly mentioned before, the algorithm was only executed offline on existing datasets, rather than running in real world.
+In a real implementation, an operator would select a target position for the \gls{ugv} to reach, and a path planning step
+would determine which nodes the \gls{ugv} should pass through to arrive at the goal.
+However, since the \gls{ugv} in the dataset has already followed a specific path, this simulation assumes that the actual
+path taken by the \gls{ugv} is equivalent to the path the real algorithm would generate.
+From there, the algorithm proceeds as it would in reality: at each point along the path, it knows which node is the next target.
+This approach is reasonable because nodes act as intermediate goals for the local navigation.
+It also significantly reduces the computational load on the system.
+
+Similarly to the \gls{uav}, a grid of patches is extracted from the \gls{ugv}'s \gls{bev}.
+This grid consists of a single row of two patches, both rotated to a yaw angle of 0 degrees to neutralize orientation differences.
+For each \gls{ugv} patch, XFeat features are extracted and compared with those of the \gls{uav} patches previously
+collected for the node the \gls{ugv} is heading to.
+Finally, a threshold is applied to determine whether the number of correspondences found is sufficient to consider the match valid.
+
+
+\section{Results using Montmorency dataset}
+
+This simulated real world scenario can be applied on the Montmorency dataset.
+A topological map, visible in \Cref{fig:system_test:montmorency:graph}, was created, adding 13 nodes at key intersections
+along the \gls{ugv} path.
+Then the algorithm previously describe was executed.
+
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{illustrations/system_test/montmorency_graph}
+    \caption{Topological map for the Montmorency dataset. The circles correspond to the nodes, the black lines to the
+    interconnection between them. The rectangles are the selected \gls{uav} patches. For the next node, when they are
+    in red they are not concidered as the same area as seen by the \gls{ugv}. Conversly when in green, the algorithm
+    detects the same place. The blue line is the \gls{ugv} path while the green arrow is its current orientation.}
+    \label{fig:system_test:montmorency:graph}
+\end{figure}
+
+\subsection{Simulation modifications due to dataset specificities}
+
+A unique aspect of the Montmorency dataset is that the \gls{ugv} itself appears within the image frames.
+As a result, during the scouting step, any patches overlapping an exclusion zone around the \gls{ugv} are carefully discarded to avoid interference.
+However, it sometimes captures areas where the \gls{ugv}'s wheels have left visible marks on the ground---features that cannot appear in the \gls{ugv}'s own
+images---potentially complicating later correspondence tasks.
+Also, as the Montmorency dataset only provides the \gls{gnss} position and the orientation of the \gls{ugv},
+the position and orientation of the \gls{uav} is determined using the aruco tag present on top of the \gls{ugv}.\\
+It is noted that the image scale (ground meters per pixel) is computed using the known size of the ArUco markers placed on the \gls{ugv}.
+
+\subsection{Results}
+
+After scouting, nodes have between 200 and 2000 patches (more details in \Cref{tab:montmorency:node_details}).
+This spread in the number of patches is mainly because different radii were used.
+This aims to explore how different node sizes can affect the results.
+Also shown in \Cref{tab:montmorency:node_details} are the numbers of patches selected after filtering.
+This highlights that for some nodes, notably 9 and 6, having many patches does not necessarily result in having the maximum
+number of patches.
+
+\begin{table}[ht!]
+    \centering
+    \centering
+    \begin{subtable}[t]{0.90\textwidth}
+        \centering
+        \begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|c|c|c|c|c|c|c|}
+            \hline
+            Node                                       & 1    & 2   & 3   & 4   & 5   & 6   & 7   \\ \hline
+            Radius (meters)                            & 5    & 3   & 3   & 4   & 3   & 3   & 3   \\ \hline
+            Number of patches extracted                & 2155 & 470 & 380 & 919 & 415 & 407 & 224 \\ \hline
+            Number of patches selected after filtering & 10   & 10  & 10  & 10  & 9   & 8   & 9   \\ \hline
+        \end{tabular}
+        \caption{Nodes 1–7}
+    \end{subtable}
+    \\
+    \begin{subtable}[t]{0.90\textwidth}
+        \centering
+        \begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|c|c|c|c|c|c|}
+            \hline
+            Node                                       & 8   & 9   & 10  & 11  & 12  & 13  \\ \hline
+            Radius (meters)                            & 4   & 3   & 3   & 3   & 3   & 3   \\ \hline
+            Number of patches extracted                & 569 & 851 & 368 & 272 & 188 & 314 \\ \hline
+            Number of patches selected after filtering & 10  & 8   & 9   & 10  & 10  & 9   \\ \hline
+        \end{tabular}
+        \caption{Nodes 8–13}
+    \end{subtable}
+    \caption{Patch extraction and selection details per node}
+    \label{tab:montmorency:node_details}
+\end{table}
+
+
+With the features extracted and prepared, the \gls{ugv} \gls{bev} can now be compared to the reference data.
+To analyze the results at a finer level of detail, \Cref{tab:montmorency:patch_detection} presents the patch-level detection rates.
+Through manual verification, it was confirmed that no false positive detections occurred, meaning that every detection made corresponds to a valid match.
+However, identifying false negatives---cases where a match should have been made but was missed---is considerably more difficult.
+These will be discussed further in \Cref{sec:limitations-and-future-works}, along with proposed strategies to address them.
+Across the dataset, 36.8\% of all patches are successfully detected at least once.
+However, there is significant variation in detection performance across different nodes.
+For example, node 3 had no successful detections, while node 1 achieved an 80\% detection rate.
+The underlying reasons for these variations are diverse.
+In the case of node 3, while no patches were detected, some came close to the detection threshold.
+This node also illustrates a known limitation of the \gls{bev} approach discussed in \Cref{sec:traditional-homography}:
+when the local terrain is uneven, significant elevation changes introduce distortions that degrade matching accuracy between \gls{uav} and \gls{ugv} patches.
+Similarly, node 8 suffers from environmental challenges---specifically, the presence of tall grass---which leads to poor-quality
+\gls{bev} representations, complicating matching.
+Node 9 highlights a different type of failure, this time related to the feature extraction method itself.
+In this area, the ground surface is composed of gravel, which appears to negatively impact XFeat.
+Unusually few matches are found, compared to other type of terrains.
+In summary, these observations reveal key limitations of the current approach, both in terms of feature extraction and geometric representation.
+These issues will be addressed in greater detail in \Cref{sec:limitations-and-future-works}, along with proposed directions for improvement.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        Node                & 1  & 2  & 3 & 4  & 5    & 6  & 7    & 8 & 9 & 10   & 11 & 12 & 13   \\ \hline
+        Detection Rate (\%) & 80 & 60 & 0 & 30 & 33.3 & 25 & 88.9 & 0 & 0 & 44.4 & 10 & 80 & 22.2 \\ \hline
+    \end{tabular}
+    \caption{The patch detection rate: the ratio of patches detected at least once to the total number of patches in the node.
+    A more comprehensive version of this table is provided in \Cref{tab:appendix:full_patch_detection_montmorency}, which includes all the raw detection counts.}
+    \label{tab:montmorency:patch_detection}
+\end{table}
+
+Taking a step back and looking at \Cref{tab:montmorency:node_detection}, it shows how many times the robot traversed
+each node and how many times the node was properly detected.
+Unsurprisingly, nodes with previously high detection rates are detected consistently.
+Fortunately, including many patches proves useful, as even nodes with low detection rates are correctly
+detected throughout the entire \gls{ugv} path (\textit{e.g.}, nodes 5, 6, and 13).
+These patches act as redundancies for node detection.
+Additionally, even with a perfect \gls{bev} and XFeat, the \gls{ugv} would not necessarily detect all patches, since it
+might not see the location of all patches during traversal.
+Regarding the tests involving different radii, the variations appear not to significantly impact the results, at least for
+the small range of radii tested here.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{3cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        Node                                      & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\ \hline
+        Number of time robot goes through node    & 3 & 2 & 2 & 2 & 2 & 1 & 2 & 1 & 3 & 1  & 1  & 1  & 1  \\ \hline
+        Number of time robot correctly detects it & 3 & 2 & 0 & 1 & 2 & 1 & 2 & 0 & 0 & 1  & 1  & 1  & 1  \\ \hline
+    \end{tabular}
+    \caption{Patch extraction and selection details per node}
+    \label{tab:montmorency:node_detection}
+\end{table}
+
+One last detail to mention is that the \gls{ugv} step of extracting two patches and comparing them to the \gls{uav}
+patches takes on average 0.49 seconds, with a standard deviation of only 0.055 seconds.
+These timings are smaller than expected and meet the requirements for this algorithm.
+
+% TODO average distnace to patch when detected
+
+
+\section{Results using a new U2IS dataset}
+
+As previously indicated, creating a dataset, especially with the \gls{uav}, mostly because of legal obligation, is not easy.
+Fortunately, it was possible to create a small dataset with the robots of the \gls{u2is}.
+This act as a final test on the overall system: with different sensors that the one used while developing the algorithms, it tests if the
+implemented algorithms are able to identify common area in the \gls{uav} and \gls{ugv} images.
+
+\subsection{Preparation and technical challenges related to the creation of a dataset}
+
+Key differences are to be noted between the Montmorency dataset and this one.
+First, as explained, having the \gls{ugv} visible in the \gls{uav} images complicates the extraction of patches during the scouting step.
+For this reason, the data were collected sequentially, the \gls{uav} first and then \gls{ugv}.
+In addition to simplify the scouting steps, it also makes it impossible for the \gls{uav} to include patches that
+contains terrain modified by the wheels of the \gls{ugv} (as it was observed with the Montmorency dataset).
+
+These modifications imply that the \gls{gnss} coordinates and orientation of both the \gls{uav} and \gls{ugv} needs to be measured.
+Regarding the \gls{uav} it was fairly simple as it was already properly done by the \gls{uav}'s sensors.
+For the \gls{ugv}, it is a bit more complicated as the SBG sensor gives very wrong measurements\footnote{In some tests, the robot position was near Bristol, United Kingdom instead of near Paris, France.}.
+After some preparation tests, it was confirmed that only the \gls{gnss} coordinates are usable: the position computed by the sensor fusion
+using the \gls{gnss} coordinates and the \gls{imu} data is completely erroneous.
+This also confirmed that the available orientation provided by the SBG's \gls{imu} or the ZED's \gls{imu} were not reliable enough.
+An approximation of the orientation was computed afterward, using the path of the \gls{ugv} knowing that the \gls{ugv} always went forward.
+
+The last and final preparation step is to ensure all cameras publish images in \gls{ros}.
+For the \gls{ugv}, it was made by the ZED's driver and worked as intended.
+For the \gls{uav}, the camera publishes a RTSP video stream on the camera's ip address.
+To make it available a small \gls{ros} package was created and, using the \textit{Gstreamer}~\cite{noauthor_gstreamergstreamer_2025} and
+\textit{OpenCV}~\cite{bradski_opencv_nodate} libraries, a node would get the RTSP stream and republish on an image topic.
+
+The created dataset is of about 4400 gimbal images from the \gls{uav} and about 5700 images for the \gls{ugv}.
+Regarding the telemetric data, the \gls{gnss} of the \gls{uav} is recorded at about 4Hz while it is about 5Hz for the \gls{ugv}.
+Other metadata, like the gimbal orientation is recorded.
+
+\subsection{Simulation modifications due to dataset specificities}
+
+Regarding the simulated real-world scenario, a few modifications were made.
+Due to time constraints---since the dataset was created late in the thesis---only one patch was created for both the \gls{uav} and the \gls{ugv}.
+For the \gls{uav}, there is no inherent constraint, and future work should begin by creating a grid.
+The only missing component is the ability to compute the \gls{gnss} coordinates of the patches center points.
+For the \gls{ugv}, while it is most likely possible to extract two patches, it may have limited impact on the overall results
+as they will overlap.
+
+The main change was the scaling of the images.
+In the Montmorency dataset, it appears that, out of luck, the scale, \textit{i.e.}, the number of pixels per meter on the ground,
+was similar in both the \gls{uav}'s image and \gls{ugv}'s \gls{bev}.
+This is clearly not the case here, as the same real-world area appears approximately 2.8 times larger in the
+\gls{ugv}'s \gls{bev} than in the \gls{uav}'s image.
+After minor testing, the best solution was found to be scaling up the \gls{uav}'s image to match the \gls{ugv}'s \gls{bev} scale.
+
+\subsection{Results}
+
+Fortunately, it turns out the behaviour of the algorithm is quite similar to when it is used on the Montmorency dataset.
+One notable difference, shown in \Cref{fig:system_test:hub_drone:graph}, is that the graph is smaller, because of the small dataset that was created.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        Node                                       & 1   & 2  & 3   & 4    \\ \hline
+        Radius (meters)                            & 5   & 3  & 3   & 4    \\ \hline
+        Number of patches extracted                & 723 & 80 & 144 & 1587 \\ \hline
+        Number of patches selected after filtering & 4   & 4  & 3   & 5    \\ \hline
+    \end{tabular}
+    \caption{Patch extraction and selection details per node}
+    \label{tab:hub_drone:node_details}
+\end{table}
+
+After scouting, nodes have fewer patches extracted than in the Montmorency dataset (more details in \Cref{tab:hub_drone:node_details}).
+This can be mainly explained by the fact that only one patch is extracted from the \gls{uav}.
+In fact, this also reduces the number of patches that can be selected due to the distance constraint, resulting
+in fewer than 5 selected patches after filtering across the nodes.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{illustrations/system_test/hub_drone_graph}
+    \caption{Topological map for the \gls{u2is} dataset. The pirple circles correspond to the nodes, the black lines to the
+    interconnection between them. The rectangles are the selected \gls{uav} patches. When they are
+    in red they are not concidered as the same area as seen by the \gls{ugv}. Conversly when in green, the algorithm
+    detects the same place. The blue line is the \gls{ugv} path while the green arrow is its current orientation.}
+    \label{fig:system_test:hub_drone:graph}
+\end{figure}
+One great aspect, not visible in \Cref{tab:hub_drone:node_details}, is that the absence of the \gls{ugv} in the image also allows more patches
+to be extracted on the path, increasing relevant coverage.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        Node                & 1  & 2  & 3 & 4 \\ \hline
+        Detection Rate (\%) & 50 & 50 & 0 & 0 \\ \hline
+    \end{tabular}
+    \caption{The patch detection rate: the ratio of patches detected at least once to the total number of patches in the node.
+    A more comprehensive version of this table is provided in \Cref{tab:appendix:full_patch_detection_hub_drone}, which includes all the raw detection counts.}
+    \label{tab:hub_drone:patch_detection}
+\end{table}
+
+\begin{wrapfigure}{r}{0.50\textwidth}
+    \begin{center}
+        \includegraphics[width=0.60\linewidth]{illustrations/system_test/bad_node_4}
+    \end{center}
+    \caption{The robot navigates roughly between the selected patches. Robot path in the blue curve ; robot orientation
+    is the green arrow ; rectangles are the patches from the \gls{uav}.}
+    \label{fig:hub_drone:bad_node_4}
+\end{wrapfigure}
+
+The detection rate is lower than what was obtained on the Montmorency dataset, but fortunately, it remains acceptable.
+More specifically, node 3’s patches nearly reach the detection threshold but fall slightly short.
+This is similar to observations from the Montmorency dataset, where tall grass negatively impacted detection.
+Additionally, node 3 has only three selected patches, reducing redundancy in detection.
+Regarding node 4, it serves as a clear example of what can happen when patches do not adequately cover a node.
+As shown in \Cref{fig:hub_drone:bad_node_4}, the robot navigated roughly between the selected patches.
+While it’s unclear if a different path would resulted in patch detection, it is evident that the current patch filtering
+method can be improved to ensure coverage.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        Node                                      & 1 & 2 & 3 & 4 \\ \hline
+        Number of time robot goes through node    & 1 & 1 & 1 & 1 \\ \hline
+        Number of time robot correctly detects it & 1 & 1 & 0 & 0 \\ \hline
+    \end{tabular}
+    \caption{Patch extraction and selection details per node}
+    \label{tab:hub_drone:node_detection}
+\end{table}
+
+Although the results are more mixed than the one on the Montmorency dataset, it is clear that the algorithms still work, even
+with different sensors (having smaller image sizes).
+It was able to properly found the first two nodes while missing the next two.
+
+
+\section{Limitations and future works}\label{sec:limitations-and-future-works}
+
+
+%Recommendation for future works on the thesis subject or project.
+
+As mentioned throughout the chapters many improvements are possible.
+
+
+First, more work is needed to build on the early results discussed in~\ref{ch:topological-map-creation} for creating the backbone of the topological map.\\
+Techniques like the one from \textcite{rufus_blas_fast_2008} could be enhanced with supervised learning to better
+tailor results to the specific needs of topological map creation.
+However, this may reduce generalization to a wider variety of terrains.\\
+A more promising approach could be using the method from \textcite{bosch_journal_2020} to map areas without trees.
+This, however, has its own limitations, as it requires reliable local navigation to avoid obstacles such as holes or rocks
+that would not be excluded by the initial segmentation.
+With such segmentation, the \gls{uav} could roughly follow the forest border to map the contours of the traversable regions.
+Then it would be able to map the whole traversable regions, which would be used to identify intersections and paths.
+Additional work would be required to clearly defined these concepts.
+
+Concerning the \gls{bev} reprojection, other methods may produce better results that are more robust to non-flat terrain.
+A relatively close alternative would be to use the depth image or the LiDAR point cloud to identify ground points and
+then deform the image based on the local topography of the terrain.
+However, this would still introduce significant distortions for objects on the ground, particularly at their boundaries,
+as the deformation would need to change rapidly over a small number of pixels to match the abrupt change in height.\\
+More complex approaches could involve using generative \gls{ai} to produce \gls{bev} representations.
+Experimental research is underway in this area, especially for automotive applications.
+However, applying such methods here would be considerably more complex, likely requiring retraining XFeat or even
+switching to entirely different matching algorithms.
+
+
+As for finding correspondences, other methods like VGGT~\cite{wang_vggt_2025} could be very interesting to explore.
+It could also be used in addition: once two images are matched as representing the same location, VGGT could be applied
+to extract the exact transformation between the two viewpoints.\\
+Another area for improvement concerns the performance indicators.
+\gls{ssim} and \gls{mse} provided useful insights into the overall performance of XFeat and OmniGlue but proved unreliable
+when evaluating specific examples.
+Ideally, performance should be measured in terms of true positives, true negatives, false positives, and false negatives.
+Unfortunately, this is difficult to assess.
+Even though such indicators could theoretically be computed using \gls{gnss} coordinates and orientation, the accumulated errors
+from multiple sources---\gls{gnss} and orientation inaccuracies, patch localization in the image, \gls{bev} projection, etc.---is
+likely to make them unreliable.
+An alternative approach would be to use larger models with refinement stages to automatically determine these values.
+Additionally, the current method could be retained while introducing simpler, more practical indicators to assess performance at a higher level in the algorithm.
+For example, an estimated position of the robot could be computed solely from local data (\textit{e.g.}, \gls{imu}, wheel speed) combined
+with the results of this work, and then compared against the \gls{gnss} position to evaluate accuracy.
+
+In the simulated real-world scenario, as mentioned, having \gls{uav} and \gls{ugv} patches at the same scale appears
+crucial to ensure that the XFeat reliably find correspondences.
+Dynamically computing the patch size and corresponding scale could improve consistency.
+On the \gls{uav} side, this would involve using the camera’s field of view and flight height, while on the \gls{ugv},
+the scale can already be inferred from the \gls{bev} generation process described in \Cref{sec:traditional-homography}.
+Another key area for improvement is the filtering of \gls{uav} patches.
+The current method prioritizes high median feature scores, often at the expense of good coverage of the node.
+This leads to missed detections when the \gls{ugv} traverses parts of the node not represented in the selected patches.
+New strategies are needed to balance patch quality with spatial diversity.
+Additionally, better utilization of feature descriptors and correspondences could enhance performance.
+Currently, XFeat generates a fixed number of features per patch, and only the patches themselves are filtered.
+Filtering individual features---based on score---might reduce the number of incorrect correspondences.
+Moreover, while the matching decision based solely on a threshold number of correspondences is a good first approach, it is simplistic.
+More advanced strategies that aggregate evidence from multiple \gls{uav}/\gls{ugv} patch pairs could provide a more
+robust determination of the \gls{ugv}’s presence at a node and better exploit the full set of available information.
+
+More generally, other ideas emerged while working on this subject.
+One is to explore whether matching would still work with an \gls{uav} whose camera is slightly tilted.
+The goal would be to recognize the node by observing its surroundings, allowing the \gls{ugv} to anticipate its location.
+This would complicate data collection, as the orientation of the robots would then affect the matching process.
+Additionally, some thoughts were exchanged on generalizing the method beyond topological mapping and toward creating a global localization algorithm.
+
+% global method with bag of words ?
+
+
+% TODO xfeat dense correspondence
+% TODO xfeat just scale do not crop

@@ -2,5 +2,31 @@
 
 %\textcolor{dtured}{ The conclusion should list the positive results of the thesis and set the results in the perspective of the objectives.}
 %
-%\textcolor{dtured}{(Future work - things not finished or not working - should preferably be somewhere else, e.g. in the previous chapter).}
+%\textcolor{dtured}{(Future work - things not finished or not working - should preferably be somewhere else, \textit{e.g.} in the previous chapter).}
 
+This thesis addressed the challenges of enabling an \gls{ugv} to localize and navigate using data gathered by an \gls{uav} in unstructured environments.
+The proposed system centers around constructing a topological map from \gls{uav} imagery by identifying key features such as paths and intersections.
+Techniques were introduced to mitigate the perspective differences between aerial and ground views, including the generation
+of \glspl{bev} from \gls{ugv} images and appropriate scale normalization.
+
+
+The construction of the topological map backbone, primarily using segmentation techniques to identify paths and intersections,
+yielded early results.
+Although it did not fully meet expectations in terms of automation and robustness, the current progress lays a
+foundation for future development.
+Further work is needed to refine these techniques and achieve reliable, fully automated topological map generation.
+
+Two algorithms were explored to reduce the perspective differences between \gls{uav} and \gls{ugv} data.
+While the first approach produced poor results, the second unexpectedly provided satisfactory outcomes.
+Naturally, limitations arise when operating outside the assumptions of the model, but the results suggest significant
+potential for real-world applicability.
+
+The use of sparse correspondence methods proved particularly well-suited to this work.
+Despite requiring specific conditions related to viewing angle and scale, the generalization capability of the approach
+was more than satisfactory and demonstrated a robust foundation for matching features across modalities.
+
+Finally, the application of the topological map for scouting, filtering, and localization tasks functioned as intended.
+The simulated real-world scenario yielded very encouraging results, which can likely be improved further with relatively minor adjustments.
+
+Overall, these early-stage developments appear promising and suggest that the proposed methods could realistically be
+implemented on real robotic systems operating in real-world environments.

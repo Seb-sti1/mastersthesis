@@ -1,42 +1,58 @@
-\chapter{Finding correspondances between \gls{ugv} and \gls{uav} data}\label{ch:finding-correspondances-between-ugv-and-uav-data}
+\chapter{Finding correspondences between unmanned ground vehicle and unmanned aerial vehicule data}\label{ch:finding-correspondances-between-ugv-and-uav-data}
 
 The previous section aims at reducing the gap in terms of perspective between the \gls{ugv} and the \gls{uav}.
-That being said the next step is to use the available data to make algorithms making the \gls{ugv} recognize what the \gls{uav}
-has seen.
-After some initial research in different directions, as Xfeat~\parencite{potje_xfeat_2024} and Omniglue~\parencite{jiang_omniglue_2024}
-seemed promising, the testing and implementation focused on those algorithms.
-% TODO both of dense and sparse correspondence
+The next step is to use the available data to create algorithms making the \gls{ugv} recognize what the \gls{uav} has seen.
+After some initial research in different directions, both of dense and sparse correspondence, as XFeat~\cite{potje_xfeat_2024}
+and OmniGlue~\cite{jiang_omniglue_2024} seemed promising, the testing and implementation focused on those algorithms.
 
-To test different version of the created algorithms, I used the dataset of~\cite{fortin_uav-assisted_2024} kindly provided by Jean Michel Fortin.
-In the absence of an \gls{uav}/\gls{ugv} dataset at the U2IS lab, this greatly help as it was very close the ideal
+To test different versions of the created algorithms, I used the dataset of~\textcite{fortin_uav-assisted_2024} kindly provided by Jean Michel Fortin.
+In the absence of an \gls{uav}/\gls{ugv} dataset at the \gls{u2is}, this greatly helped as it was very close the ideal
 dataset for the tested algorithms.
-The main limitation came from the difference in objective of the dataset:~\cite{fortin_uav-assisted_2024} benefits from
+The \gls{ugv} used is a Warthog of Clearpath Robotics with a ZED X, a Xsens Mti-30 \gls{imu} and has \gls{gnss} with RTK localization.
+The \gls{uav} is a DJI Mavic 3E.
+Jean-Michel Fortin shared 2055 aerial and 2082 ground images (with their \gls{bev} projection already computed), along
+with telemetric data, like \gls{imu}, \gls{gnss}, odometry etc.
+The dataset was created at the Montmorency forest, Québec, Canada\footnote{Precisly at 47°19'14.9"N 71°8'52.2"W.}.
+The main limitation came from the difference in objective of the dataset:~\textcite{fortin_uav-assisted_2024} benefits from
 having the \gls{ugv} in the \gls{uav}'s frame while this work would prefer not having the \gls{ugv} in frame.
 This is mainly to simulate more closely to the actual use case.
 
 
-\section{Sparse correspondence}
+\section{First tests along the unmanned ground vehicle's path}
 
-The initial try to benchmark Xfeat and Omniglue aimed at testing that given an \gls{ugv}'s picture and an \gls{uav}'s picture
+XFeat~\cite{potje_xfeat_2024} is a lightweight CNN architecture designed for sparse keypoint detection and semi-dense
+feature matching, optimizing robustness, accuracy, and efficiency.
+It processes high-resolution grayscale images through six convolutional blocks that reduce spatial resolution while increasing channel depth.
+The network outputs dense descriptors, reliability, and keypoint heatmaps.
+Keypoint detection uses a novel parallel branch, and matching employs a lightweight refinement module.
+XFeat is trained in a supervised manner with pixel-level ground truth correspondences from the MegaDepth and COCO\_20k subset of the COCO2017 dataset.
+Additionally, a lighter version of LightGlue (lighterglue) was trained using features from XFeat.\\
+OmniGlue~\cite{jiang_omniglue_2024}, on the other hand, is designed with generalization as a core principle.
+It first extracts fine-grained features with SuperPoint and broad features with DINOv2.
+It then builds intra- and inter-image keypoint graphs, using DINOv2 to guide inter-image associations.
+Information is propagated via attention, disentangling positional and appearance signals to improve generalization.
+Finally, refined descriptors are optimally matched to find correspondences between keypoints.
+OmniGlue is also trained in a supervised manner using ground truth from previous work.
+
+
+The initial try to benchmark XFeat and OmniGlue aimed at testing that given an \gls{ugv}'s picture and an \gls{uav}'s picture
 the number of correspondences between the two images would be close to zero when the images do not overlap, would
 progressively increase as they overlap more and more until reaching a maximum when they would capture the same area.
 Of course, if the number of correspondences, regardless as if it is high or low, is unchanged for any pair of images,
 it would then prove that these algorithms are not able to find real correspondences.
-Therefore, a 6x2 grid of patches in front of the uav and the ugv were generated and the GNSS coordinate of each image was determined.
-Then an algorithms generate the correspondences using Xfeat and Omniglue.
-Sadly, the shear quantity of patch generated (around $6 \times 10^3$ for each robot) and the number of possible comparisons
+Therefore, a 6x2 grid of patches in front of the \gls{uav} and the \gls{ugv} were generated and the \gls{gnss} coordinates of each patch was determined.
+Then XFeat and OmniGlue generated the correspondences.
+Sadly, the shear quantity of patches generated (around $6 \times 10^3$ for each robot) and the number of possible comparisons
 (with a time complexity of $\mathcal{O}(n^2)$ in the number of patches), made it impossible to make enough comparison to
 obtain any meaningful data.
 
-% TODO explain somewhere how Xfeat and Omniglue are trained
 
 To solve this, new method was introduced: this time the aims is to ensure that the algorithms are \textit{not} not working.
-Using Xfeat and Omniglue on patches in front of the \gls{ugv} in both the \gls{ugv} and \gls{uav} images, if no correspondences
-are found then it would mean that these algorithm can work at all.
-This is mainly because by selecting patches as described ensures that the area are nearly exactly the same.
-First, the patches are both selected so that they roughly have the same real work size.
+Using XFeat and OmniGlue on patches in front of the \gls{ugv} in both the \gls{ugv} and \gls{uav} images, if no correspondences
+are found then it would mean that these algorithm can not work at all.
+First, the patches are both selected so that they roughly have the same real world size.
 Second, as they are created in front of the \gls{ugv} in a dataset where the \gls{uav} can see the \gls{ugv} it ensure
-that two patches see the same area.
+that two patches are nearly the same area.
 Third, as the \gls{uav} sees the \gls{ugv}, it is possible to align the patches extracted in the \gls{uav} image to the
 \gls{ugv} ensuring that both patches are roughly aligned.
 In a sense the algorithms are tested in the best case scenario, to make sure that they can actually work with that.
@@ -44,19 +60,20 @@ Although, this working would not mean that these \gls{ai}s are sufficiently robu
 
 \begin{figure}[ht!]
     \centering
-    \begin{subfigure}[t]{0.32\textwidth}
+    \begin{subfigure}[t]{0.49\textwidth}
         \centering
-        \includegraphics[width=0.99\linewidth]{illustrations/img}
-        \caption{Xfeat's results.} % TODO add table in readme in appendix
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/x_feat_found3_kp}
+        \caption{XFeat's results.}
         \label{fig:find_corr:along_traj:xfeat}
     \end{subfigure}
-    \begin{subfigure}[t]{0.32\textwidth}
+    \hfill
+    \begin{subfigure}[t]{0.49\textwidth}
         \centering
-        \includegraphics[width=0.99\linewidth]{illustrations/img}
-        \caption{Omniglue's results.}
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/omniglue_found1_kp}
+        \caption{OmniGlue's results.}
         \label{fig:find_corr:along_traj:omniglue}
     \end{subfigure}
-    \caption{Results of both Xfeat and Omniglue when generating patches in front of the \gls{ugv}.
+    \caption{Results of both XFeat and OmniGlue when generating patches in front of the \gls{ugv}.
     The left one is from the \gls{ugv}'s bev, the right one is from the \gls{uav}.
     The lines show the correspondences found by the model.
     Using those correspondences, it is possible to compute an homography transforming a point in the \gls{ugv}'s patch
@@ -65,135 +82,148 @@ Although, this working would not mean that these \gls{ai}s are sufficiently robu
     \label{fig:find_corr:along_traj:results}
 \end{figure}
 
-Luckily, Xfeat gives very promising results while Omniglue more mixed results.
-As shown by \cref{fig:find_corr:along_traj:xfeat}, Xfeat found many correspondences and the resulting homography places
-the \gls{ugv}'s patch border on the very reasonable area.
-Other examples show that it also works with different type of terrain. % TODO appendix
-On the contrary, \cref{fig:find_corr:along_traj:omniglue} shows one of the very few coherent correspondences found by Omniglue.
+% TODO plot correspond count along path
+
+Luckily, XFeat gives very promising results while OmniGlue gives more mixed results.
+As shown by \Cref{fig:find_corr:along_traj:xfeat}, XFeat found many correspondences and the resulting homography places
+the \gls{ugv}'s patch border on a very reasonable area.
+Other examples show that it also works with different type of terrains. % TODO appendix
+On the contrary, \Cref{fig:find_corr:along_traj:omniglue} shows one of the very few coherent correspondences found by OmniGlue.
 It also has a tendency of generating incoherent matches as more often than not, the reprojection of the \gls{ugv}'s patch
 border result in a physically impossible quadrilateral given the constraints and method of generating the patches.
 For instance, some are crossed quadrilateral, quadrilateral where three points are nearly aligned or unreasonably small quadrilateral.
 
+%\section{Define metrics to investigate performances} % TODO add this section?
+
 Before going further into benchmarking, better performance indicator and metrics are required.
 The first one if a very simple \textit{obviously wrong} indicator.
 To properly define lets first define two areas.
-The first one is obtained by project the \gls{ugv}'s patch borders in the \gls{uav}'s patch and then clipping it so that it
+The first one is obtained by projecting the \gls{ugv}'s patch borders in the \gls{uav}'s patch and then clipping it so that it
 is contained inside the aerial patch.
 The area in pixel of the obtained quadrilateral is the first surface.
-Then second surface is obtained by using the clipped quadrilateral and by reprojecting it the ground patch.
-The resulting quadrilateral is the second surface.
+Then second surface is obtained by using the clipped quadrilateral and by reprojecting in the ground patch.
+The resulting quadrilateral's area is the second surface.
 A correspondence is considered \textit{obviously wrong} when it verifies any of the following conditions:
 \begin{itemize}
     \item the first or second areas previously defined are less than $10000$ pixels$^2$ ;
     \item any of the quadrilaterals is a crossed quadrilateral ;
     \item when stretching the quadrilaterals of the ground and aerial patches to a square, the number of completely black pixel is more than 20 pixels.
 \end{itemize}
-These conditions are here to ensure that the next indicators can properly work at a micro level.
+These conditions are here to ensure next indicators can properly work.
+The reason will be made clear shortly.
 
 Speaking of the other indicators, the \gls{mse} and the \gls{ssim} are additionally used.
-The \gls{mse} is, as indicated by the name, the mean of the squared difference between the two pictures.
+The \gls{mse} is, as indicated by the name, the mean of the squared difference between the two patches.
 The \gls{ssim} aims at solving some shortcoming of the \gls{mse} by also taking texture into account\footnote{A
 very explanative picture on \href{https://scikit-image.org/docs/0.25.x/auto_examples/transform/plot_ssim.html}{scikit's website}
 shows that a noise, that impacts the texture of the image, will be better detected compare to the addition of a constant,
     that don't impact the texture of the image as much, by \gls{ssim} than \gls{mse}}.
 That being said, both indicators in the current context can give false positive results very easily.
 This all comes down to the method that is used to obtain the images that are compared.
-In the previous paragraph described how to obtain quadrilateral corresponding to the border of the ground patch clipped to the
+The previous paragraph described how to obtain quadrilateral corresponding to the border of the ground patch clipped to the
 border of the aerial patch, in both the ground and aerial patch.
-Those two quadrilateral are transformed to square images of the same size, they correspond to the common area between the ground and the aerial path.
-After a normalization step to reduce the impact of the using different camera with different colorimetry, the resulting images are compared.
+Those two quadrilateral are transformed to square images of the same size, and they correspond to the common area between the ground and the aerial patch.
+After a normalization step to reduce the impact of using different cameras with different colorimetries, the resulting patches are compared.
 
 In the average case where the algorithms provide reasonable match, these indicators work great.
 Issues arise when absurd correspondences are found, like unreasonably small quadrilaterals, cross quadrilaterals, etc.
 For instance, \gls{ssim} rewards the existence of similar homogeneous texture, which is exactly what an unreasonably small quadrilaterals
 will generate when being stretch to a square.
-This is the purpose of the \textit{obviously wrong} indicator: flag any obviously wrong correspondences that are likely
+This is the purpose of the \textit{obviously wrong} indicator: flag any obviously wrong matches that are likely
 to obtain good values when tested using \gls{mse} and \gls{ssim}.
 
-In Jean-Michel Fortin's dataset, the \gls{ugv} has an aruco tag on it making it very easy to detect its orientation relative
+
+\section{Test robust to relative rotations}
+
+In the Montmorency dataset, the \gls{ugv} has an aruco tag on it, making it very easy to detect its orientation relative
 to the \gls{uav} frame.
 This is how generating aerial patch aligned to the ground patch is possible.
-When it comes to the ground patches they are simply generated as a rectangle at the center of the \gls{ugv}'s \gls{bev}.
-To expand the benchmark further, the comparison of an aerial/ground patch was also made between aerial and 90°/180°/270°
+When it comes to the ground patches they are simply generated as a square at the center of the \gls{ugv}'s \gls{bev}.
+To expand the benchmark further, the comparison of aerial/ground patches was also made between aerial and 90°/180°/270°
 rotation of the ground.
 This will make it possible to measure if the algorithms are robust to rotation.
-Also, these angles are interesting as they leave the pixels unchanged contrary to any other rotation.
+Also, these angles are interesting as they leave the values of the pixels unchanged contrary to any other rotation.
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.35\linewidth]{illustrations/img}
+    \includegraphics[width=0.90\linewidth]{illustrations/find_correspondances/big_angles_obviously_wrong}
     \caption{The ratio of \textit{obviously wrong} correspondance for each algorithm tested.
         $0\%$ is the best, $100\%$ is the worst.}
     \label{fig:find_corr:big_angles:obviously_wrong}
 \end{figure}
 
-For three different versions of xfeat, omniglue and orb, four hundred and ninty six comparisons (for each angle 0°, 90°, 180° and 270°) were made.
+For three different versions of xfeat, OmniGlue and orb, couple hundred comparisons (for each angle 0°, 90°, 180° and 270°) were made.
 For each comparison, the indicators were computed.
-\Cref{fig:find_corr:big_angles:obviously_wrong} shows that any version of xfeat outperforms omniglue and orb.
-Furthermore, it clearly shows that the algorithms have more problems with angled images and that orb just don't work on the problem at hand.
+\Cref{fig:find_corr:big_angles:obviously_wrong} shows the \textit{obviously wrong} values of each algorithm tested and each angle.
+It indicates that any version of xfeat outperforms OmniGlue and orb.
+Furthermore, it clearly shows that the algorithms have more problems with angled images and that traditional method like orb just don't work on the problem at hand.
 By definition of the \textit{obviously wrong} indicator, it is hard to extract more information out of this graph, as only having
 a high \textit{obviously wrong} ratio can be interpreted as bad, having a low \textit{obviously wrong} ratio does not give enough
 information to conclude anything.
 
-% TODO also check why it seems that there is many more points that should in these plots
+Continuing, the \gls{ssim} and the \gls{mse} can be graphed, here in function of the number of detected correspondences.
+\gls{ssim} and \gls{mse} will never be at their best values, respectively 1 and 0, given the images that are compared.
+They are not from the same camera, not necessary taken at the same time, etc.
+Through manual verification, it was determined that \gls{ssim} values around 0.3 and \gls{mse} below 2500 usually correspond
+to correct matches.
+Looking at \Cref{fig:find_corr:big_angles:mse_ssim_xfeat+lg_0}, XFeat (lighterglue version) shows good \gls{ssim} values
+between 0.2 and 0.4 for the best matches.
+In addition, when over 600 matches, a clear correlation between the number of matches and better indicators values
+can be observed.
+Nevertheless, still with XFeat (lighterglue version), rotating patches by 90° gives poor results as most comparison as
+\gls{ssim} below 0.2 (see \Cref{fig:find_corr:big_angles:mse_ssim_xfeat+lg_90}).
+This result is not an outlier as any non-zero angled benchmark gives insufficient \gls{ssim} and \gls{mse} values.
+Regarding OmniGlue, \Cref{fig:find_corr:along_traj:omniglue} is a good example showing that it generally generates fewer correspondences.
+It is not, in principle, a problem but here \gls{ssim} values are also notably lower.
+As a consequence, it is fair to say that XFeat is better than OmniGlue and that none are robust to general rotations (from 0° to 360°).
+% TODO add more info if possible to have average/statistics on indicators
+
 \begin{figure}[ht!]
     \centering
     \begin{subfigure}[t]{0.32\textwidth}
-        \includegraphics[width=0.99\linewidth]{illustrations/img}
-        \caption{Xfeat (ligherglue version) with both patches aligned.}
-        \label{fig:find_corr:big_angles:mse_ssim_xfeat+lg_0} % TODO add images
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/big_angle_0_scores_xfeat+lighterglue}
+        \caption{XFeat (ligherglue version) with both patches aligned.}
+        \label{fig:find_corr:big_angles:mse_ssim_xfeat+lg_0}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.32\textwidth}
-        \includegraphics[width=0.99\linewidth]{illustrations/img}
-        \caption{Xfeat (ligherglue version) with a rotational shift of 90°.}
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/big_angle_90_scores_xfeat+lighterglue}
+        \caption{XFeat (ligherglue version) with a rotational shift of 90°.}
         \label{fig:find_corr:big_angles:mse_ssim_xfeat+lg_90}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.32\textwidth}
-        \includegraphics[width=0.99\linewidth]{illustrations/img}
-        \caption{Omniglue with a rotation with both patches aligned.}
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/big_angle_0_scores_omniglue}
+        \caption{OmniGlue with a rotation with both patches aligned.}
         \label{fig:find_corr:big_angles:mse_ssim_omniglue_0}
     \end{subfigure}
-    \caption{The \gls{ssim} and \gls{mse} values for comparisons made by different algorithms at a given angle of rotation of the \gls{ugv} bev patch.
+    \caption{The \gls{ssim} and \gls{mse} values for comparisons made by different algorithms at a given angle of rotation of the \gls{ugv} \gls{bev} patch.
     For clarity reasons, the \textit{obviously wrong} matches are disregarded.
-    For \gls{mse}, the lower, the better. For \gls{ssim}, 0 is the best, 1 is the worst.}
+    For \gls{mse}, the lower, the better. For \gls{ssim}, 1 is the best, 0 is the worst.}
     \label{fig:find_corr:big_angles:mse_ssim}
 \end{figure}
 
-Continuing, the \gls{ssim} and the \gls{mse} can be graphed, here in function of the number of detected correspondences.
-Looking at \cref{fig:find_corr:big_angles:mse_ssim_xfeat+lg_0}, Xfeat (lighterglue version) shows a clear correlation between
-the number of matches and better indicators values.
-In addition, when over eight hundred matches, the \gls{ssim} gets to values between 0.2 and 0.4.
-Nevertheless, still with Xfeat (lighterglue version), when rotating 90° gives poor results as most comparison as \gls{ssim} below 0.2 (see \cref{fig:find_corr:big_angles:mse_ssim_xfeat+lg_90}).
-This result is not an outlier as any non-zero angled benchmark gives insufficient \gls{ssim} and \gls{mse} values.
-Regarding Omniglue, \cref{fig:find_corr:along_traj:omniglue} shows that it generally generates correspondences.
-It is not, in principle, a problem but here \gls{ssim} values are also notably lower.
-As a consequence, it is fair to say that these aren't robust in general to rotation.
-% TODO add more info if possible to have average/statistics on indicators
-
-
-Not being robust in general to rotation seemed problematic to solve the problem at hand.
+Not being robust to general rotations seemed problematic to solve the problem at hand.
 Indeed, the \gls{uav} will collect the data before the \gls{ugv}'s trajectory is decided.
 Worse than not knowing the orientation of the \gls{ugv} when it will navigate, it is not yet defined.
-However, a hypothesis that can be made is that both know their orientation and can agree, ahead of time with a reference
+However, the hypothesis that can be made is that both know their orientation and can agree, ahead of time with a reference
 orientation defining how the patches should be oriented when created.
-Now, Xfeat and Omniglue would only have to be robust to small rotation of -10° to +10°.
-In order to test this, the absolute orientation of the \gls{ugv} and \gls{uav} in~\cite{fortin_uav-assisted_2024} dataset
+Now, XFeat and OmniGlue would only have to be robust to small rotation of -10° to +10° to handle imprecision in the orientation of the robots.
+In order to test this, the absolute orientation of the \gls{ugv} and \gls{uav} in the Montmorency dataset
 were computed with the available telemetric data.
-A reference orientation was chosen and allow patches were extracted accordingly.
+A reference orientation was chosen and patches were extracted accordingly.
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.3\linewidth]{illustrations/img}
+    \includegraphics[width=0.90\linewidth]{illustrations/find_correspondances/small_angles_obviously_wrong}
     \caption{The ratio of \textit{obviously wrong} correspondance for each algorithm tested.
         $0\%$ is the best, $100\%$ is the worst.}
     \label{fig:find_corr:small_angles:obviously_wrong}
 \end{figure}
 
-Again, it is possible to look at the \textit{obviously wrong} ratio (see \cref{fig:find_corr:small_angles:obviously_wrong}),
+Again, it is possible to look at the \textit{obviously wrong} ratio (see \Cref{fig:find_corr:small_angles:obviously_wrong}),
 which reveals that there are no significant disadvantage of having small rotation.
-Going further and analysing the \gls{mse} and \gls{ssim}, \cref{fig:find_corr:small_angles:mse_ssim} shows that xfeat (lighterglue version)
+Going further and analysing the \gls{mse} and \gls{ssim}, \Cref{fig:find_corr:small_angles:mse_ssim} shows that xfeat (lighterglue version)
 manage rotations really well giving good indicator values.
 Another aspect is that the correlation between a good match (high \gls{ssim} and low \gls{mse}) and the number of correspondences
 makes it possible to create a confidence degree related to how good the match is.
@@ -201,107 +231,39 @@ makes it possible to create a confidence degree related to how good the match is
 \begin{figure}[ht!]
     \centering
     \begin{subfigure}[t]{0.32\textwidth}
-        \includegraphics[width=0.95\linewidth]{illustrations/img}
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/small_angle_0_scores_xfeat+lighterglue}
         \caption{Both patches aligned.}
-        \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_0} % TODO add images
+        \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_0}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.32\textwidth}
-        \includegraphics[width=0.95\linewidth]{illustrations/img}
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/small_angle_5_scores_xfeat+lighterglue}
         \caption{Rotational shift of 5°.}
         \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_5}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.32\textwidth}
-        \includegraphics[width=0.95\linewidth]{illustrations/img}
+        \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/small_angle_-10_scores_xfeat+lighterglue}
         \caption{Rotational shift of -10°.}
         \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_-10}
     \end{subfigure}
-    \caption{The \gls{ssim} and \gls{mse} values for comparisons made by Xfeat (ligherglue version) at a given rotational shift betwen both patches.
+    \caption{The \gls{ssim} and \gls{mse} values for comparisons made by XFeat (ligherglue version) at a given rotational shift betwen both patches.
     For clarity reasons, the \textit{obviously wrong} matches are disregarded.
-    For \gls{mse}, the lower, the better. For \gls{ssim}, 0 is the best, 1 is the worst.}
+    For \gls{mse}, the lower, the better. For \gls{ssim}, 1 is the best, 0 is the worst.}
     \label{fig:find_corr:small_angles:mse_ssim}
 \end{figure}
 
-Moreover, Omniglue gives decent robustness to rotations but is still worse than Xfeat.
+Moreover, OmniGlue gives decent robustness to rotations but is still worse than XFeat.
 Also, another aspect to consider is the computational time required to execute these algorithms.
-While xfeat (lighterglue version) at a comfortable 0.05s on average, Omniglue is at about 0.5s with some iterations reaching
-1s.\\ % TODO why disregard other xfeat models
-Hence, given all the results discussed above the next part of this work will study Xfeat (lighterglue version) in the context of simulating
+While xfeat with lighterglue is at a comfortable 0.05s on average, OmniGlue is at about 0.5s with some iterations reaching 1s.
+Regarding the other version of XFeat (star, and vanilla), while they are faster, respectively 5 and 2.5 times, their performances
+at finding are also worse.
+Here the XFeat with lighterglue, is fast enough: detecting if an intermediate goal of the global navigation is reached,
+don't require high frequencies, 0.5Hz to 1Hz would suffice.
+In this interval, without even using parallelization, twenty to forty comparison can be done.
+%TODO check if this the matching time that is measured or all of it
+Hence, given all the results discussed above the next part of this work will study XFeat (lighterglue version) in the context of simulating
 the reconnaissance flight of an \gls{uav} followed by an \gls{ugv} navigating while trying to detect location along its trajectory previously
 recognized by the \gls{uav}.
 
 
-\section{Simulation of the real world scenario}
-
-As explained in previous chapters, the end goal of this work is to develop algorithms that enable an \gls{uav} to
-provide environmental data to an \gls{ugv}, improving its global path planning.
-For this purpose, the choice was made to structure the algorithms around a topological map of the area.
-The nodes are areas where the \gls{uav} collects data while the edges are constructed so that the \gls{ugv}
-has the capacity of navigating along them on its own using its on board capacities.
-
-Regarding the implementation, \textit{Graph} and \textit{Node} classes were created.
-The \textit{Graph} consists of an array of \textit{Node} objects and a dictionary representing the edges
-\footnote{The edges are undirected, as the \gls{ugv} is assumed to be able to traverse in both directions.}.
-For each \textit{Node}, the dictionary stores the array of connected \textit{Nodes}.
-A \textit{Node} mainly contains the following information:
-\begin{itemize}
-    \item a name to identify more easily the node,
-    \item the GNSS coordinates,
-    \item the radius which define the size of the node,
-    \item the images patches extracted during the \gls{uav} reconnaissance flight,
-    \item the extracted features of the best patches.
-\end{itemize}
-
-Then the whole system works around three steps:
-\begin{itemize}
-    \item Generating patches during the \gls{uav} reconnaissance flight,
-    \item Filter those patches to find the \textit{best} possible ones,
-    \item Sending the \gls{ugv} in the area and using the best scouting data with the \gls{ugv}'s \gls{bev} to recognize area.
-\end{itemize}
-Note that the first two steps can be combined in a production setup to ensure maximum performance.
-In this simulation, it has been split for convenience and better results analysis.
-
-This simulation reproduces the same steps that would be done in the real world.
-Few part were adapted as they are not possible to replicate.
-For instance, the path of the \gls{ugv} is decided when the dataset used in the simulation is created, it is not generated after the reconnaissance as it would.
-Also, as the dataset from~\cite{fortin_uav-assisted_2024} only provides the GNSS position and the orientation of the \gls{ugv},
-the position and orientation of the \gls{ugv} is determined using the aruco tag present on top of the \gls{ugv}.ugv
-
-\subsection{Generate scouting data}
-
-Firstly, in the \gls{uav}'s image, a four by seven grid of potential patches is created.
-They all are oriented toward a yaw angle of 0 degree to neutralize the rotation.
-As mentioned earlier, a specific feature of the~\cite{fortin_uav-assisted_2024} dataset is that the \gls{ugv} appears in the frame.
-This lead to a necessary step, specific to this dataset, where the patches overlapping with an exclusion zone around the
-\gls{ugv} are disregarded.
-For the remaining patches, the coordinates of their centers are computed using their position in the image, the position
-and orientation of the \gls{uav} and the resolution of the image in terms of how many pixels make a meter on the ground
-\footnote{For~\cite{fortin_uav-assisted_2024} dataset, the resolution is determined using the known aruco perimeter.}.
-It allows to verify if a patch is in one of the defined node.
-When it is the case, the patch is extracted and saved for further processing.
-On the specific case of~\cite{fortin_uav-assisted_2024} dataset, this manner of the generating patches is not ideal as it
-will sometimes save patches were the \gls{ugv}'s wheels left marks on the ground that can't exist in the \gls{ugv}'s images.
-
-\subsection{Filter scouting data}
-
-Then, for each node, as there are too many patches, they need to be filtered.
-
-
-\begin{itemize}
-    \item keep the "best" "valid" extracted features
-    \item sort with median scores
-    \item filter to remove features at position too close (cover more area)
-    \item keep a maximum number of features
-    \item detect\_ugv\_location
-\end{itemize}
-
-\subsection{Detect \gls{ugv} location}
-
-\begin{itemize}
-    \item generate three patches (\& rotate)
-    \item match with all image of the next node
-    \item consider matches above a given threshold
-\end{itemize}
-
-TODO show results, how many nodes detected vs how many node traversed, estimated position vs actual position
