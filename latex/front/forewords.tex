@@ -1,0 +1,80 @@
+%======================== Copyright
+\thispagestyle{empty}
+\setcounter{page}{1}
+\vspace*{\fill}
+
+\textbf{\thesistitle} \newline
+\thesissubtitle
+
+\smallskip
+
+%\documenttype \newline
+%\thedate
+
+\smallskip
+
+By \newline
+(\studentnumber) \thesisauthor
+
+\bigskip
+
+\textbf{Advisor(s)}\newline
+\ThSupervisors
+
+\vspace{3cm}
+
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+    Education & \documenttype\\
+    Programme & \programme\\[4mm]
+    Period & \projectperiod\\[4mm]
+    ECTS & \thesissize \\[4mm]
+    Copyright: & \thesisauthor \, \thesisyear \\[2mm]
+    & Reproduction of this publication in whole or in part must include the customary bibliographic citation, including author attribution, report title, etc. \\[9mm]
+    Cover photo:  & \thesisauthor, 2025 \\[4mm] % yellow leafs
+    Published by: & DTU, \departmentdescriber,                                                                                                                               \\
+    & \addressI, \addressII ~Denmark                                                                                                                           \\
+    & \url{\departmentwebsite} \\[4mm]
+    Remark        & This report is submitted as partial fulfillment of the requirements for graduation in the above education at the Technical University of Denmark.\\[9mm]
+
+% for phd thesis only
+%    ISSN: & [0000-0000] (electronic version) \\
+%    ISBN: & [000-00-0000-000-0] (electronic version) \\
+%    & \\
+%    ISSN: & [0000-0000] (printed version) \\
+%    ISBN: & [000-00-0000-000-0] (printed version)
+\end{tabularx}
+
+
+%======================== Abstract
+\clearpage
+\pagestyle{main}
+\section*{Abstract}\label{sec:abstract}
+\addcontentsline{toc}{section}{Abstract}
+
+%{\textcolor{dtured}{An abstract is a bit from the introduction, a bit about the work done and the main conclusion.}}
+
+This project explores the collaboration between an aerial drone and a terrestrial robot for navigating unstructured environments.
+The drone performs initial environmental mapping using sensors (e.g.\ GNSS, cameras\ldots), generating a topological map with identified paths, intersections, and potential targets.
+The terrestrial robot receives high-level instructions (e.g., “reach a target”) and navigate using this topological map.
+It utilizes onboard sensors to match environmental features previously detected with the drone and associated to the topological map.
+
+
+%======================== Acknowledgements
+\clearpage
+\section*{Acknowledgements}\label{sec:acknowledgements}
+\addcontentsline{toc}{section}{Acknowledgements}
+
+I would like to express my gratitude to my supervisor, Søren Hansen, for allowing me to conduct my master’s thesis abroad in France.
+The topic I was offered aligned perfectly with my interests, and it was a great opportunity to work on it.
+
+I extend special thanks to Alexandre Chapoutot and Thibault Toralba, who thought of me for this subject.
+I am grateful for their guidance and the trust they placed in me and my intuitions.
+
+I also wish to thank Clément, Adrien, David, Rémi, Joris, and Danil,
+with whom I had the pleasure of working, sharing problems, and finding solutions.
+
+During my work, I used the publicly available~\cite{noauthor_aukerman_nodate} and the one used in
+~\cite{fortin_uav-assisted_2024} very kindly provided by Jean-Michel Fortin of the Northern Robotics Laboratory.
+I am very grateful that I could use them and thank the authors.
+
+Finally, the overwhelming majority my thesis' work is available on \href{https://github.com/Seb-sti1/mastersthesis}{my github}.

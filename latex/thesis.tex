@@ -1,42 +1,50 @@
 %! Author = seb-sti1
 %! Date = 03/02/2025
 
-\documentclass[11pt, a4paper, twoside]{report}
+\documentclass[a4paper,twoside,11pt]{report} %openright
 \input{configs/preamble}
+\input{configs/options}
+\input{configs/settings}
 
-% Document
+\colorlet{frontbackcolor}{dtublue} % Set the background colour of the front- and back pages. Choose the colour, so it matches the primary colour of the front page picture, see colours in 'settings.tex'
+
 \begin{document}
     \pagenumbering{roman}
-    \input{configs/cover}
-    % Change cover page if image
-    % Better Chapter pages
-    \newpage
-
-    \input{sections/forewords}
-    \newpage
-
+    \input{front/cover}
+    \pagecolor{white}
+    \newgeometry{top=2.81cm, bottom=2.75cm, outer=2.5cm, inner=3.5cm}
+    \pagestyle{empty}
+    \cleardoublepage
+    \input{front/forewords}
+    \cleardoublepage
     \begingroup
     \renewcommand{\clearpage}{\relax}
     \section*{Table of contents}
     \addcontentsline{toc}{section}{Table of contents}
     \tableofcontents
     \endgroup
-    \newpage
+    \cleardoublepage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \pagestyle{main}
     \pagenumbering{arabic}
-
     \input{sections/introduction}
-
+    \cleardoublepage
     \input{sections/analysis}
-
+    \cleardoublepage
     \input{sections/context}
-
+    \cleardoublepage
     \input{sections/topological_map}
-
+    \cleardoublepage
     \input{sections/creating_bev}
-
+    \cleardoublepage
     \input{sections/finding_correspondances}
-
+    \cleardoublepage
+    \input{sections/system_test}
+    \cleardoublepage
     \input{sections/conclusion}
-
+    \cleardoublepage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \input{appendices/appendix}
+    \cleartoleftpage
+    \input{appendices/backpage}
 \end{document}

@@ -10,7 +10,11 @@ RUN apt update && \
     locale-gen en_US.UTF-8 &&\
     update-locale LANG=en_US.UTF-8 &&\
     apt -y install texlive texlive-latex-extra biber latexmk \
-                   texlive-fonts-extra texlive-science lmodern texlive-fonts-recommended biber &&\
+                   texlive-fonts-extra texlive-science lmodern texlive-fonts-recommended biber \
+                   texlive-xetex &&\
+    echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections && \
+    apt -y install ttf-mscorefonts-installer fontconfig && \
+    fc-cache -f -v &&\
     rm -rf /var/lib/apt/lists/*
 
 RUN curl -L https://cpanmin.us | perl - --self-upgrade &&\
