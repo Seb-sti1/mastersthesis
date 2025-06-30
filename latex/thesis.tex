@@ -9,19 +9,37 @@
 \colorlet{frontbackcolor}{dtublue} % Set the background colour of the front- and back pages. Choose the colour, so it matches the primary colour of the front page picture, see colours in 'settings.tex'
 
 \begin{document}
+    % Cover
     \pagenumbering{roman}
     \input{front/cover}
     \pagecolor{white}
     \newgeometry{top=2.81cm, bottom=2.75cm, outer=2.5cm, inner=3.5cm}
     \pagestyle{empty}
     \cleardoublepage
+    % Forewords
     \input{front/forewords}
-    \cleardoublepage
+    \clearpage
+    % TOC
+    \pagestyle{main}
     \begingroup
     \renewcommand{\clearpage}{\relax}
     \section*{Table of contents}
     \addcontentsline{toc}{section}{Table of contents}
+    \renewcommand{\contentsname}{} % remove title text
+    \renewcommand{\cftaftertoctitle}{\vskip-1.5em} % remove space after title
+    \renewcommand{\cftbeforetoctitleskip}{0pt} % remove vertical space before title
     \tableofcontents
+    \endgroup
+    \clearpage
+    % Glossary
+    \pagestyle{main}
+    \section*{Glossary}\label{sec:glossary}
+    \addcontentsline{toc}{section}{Glossary}
+    \vspace*{2em}
+    \begingroup
+    \renewcommand{\clearpage}{\relax}
+    \printglossary[type=\acronymtype]
+    \printglossary
     \endgroup
     \cleardoublepage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

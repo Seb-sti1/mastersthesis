@@ -16,6 +16,15 @@
 \newcommand{\projectperiod}{3rd February 2025 to 3rd July 2025}
 %\date{\projectperiod}
 
+\newcommand{\thesisabstract}{
+This project explores the collaboration between an aerial drone and a terrestrial robot for navigating unstructured environments.
+The drone performs initial environmental mapping using sensors (\textit{e.g.}\ \gls{gnss}, cameras\ldots), generating a topological map with identified paths, intersections, and potential targets.
+The terrestrial robot receives high-level instructions (\textit{e.g.}, “reach a target”) and navigate using this topological map.
+It utilizes onboard sensors to match environmental features previously detected with the drone and associated to the topological map.\\
+Techniques are proposed to handle the perspective differences between aerial and ground views, including \gls{bev} generation and sparse correspondence matching.
+Simulated real-world scenario demonstrates that the proposed system offers a promising foundation for real-world deployment.
+}
+
 
 \newcommand{\ThSupervisors}{Søren HANSEN, Associate Professor at the Electrical Engineering and Photonics Department of DTU\\
 Alexandre CHAPOUTOT, Associate Professor at the \textit{Unité d'Informatique et d'Ingénierie des Systèmes} of ENSTA\\
@@ -27,16 +36,6 @@ Thibault TORALBA, Research Engineer at the \textit{Unité d'Informatique et d'In
 \newcommand{\addressI}{Elektrovej 326}
 \newcommand{\addressII}{2800 Kgs. Lyngby}
 \newcommand{\departmentwebsite}{https://electro.dtu.dk/}
-
-
-\hypersetup{
-    pdftitle={\thesistitle},
-    pdfauthor={\thesisauthor},
-    pdfsubject={\mastersname},
-    pdfkeywords={Master's thesis},
-    pdfcreator={\thesisauthor},
-}
-
 
 %\newcommand{\frontpagetextcolour}{black} % front page text colour: white or black
 %\definecolor{frontbackcolor}{HTML}{FFFFFF}

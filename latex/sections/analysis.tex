@@ -5,94 +5,91 @@ The first task is for the drone to perform reconnaissance of the area of interes
 During this phase, the \gls{uav} must identify features to construct a topological map.
 These features must be selected such that the \gls{ugv} can later use them for localization.
 
-Once the \gls{uav} mapping is complete, the \gls{ugv} receives the topological map and begins navigation.
-During navigation, the \gls{ugv} uses its sensors—potentially after preprocessing—and compares its measurements with the data collected by the \gls{uav}.
+Once the \gls{uav} mapping is complete, the \gls{ugv} receives the topological map or part of it and begins navigation.
+During navigation, the \gls{ugv} uses its sensors—potentially after preprocessing—and compares its measurements with the
+data collected by the \gls{uav}.
 
 
 \section{State of the art}\label{sec:state-of-the-art}
 
-% TODO preamble
+
 % {\color{dtured}This chapter analyses the thesis objectives. Takes the overall decisions that set the frame for the following chapters. The following chapters can therefore concentrate on the chapter subject, as the (primary) relation to other chapters is handled in this analysis chapter.
 % This chapter is to describe, assesses, and decides the overall alternatives for the approach to this project.
 % It can describe, in some detail, the background for the project, the environment where it fits, and other items relevant to making the overall approach decisions for the project.
 
-\subsection{Terrain segmentation or classification}
+\glspl{uav} face several constraints, including limited onboard computing power and strict weight limits that restrict
+the number and type of sensors they can carry.
+However, their ability to maintain communication and operate at higher altitudes provides significant advantages.
+This elevated perspective allows \glspl{uav} to capture a broader view of the environment, facilitating better understanding
+and mapping of terrain features that ground-based robots cannot easily observe.
+Despite their limitations, these advantages make \glspl{uav} valuable assets for reconnaissance and environmental analysis~\cite{munasinghe_comprehensive_2024}.
 
-Many papers worked on segmenting or even classifying terrain types.
-Some uses \gls{uav} imagery~\parencite{khan_visual_2012} while other uses satellite imagery~\parencite{sofman_terrain_2006},
-the main difference between the two approaches being the resolution (pixels/ground meters) of the classification.
-As discussed in~\ref{sec:problem-at-hand} and mainly because of the current lab activities~\ref{sec:current-lab-activities},
-the most commonly encountered terrain are off-road, forest-like, unstructured environment.
-In these types of terrain, forest trail like path are usually present, which is what ~\cite{rasmussen_appearance_2009} (using ~\cite{rufus_blas_fast_2008})
-and~\cite{giusti_machine_2016} are trying to detect, in order to help robot's local navigation.
-Another way to detect places where the robot can navigate through using \gls{bev} images is to detect forest~\parencite{bosch_journal_2020}
-and consider that, on a first approach, non-forest area can be traversed using the local detection of the remaining obstacles.\\
-As will be discussed later one, these approach, even if able give interesting data, usually are not able to give
+\glspl{ugv} benefit from greater onboard computing power and can carry a wider array of sensors due to fewer weight restrictions.
+Being ground-based presents both challenges and advantages: maintaining communication can be difficult, and their viewpoint is limited to close-range perspectives.
+However, operating on the ground allows \glspl{ugv} to gather detailed local data and interact directly with the terrain,
+complementing the broader overview provided by \glspl{uav}~\cite{munasinghe_comprehensive_2024}.
+
+Mainly because of the current lab activities (see ~\ref{sec:current-lab-activities}), the most commonly encountered terrains
+are off-road, forest-like, unstructured environment.
+Many papers worked on segmenting or even classifying such terrain types.
+Some use local binary patterns other convolutional/traditional neural network, on either \gls{uav} imagery or satellite imagery
+~\cite{khan_visual_2012,sofman_terrain_2006,kulic_--spot_2017}.
+While using \gls{uav} imagery over satellite imagery mainly makes the scale (pixels/ground meters) of the images differs,
+local binary patterns seems to extract less information, making it less efficient, while neural network requires consequent quantity of data to be
+able to generalize to larger variety of terrains.
+For forest trail specifically, paths are usually present, which is what some paper focuses on in order to help robot's local navigation~\cite{rasmussen_appearance_2009,giusti_machine_2016}.
+Regarding~\textcite{rasmussen_appearance_2009} specifically, it uses a small feature vector and k-means to extract local texture
+references, called \textit{textons}~\cite{rufus_blas_fast_2008}.
+Another article uses available data and clever optimization technics to minimize the quantity of manual labelling needed
+to detect forest~\parencite{bosch_journal_2020}.
+This is interesting as, on a first approach, non-forest area can be traversed using the local detection of the remaining obstacles.\\
+As will be discussed later on, these approach, even if able to give interesting data, usually are not able to give
 sufficient results to find paths and intersections from the \gls{uav}'s point of view.
 
-\subsection{Collaboration}\label{subsec:collaboration}
+Regarding the collaboration between \gls{uav} and \gls{ugv}, a lot of recent papers are exploring what is possible.
+Technics where \gls{uav} is scouting terrain information for the \gls{ugv} to reach a particular goal exists~\cite{delmerico_active_2017}.
+The main limitation of this specific paper comes from the constraint of having to do a 3D reconstruction of the area to take the topography
+into account.\\
+Similarly, it is possible to create a machine learning model that predicts vibration, bumpiness and power consumption of the
+\gls{ugv} using \gls{bev} from the \gls{uav}~\cite{fortin_uav-assisted_2024}.
+The trained model can then be used by the \gls{uav} to scout terrain traversability for the \gls{ugv} beforehand.
 
-Regarding the collaboration part between \gls{uav} and \gls{ugv}, a lot of recent papers are exploring what is possible.
-~\cite{delmerico_active_2017} shows an UAV scouting terrain information for the \gls{ugv} to reach a particular goal.
-Its main limitation comes from the constraint of having to do a 3D reconstruction of the area to take the topography
-into account.
-On the contrary, their on the spot classifier~\parencite{kulic_--spot_2017} classifier is interesting as it allows
-a lot of flexibility for the variety of terrain that can be handled.\\
-Similarly,~\cite{fortin_uav-assisted_2024} shows that it is possible to create a machine learning model that predicts
-vibration, bumpiness and power consumption of the \gls{ugv} using \gls{bev} from the \gls{uav}.
-The trained model can then be used by the UAV to scout terrain traversability beforehand.
-In~\cite{zhang_dual-bev_2025}, the \gls{ugv}'s camera is used to create a \gls{bev} of the surrounding before extracting traversability features.
+For navigation purposes, usage of overhead map seems to help \gls{ugv} reach their target~\cite{zhang_dual-bev_2025, shah_viking_2022}.
+Specifically, in ~\textcite{zhang_dual-bev_2025}, the \gls{ugv}'s camera is used to create a \gls{bev} of the surrounding before extracting traversability features.
 It, then, uses overhead maps to select the optimum path to reach the objective.
-These examples clearly demonstrate how well a \gls{bev} can be leverage to improve local navigation.\\
-Even when the objective is to use the sensor datas to locate the robot at a node, using \gls{bev} allows to reduce
-the difference in perspective between the \gls{uav} and the \gls{ugv}.
-This difference is the main challenge that sets this work apart from solution similar to the one proposed in~\cite{han_effective_2020}.
+These examples demonstrate how well a \gls{bev}, either from an \gls{ugv} or even better from an \gls{uav}, can be leveraged to improve \gls{ugv} behaviours.
+Some work also explores using topological maps for navigation~\cite{han_effective_2020}, but these approaches typically do not address the
+perspective differences involved when using \gls{uav} data on the \gls{ugv}.
 
-% TODO some use satelite vikingnav
-
-% TODO 3D reconstruction issue (cite \cite{wang_2d_2021} ?)
-
-% TODO \cite{munasinghe_comprehensive_2024} everywhere
-
-% TODO read \cite{wang_vggt_2025}
-% TODO read \cite{deng_spatiotemporal_2025}
-% TODO read \cite{sun_road_2025}
-
+In terms of correspondence finding, much work exists, ranging from sparse to dense matching.
+Sparse matching generate only a few correspondences between two images, while dense methods attempt to find an association for each pixel.
+Some methods, in addition to dense correspondences, leverage the geometric constraints of stereo cameras to produce accurate
+visual odometry~\cite{comport_accurate_2007}.
+New techniques employ machine learning algorithms to generate keypoints and descriptors, significantly improving current performance~\cite{jiang_omniglue_2024}.
+Other work focuses on creating lightweight models that can be executed in constrained environments~\cite{potje_xfeat_2024}.
 
 \section{Problem at hand}\label{sec:problem-at-hand}
 
-%\section{Decisions}
-%{\color{dtured}
-%Explain overall decisions and which - more detailed - requirements this set for the work packages needed to meet the project objectives.
-%}
-%\section{Summary}
-%{\color{dtured}
-%Summarize the work needed to meet the project objectives, preferably in blocks corresponding to the later chapters.
-%}
+As mentioned in the previous section, \glspl{uav} and \glspl{ugv} have distinct characteristics that shape their roles in this system.
+\glspl{uav} primarily gather environmental data with limited onboard computation, focusing on extracting features and
+constructing a high-level representation of the terrain.
+Due to communication constraints, it is essential to limit the volume of data transmitted, motivating the use of a
+topological map that abstracts the environment into manageable nodes and paths.
+Another advantage is that global navigation becomes very simple in a topological map, as it can easily be solved by
+algorithms like A*.
 
-segmentation -> lot of different cases
+These nodes must be designed so that the \gls{ugv}’s local navigation system can reliably move between them, despite
+the complexity and variability of unstructured terrain.
+The \gls{uav}'s role is to provide this backbone for the topological map by identifying segments of the environment
+such as intersections and paths.
+Additionally, it needs to gather data that can later be used by the \gls{ugv} to localize itself within the topological map.
 
-uav constraints and advantages
-- not a lot of computing power
-- high (constraints and advantage): helpful to keep com and far from the ground
-- better perspective to understand the environment
-- fewer sensors (weight constraints)
+On the other hand, the \gls{ugv} has sufficient computing power to process the incoming data and handle the detailed
+localization and navigation tasks.
+However, the differing perspectives between the aerial view of the \gls{uav} and the ground-level view of the \gls{ugv}
+introduce challenges in matching and correlating observations.
 
-ugv constraints and advantages
-- more lot of computing power
-- on the ground (constraints and advantage): problem keep com and close to the ground
-- more sensors
-
-
-terrain types
-%    In my case, the goal is to improve the global navigation while keeping the amount of computation power and storage
-%    in a reasonable range.
-
-com issues
-
-why topological map
-
-hypothesis on the ugv/uav
-- able to locally locate between to node
-- able to navigate from one node to the other (under the assumption that nodes are generated in a way that render it possible)
-
+The chosen direction for this project is to leverage the \gls{uav}’s strengths in wide-area reconnaissance and feature
+extraction to build a concise topological map.
+The \gls{ugv} then uses this map, along with its processing capabilities, to localize itself and navigate through it.
+%Addressing the challenges of environmental key point finding, correspondence matching, and perspective differences forms the core of the proposed approach.

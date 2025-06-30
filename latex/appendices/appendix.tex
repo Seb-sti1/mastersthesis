@@ -1,15 +1,7 @@
-\chapter{Glossary}\label{ch:glossary}
-
-\begingroup
-\renewcommand{\clearpage}{\relax}
-\printglossary[type=\acronymtype]
-\printglossary
-\endgroup
-
-\cleardoublepage
 \printbibliography[heading=bibnumbered, title={Bibliography}]
 \cleardoublepage
 \appendix
+
 
 \chapter{Aukerman park overview}\label{ch:aukerman-park-overview}
 
@@ -21,17 +13,66 @@
 \end{figure}
 
 
-\chapter{Physical setup of the Barakuda and the Tundra}%
-\vspace*{-2cm}%
+\chapter{Physical setup of the Barakuda}%
 \begin{figure}[!ht]%
     \centering%
-    \includegraphics[width=0.5\textwidth]{illustrations/appendix/barakuda_image}%
+    \includegraphics[width=0.9\textwidth]{illustrations/appendix/barakuda_image}%
     \caption{Physical location of the components on the Barakuda.}%
     \label{fig:appendix:barakuda_image}%
 \end{figure}%
+
+
+\chapter{Physical setup of the Tundra}%
 \begin{figure}[!ht]%
     \centering%
-    \includegraphics[width=0.5\textwidth]{illustrations/appendix/tundra_image}%
+    \includegraphics[width=0.9\textwidth]{illustrations/appendix/tundra_image}%
     \caption{Physical location of the components on the Tundra.}%
     \label{fig:appendix:tundra_image}%
 \end{figure}%
+
+
+\chapter{Number of times an unmanned aerial vehicle patch is detected by one of the unmanned ground vehicule's bird's-eye view patches for the Montmorency dataset.}\label{ch:full_patch_detection_montmorency}
+\begin{table}[ht!]
+    \centering
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+            \hline
+            \gls{uav} patch & 1 & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9  & 10 & Detection rate \\ \hline
+            1               & 3 & 63 & 0  & 1  & 6  & 8  & 0  & 19 & 8  & 7  & 80\%           \\ \hline
+            2               & 0 & 7  & 3  & 15 & 11 & 0  & 0  & 13 & 14 & 0  & 60\%           \\ \hline
+            3               & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0\%            \\ \hline
+            4               & 9 & 0  & 0  & 4  & 1  & 0  & 0  & 0  & 0  & 0  & 30\%           \\ \hline
+            5               & 0 & 0  & 9  & 0  & 0  & 0  & 2  & 5  & 0  & NA & 33.33\%        \\ \hline
+            6               & 0 & 0  & 0  & 0  & 2  & 0  & 0  & 1  & NA & NA & 25\%           \\ \hline
+            7               & 3 & 14 & 16 & 9  & 0  & 9  & 11 & 10 & 4  & NA & 88.89\%        \\ \hline
+            8               & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0\%            \\ \hline
+            9               & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 0  & NA & NA & 0\%            \\ \hline
+            10              & 0 & 11 & 0  & 0  & 5  & 0  & 4  & 1  & 0  & NA & 44.44\%        \\ \hline
+            11              & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 1  & 0  & 0  & 10\%           \\ \hline
+            12              & 0 & 18 & 0  & 1  & 6  & 14 & 4  & 3  & 4  & 7  & 80\%           \\ \hline
+            13              & 5 & 0  & 0  & 0  & 0  & 0  & 0  & 1  & 0  & NA & 22.22\%        \\ \hline
+        \end{tabular}}
+    \caption{Number of times a \gls{uav} patch is detected by either of the \gls{ugv} \gls{bev} patches.
+    Each row corresponds to one node. The first 10 columns indicate the number of times each patch is detected.
+    The last column shows the ratio of patches detected at least once to the total number of patches in the node.}
+    \label{tab:appendix:full_patch_detection_montmorency}
+\end{table}
+
+
+\chapter{Number of times an unmanned aerial vehicle patch is detected by one of the unmanned ground vehicule's bird's-eye view patches for the U2IS dataset.}\label{ch:full_patch_detection_hubdrone}
+\begin{table}[ht!]
+    \centering
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+            \hline
+            \gls{uav} patch & 1 & 2 & 3 & 4  & 5  & 6  & 7  & 8  & 9  & 10 & Detection rate \\ \hline
+            1               & 0 & 0 & 2 & 4  & NA & NA & NA & NA & NA & NA & 50\%           \\ \hline
+            1               & 0 & 0 & 1 & 2  & NA & NA & NA & NA & NA & NA & 50\%           \\ \hline
+            1               & 0 & 0 & 0 & NA & NA & NA & NA & NA & NA & NA & 0\%            \\ \hline
+            1               & 0 & 0 & 0 & 0  & 0  & NA & NA & NA & NA & NA & 0\%            \\ \hline
+        \end{tabular}}
+    \caption{Number of times a \gls{uav} patch is detected by either of the \gls{ugv} \gls{bev} patches.
+    Each row corresponds to one node. The first 10 columns indicate the number of times each patch is detected.
+    The last column shows the ratio of patches detected at least once to the total number of patches in the node.}
+    \label{tab:appendix:full_patch_detection_hub_drone}
+\end{table}

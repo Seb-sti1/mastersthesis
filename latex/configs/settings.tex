@@ -134,6 +134,7 @@ tick label style={/pgf/number format/assume math mode}, % To apply main font to 
     pdfauthor={\thesisauthor},
     pdftitle={\thesistitle},
     pdfsubject={\thesissubtitle},
+    pdfcreator={\thesisauthor},
     pdfdisplaydoctitle,
     bookmarksnumbered=true,
     bookmarksopen,
@@ -153,7 +154,7 @@ tick label style={/pgf/number format/assume math mode}, % To apply main font to 
     keywordstyle=\bfseries\ttfamily\color{blue}, % keyword style
     numberstyle=\sffamily\tiny\color{grey}, % the style that is used for the line-numbers
     stringstyle=\color{purple},       % string literal style
-    rulecolor=\color{grey},           % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+    rulecolor=\color{grey},           % if not set, the frame-color may be changed on line-breaks within not-black text (\textit{e.g.} comments (green here))
     breakatwhitespace=false,          % sets if automatic breaks should only happen at whitespace
     breaklines=true,                  % sets automatic line breaking
     captionpos=b,                     % sets the caption-position to bottom
