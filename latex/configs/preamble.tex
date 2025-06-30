@@ -1,41 +1,42 @@
-\usepackage[margin=25mm]{geometry}
+\usepackage{microtype}      % better looking text
 \usepackage[utf8]{inputenc}
-\usepackage{mlmodern}
-\usepackage[T1]{fontenc}
-\usepackage{mathtools}                  % Nice and easy math
-\usepackage{amsfonts}                   % Insert math symbols
-%\usepackage{pgffor}                    % Latex for-loops
-%\usepackage[ruled,vlined]{algorithm2e}  % Generating algorithm boxes
-\usepackage{parskip}                    % Good practice linebreaks
-\usepackage{algorithm}
-\usepackage{algorithmic}
-\usepackage{amsmath, amssymb, fancyhdr, lastpage}
-\usepackage{cancel, tikz, graphicx, subcaption, float, enumerate}
-\usepackage[short]{optidef}
-\usepackage{multirow}
-\usepackage{arraycols}
-\usepackage[bookmarks]{hyperref}
-\usepackage{cleveref}
+\usepackage{fontspec}       % Package for custom fonts
+\usepackage[]{geometry}     % Package for changing page margins (before fancyhdr)
+\usepackage{fancyhdr}       % Package to change header and footer
+\usepackage{parskip}        % Package to tweak paragraph skipping (instead of indents, a small skip is added after every paragraph)
+\usepackage{titlesec}
+\usepackage{tikz}           % Package for drawing
+\usepackage{pgfplots}       % Package for creating graphs and charts
+\usepackage{xcolor}         % Package for defining DTU colours to be used
+\usepackage{amsmath}        % For aligning equations among other
+\usepackage{siunitx}        % SI units
+\usepackage{listings}       % Package for inserting code (before cleveref)
+\PassOptionsToPackage{hyphens}{url} % Ability to line break urls at hyphens
+\usepackage{hyperref}       % Package for cross-referencing (also loads url package)
+\usepackage{cleveref}       % improved cross-referencing
+\usepackage{textcomp}       % \textdegree = °C and other useful symbols
+\usepackage{blindtext}
 
+% main language (can be danish for BSc and BsE)
+\usepackage[english]{babel} % localisation
+
+\usepackage{caption}        % better captions
+\usepackage{subcaption}     % for subfigures
+\usepackage{csquotes}       % For biblatex with babel
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex} % Package for bibliography (citing)
+\bibliography{appendices/mastersthesis}
+\usepackage{tabularx}       % for the ability to adjust column spacing in tabular better
+\usepackage{booktabs}       % for better tables
+\usepackage{float}          % floating figures in correct places
+\usepackage{calc}           % Adds ability for latex to calculate (3pt+2pt)
+\usepackage{relsize}
+% some electronic packages
+\usetikzlibrary{shapes,arrows,arrows.meta, positioning, snakes}
+% \usetikzlibrary{positioning,calc,snakes} % decorations
+\usepackage[RPvoltages, europeanresistor, arrowmos, americancurrents, americanvoltages]{circuitikz}
+\usepackage{tikz}
+\tikzset{>=triangle 45}
+\usetikzlibrary{datavisualization}
+\usetikzlibrary{datavisualization.formats.functions}
 \usepackage[acronym]{glossaries} % add glossary and acronym list
 \input{appendices/glossary}
-
-
-
-\usepackage{listings} % code snippets
-\usepackage{placeins}
-\usepackage[dvipsnames]{xcolor} % color for code snippets
-\input{configs/listlisting}
-
-% bibliography. use australian to have correct date format
-\usepackage[backend=biber, style=ieee, citestyle=authoryear-comp, language=australian]{biblatex}
-\addbibresource{appendices/mastersthesis.bib}
-
-\input{configs/options}
-
-
-%minted doesn't compile
-%\usepackage{minted}
-%\usepackage{gensymb}
-%\setminted{breaklines, linenos}
-%\usemintedstyle{manni}

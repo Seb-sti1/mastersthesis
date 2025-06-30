@@ -1,21 +1,33 @@
-\hypersetup{%
-    colorlinks = true, % Colors the links, instead of creating a colored box around them
-    linkcolor = {blue!30!black},
-    citecolor = {blue!50!black},
-    urlcolor = {blue!80!black}
-}
+\newcommand{\documenttype}{Master Thesis}
 
-\setcounter{tocdepth}{1}
-\renewcommand{\baselinestretch}{1.2}
-\parindent=0pt
-\setlength{\headheight}{15pt}
+\newcommand{\programme}{Autonomous Systems}
+\newcommand{\mastersname}{Master of Science (MSc) in Autonomous Systems}
+
+\newcommand{\thesissize}{30} % ECTS
 
 \newcommand{\thesistitle}{Collaborative navigation in unstructured environments using an aerial drone and a terrestrial robot}
-\title{\Huge \thesistitle}
+\newcommand{\thesissubtitle}{}
+
 \newcommand{\thesisauthor}{Sébastien Yvon Claude KERBOURC'H}
-\author{\thesisauthor}
-\newcommand{\mastersname}{Master of Science (MSc) in Autonomous Systems}
-\date{February 2025 - July 2025}
+\newcommand{\studentnumber}{s232496}
+
+\newcommand{\thesismonth}{February}
+\newcommand{\thesisyear}{2025}
+\newcommand{\projectperiod}{3rd February 2025 to 3rd July 2025}
+%\date{\projectperiod}
+
+
+\newcommand{\ThSupervisors}{Søren HANSEN, Associate Professor at the Electrical Engineering and Photonics Department of DTU\\
+Alexandre CHAPOUTOT, Associate Professor at the \textit{Unité d'Informatique et d'Ingénierie des Systèmes} of ENSTA\\
+Thibault TORALBA, Research Engineer at the \textit{Unité d'Informatique et d'Ingénierie des Systèmes} of ENSTA}
+
+
+\newcommand{\department}{DTU ELECTRO}
+\newcommand{\departmentdescriber}{Department of Electrical and Photonics Engineering}
+\newcommand{\addressI}{Elektrovej 326}
+\newcommand{\addressII}{2800 Kgs. Lyngby}
+\newcommand{\departmentwebsite}{https://electro.dtu.dk/}
+
 
 \hypersetup{
     pdftitle={\thesistitle},
@@ -26,30 +38,30 @@
 }
 
 
-\newcommand{\frontpagetextcolour}{black} % front page text colour: white or black
-\definecolor{frontbackcolor}{HTML}{FFFFFF}
+%\newcommand{\frontpagetextcolour}{black} % front page text colour: white or black
+%\definecolor{frontbackcolor}{HTML}{FFFFFF}
+%
+%\fancypagestyle{main}{
+%    \fancyhead{}
+%    \fancyfoot{}
+%    \renewcommand{\headrulewidth}{1px}
+%    \fancyhead[LE]{\footnotesize \leftmark}
+%    \fancyhead[LO]{\footnotesize \rightmark}
+%    \fancyhead[RE]{}
+%    \fancyhead[RO]{}
+%    \fancyfoot[LE,RO]{\footnotesize \thepage}
+%    \fancyfoot[RE,LO]{\footnotesize \thesistitle}
+%    \fancyhfoffset[E,O]{0pt}
+%}
+%\pagestyle{main}
+%
+%\fancypagestyle{plain}{
+%    \fancyhead{}
+%    \fancyfoot{}
+%    \renewcommand{\headrulewidth}{0pt}
+%    \fancyfoot[LE,RO]{\footnotesize \thepage}
+%    \fancyfoot[RE,LO]{\footnotesize \thesistitle} % - \leftmark
+%    \fancyhfoffset[E,O]{0pt}
+%}
 
-\fancypagestyle{main}{
-    \fancyhead{}
-    \fancyfoot{}
-    \renewcommand{\headrulewidth}{1px}
-    \fancyhead[LE]{\footnotesize \leftmark}
-    \fancyhead[LO]{\footnotesize \rightmark}
-    \fancyhead[RE]{}
-    \fancyhead[RO]{}
-    \fancyfoot[LE,RO]{\footnotesize \thepage}
-    \fancyfoot[RE,LO]{\footnotesize \thesistitle}
-    \fancyhfoffset[E,O]{0pt}
-}
-\pagestyle{main}
-
-\fancypagestyle{plain}{
-    \fancyhead{}
-    \fancyfoot{}
-    \renewcommand{\headrulewidth}{0pt}
-    \fancyfoot[LE,RO]{\footnotesize \thepage}
-    \fancyfoot[RE,LO]{\footnotesize \thesistitle} % - \leftmark
-    \fancyhfoffset[E,O]{0pt}
-}
-
-\input{configs/chapter}
+%\input{configs/chapter}
