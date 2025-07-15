@@ -1,8 +1,10 @@
 THESISNAME=thesis
 PLANNAME=projectplan
+DEFENCENAME=defence
 LATEX=xelatex
+LATEXBEAMER=pdflatex
 
-all: $(THESISNAME) $(PLANNAME) clean
+all: $(DEFENCENAME) $(THESISNAME) $(PLANNAME) clean
 
 $(THESISNAME):
 	$(LATEX) $(THESISNAME).tex
@@ -20,5 +22,14 @@ $(PLANNAME):
 	$(LATEX) $(PLANNAME).tex
 	git config --global --add safe.directory /app && exiftool -overwrite_original -Producer=$$(git rev-parse HEAD) $(PLANNAME).pdf
 
+$(DEFENCENAME):
+	TEXINPUTS="./beamer//:" $(LATEXBEAMER) $(DEFENCENAME).tex
+	#biber $(DEFENCENAME)
+	#makeglossaries $(DEFENCENAME)
+	TEXINPUTS="./beamer//:" $(LATEXBEAMER) $(DEFENCENAME).tex
+	TEXINPUTS="./beamer//:" $(LATEXBEAMER) $(DEFENCENAME).tex
+	git config --global --add safe.directory /app && exiftool -overwrite_original -Producer=$$(git rev-parse HEAD) $(DEFENCENAME).pdf
+
 clean:
-	rm  -f *.acr *.acn *.alg *.glg *.glo *.gls *.ist *.out *.toc *.blg *.bbl *.aux *.log *.pdf_original *.bcf *.run.xml
+	rm  -f *.acr *.acn *.alg *.glg *.glo *.gls *.ist *.out *.toc \
+	 	   *.blg *.bbl *.aux *.log *.pdf_original *.bcf *.run.xml *.pdfpc

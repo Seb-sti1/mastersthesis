@@ -1,0 +1,48 @@
+\usepackage{helvet}
+\usepackage[english]{babel}
+\usepackage{pgfplots}
+\usepackage{pgf}
+\pgfplotsset{compat=newest}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lipsum}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[nopatch=footnote]{microtype}
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{dsfont}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{changepage}
+
+\input{beamer/settings}
+
+\newcommand{\setcolor}[1]{\def\chosencolor{#1}}
+\newcommand{\setdepartment}[1]{\def\department{#1}}
+
+\usetheme{DTU}
+\setbeamersize{text margin left=22mm}
+\def\insertframetitle{}
+
+\newcommand{\inserttitlepage}{
+    \begin{frame}[plain, noframenumbering]{}
+
+        \begin{center}
+            \hspace{-3.6em}
+            \includegraphics[width = 0.25\paperwidth]{logo/dtu/white_cmyk}
+        \end{center}
+
+    \end{frame}
+
+    \begin{frame}[plain]{}
+        \color{white}{\maketitle}
+    \end{frame}
+
+    \setbeamercolor{background canvas}{bg = white}
+}
+

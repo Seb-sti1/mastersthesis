@@ -1,0 +1,834 @@
+\documentclass[aspectratio=169,hyperref={pdfpagelabels=false}]{beamer}
+\input{beamer/preamble}
+
+\title{Collaborative navigation in unstructured environments using an aerial drone and a terrestrial robot}
+\subtitle{Sébastien Yvon Claude Kerbourc'h (s232496)}
+
+\setdepartment{DTU ELECTRO}
+\setcolor{dtublue}
+
+%\setbeameroption{show notes}
+\setbeameroption{show notes on second screen=right}
+
+\begin{document}
+    \inserttitlepage
+    \note{
+        \begin{itemize}
+            \item present the work i've done \textbf{during 5 months} at the \textbf{U2IS Lab in France}
+            \item The subject is \textbf{collaborative navigations in unstructured environments using an aerial drone
+            and a terrestrial robot}
+            \item the goal in the master's thesis is to \textbf{use uav to enhance ugv's perception}
+            \item \textbf{uav collects} data, structured in a topological map. \textbf{ugv local nav from node to node}
+            \item \textbf{ugv recognize} when it reached a node with the uav data
+            \item \textbf{difficulty: difference in perspective}
+            \item
+            \item
+            \item autonomous navigation in unstructured terrains environments remains \textbf{far from viable}
+            \item this does not come as a surprise as \textbf{complex systems rely on many subsystem} that any single failure
+            \textbf{can comprise the entire system}
+        \end{itemize}
+    }
+
+    \begin{frame} % table of content
+        \tableofcontents[
+            sectionstyle=show,
+            subsectionstyle=hide,
+            pausesections
+        ]
+        \note<1>{
+            \begin{itemize}
+                \item goal is to reduce the difference in perspective
+                \item using the ugv camera to create a bev image: like if it were taken from above
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item find keypoints that are in common between uav and ugv
+                \item to be able to decide whenever two images from uav/ugv are the same
+            \end{itemize}
+        }
+        \note<3>{
+            \begin{itemize}
+                \item using all the previous steps, simulate how it would work in the real world
+                \item this was done on two datasets
+            \end{itemize}
+        }
+    \end{frame}
+    %
+    % ================================================
+    % ================================================
+    % ================================================
+    %
+
+
+%    \section{Topological map creation}
+%    \begin{frame}[tocremainder]
+%        \tableofcontents[currentsection]
+%        \note<1>{
+%            \begin{itemize}
+%                \item two methods
+%                \item first based on Fast Color/Texture Segmentation For Outdoor Robots, Rufus Blas et al.
+%                \item second based on detect tree Bosch et al.
+%            \end{itemize}
+%        }
+%    \end{frame}
+
+%
+% ================================================
+% ================================================
+% ================================================
+%
+
+
+    \section{Creating bird’s-eye view from unmanned ground vehicule’s image}
+    \begin{frame}[tocremainder]
+        \tableofcontents[currentsection]
+        \note<1>{
+            \begin{itemize}
+                \item lets starts with the perspective change
+                \item i tried two methods
+                \item the first is using rgb d (depth info) images
+                \item the second is the more traditional approach of using a homography
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Pointcloud reprojection of an RGBD image}
+    \begin{frame}{Pointcloud reprojection of an RGBD image}
+        \begin{columns}%
+            \begin{column}{.5\textwidth}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=0.99\linewidth]{illustrations/defence/reprojection}
+                \end{figure}
+            \end{column}%
+            \begin{column}{.5\textwidth}
+                \pause
+                \begin{align}
+                    u &= \dfrac{f}{z} x & \dfrac{u}{s_x} &= (j - c_x) \label{eq:pcd_rgbd:u} \\
+                    v &= \dfrac{f}{z} y & \dfrac{v}{s_y} &= (i - c_y) \label{eq:pcd_rgbd:v}
+                \end{align}
+                \pause
+                \begin{align}
+                    x &= (j - c_x) \dfrac{z}{f_x} \label{eq:pcd_rgbd:x} \\
+                    y &= (i - c_y) \dfrac{z}{f_y} \label{eq:pcd_rgbd:y}
+                \end{align}
+            \end{column}%
+        \end{columns}
+        \note<1>{
+            \begin{itemize}
+                \item point in the camera frame
+                \item image frame, its projection
+                \item x,y ; u,v ; i,j
+                \item intercept theorem
+                \item change of units
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item intercept theorem
+                \item change of units
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item combine them
+                \item depends only the calibration parameters, the pixel, and the depth
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}
+        \begin{figure}[ht!]
+            \centering
+            \begin{subfigure}[t]{0.32\textwidth}
+                \centering
+                \includegraphics[width=0.99\linewidth]{illustrations/bev/zed_rgbd_rgb}
+                \caption{The RGB image.}
+                \label{fig:pcd_rgbd:rgb}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.32\textwidth}
+                \centering
+                \includegraphics[width=0.99\linewidth]{illustrations/bev/zed_rgbd_d}
+                \caption{The depth image.}
+                \label{fig:pcd_rgbd:depth}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.32\textwidth}
+                \centering
+                \includegraphics[width=0.99\linewidth]{illustrations/bev/zed_rgbd_pcd}
+                \caption{The resulting colorized point cloud.}
+                \label{fig:pcd_rgbd:pcd}
+            \end{subfigure}
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item for each pixel (using the zed calibration)
+                \item ignore pixels where z is not valid
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}
+        \begin{figure}
+            \begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/bev/zed_rgbd_bev_0.05}
+                \caption{column base width of 0.05m.}
+            \end{subfigure}
+            \hfill
+            \pause
+            \begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/bev/zed_rgbd_merged_cloud_bev_0.05}
+                \caption{accumulated point cloud, column base width of 0.05m.}
+            \end{subfigure}
+            \hfill
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item in the point cloud aggregate by columns, each column is one pixel of the bev
+                \item aggregation is important, here the average is used
+                \item really noisy... and sparse
+                \item slow: Numba to parallelize the computation of each column.
+                \item reduce it to about 750 ms, corresponding to an 11.8x speedup.
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item fix this with accumulation of the point cloud, using icp
+                \item filtering steps to try and reduce the size of the pointcloud
+                \item alignment errors, causing structures like walls and grass to blend improperly.
+                \item 100 000 points to 450 000 points, reducing the processing rate from around 1Hz to 0.5Hz.
+                \item
+                \item given those poor results, i tried another more traditional method: using an homography to deform the image
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Traditional homography}
+
+    \begin{frame}{Traditional homography}
+        \begin{itemize}
+            \item find the real world coordinates of A, B, C and D
+        \end{itemize}
+        \begin{columns}%
+            \begin{column}{.5\textwidth}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=0.99\linewidth]{illustrations/bev/homography}
+                \end{figure}
+            \end{column}%
+            \pause
+            \begin{column}{.5\textwidth}
+                \begin{align}
+                    \label{eq:homography:complete}
+                    \begin{bmatrix}
+                        x_r \\
+                        y_r \\
+                        0   \\
+                        1
+                    \end{bmatrix} &= T_{c\rightarrow r} \times
+                    \begin{bmatrix}
+                    (j - c_x)
+                        \dfrac{z_c}{f_x}\\
+                        (i - c_y) \dfrac{z_c}{f_y} \\
+                        z_c                        \\
+                        1
+                    \end{bmatrix}
+                \end{align}
+            \end{column}%
+        \end{columns}
+        \note<1>{
+            \begin{itemize}
+                \item locally flat ground hypothesis
+                \item $z_r = 0$
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item using the previous equations
+            \end{itemize}
+        }
+    \end{frame}
+
+
+    \begin{frame}
+        \begin{figure}[ht!]
+            \begin{subfigure}[t]{0.35\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/bev/homography_zed}
+                \caption{The raw image from the ZED 2i.}
+                \label{fig:homography:zed}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.58\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/bev/homography_zed_bev}
+                \caption{The resulting BEV.}
+                \label{fig:homography:zed_bev}
+            \end{subfigure}
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item much cleaner results
+            \end{itemize}
+        }
+    \end{frame}
+%
+% ================================================
+% ================================================
+% ================================================
+%
+
+
+    \section{Finding correspondences between ugv and uav}
+    \begin{frame}[tocremainder]
+        \tableofcontents[currentsection]
+        \note<1>{
+            \begin{itemize}
+                \item building on the previous work it is time to try and find correspondences between uav/ugv images
+                \item jean michel fortin dataset
+                \item diff between ideal and jmf dataset: ugv in uav view
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Initial testing}
+    \begin{frame}{Initial testing}
+        \begin{itemize}
+            \item Compare Xfeat, \pause Omniglue, \pause ORB at finding correspondences
+            \pause
+            \item First \("\)bruteforce\("\) attempt failed
+            \pause
+            \item Second attempt in an ideal scenario
+        \end{itemize}
+        \pause
+        \begin{figure}[ht!]
+            \centering
+            \begin{subfigure}[t]{0.49\textwidth}
+                \centering
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/x_feat_found3_kp}
+                \caption{XFeat's results.}
+                \label{fig:find_corr:along_traj:xfeat}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.49\textwidth}
+                \centering
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/omniglue_found1_kp}
+                \caption{OmniGlue's results.}
+                \label{fig:find_corr:along_traj:omniglue}
+            \end{subfigure}
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item Xfeat, CNN architecture, aims for semi-dense feature matching, efficiency.
+                \item It processes high-resolution grayscale images through six convolutional blocks that reduce
+                spatial resolution while increasing channel depth.
+                The network outputs dense descriptors, reliability, and keypoint heatmaps.
+                Keypoint detection uses a novel parallel branch, and matching employs a lightweight refinement module.
+                XFeat is trained in a supervised manner with pixel-level ground truth correspondences from the MegaDepth and COCO\_20k subset of the COCO2017 dataset.
+                Additionally, a lighter version of LightGlue (lighterglue) was trained using features from XFeat.
+                \item OmniGlue aims at generalization, for keypoints SuperPoint and DINOv2 for image descriptors.
+                \item It first extracts fine-grained features with SuperPoint and broad features with DINOv2.
+                It then builds intra- and inter-image keypoint graphs, using DINOv2 to guide inter-image associations.
+                Information is propagated via attention, disentangling positional and appearance signals to improve generalization.
+                Finally, refined descriptors are optimally matched to find correspondences between keypoints.
+                OmniGlue is also trained in a supervised manner using ground truth from previous work.
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item Xfeat, CNN architecture, aims for semi-dense feature matching, efficiency.
+                \item It processes high-resolution grayscale images through six convolutional blocks that reduce
+                spatial resolution while increasing channel depth.
+                The network outputs dense descriptors, reliability, and keypoint heatmaps.
+                Keypoint detection uses a novel parallel branch, and matching employs a lightweight refinement module.
+                XFeat is trained in a supervised manner with pixel-level ground truth correspondences from the MegaDepth and COCO\_20k subset of the COCO2017 dataset.
+                Additionally, a lighter version of LightGlue (lighterglue) was trained using features from XFeat.
+                \item OmniGlue aims at generalization, for keypoints SuperPoint and DINOv2 for image descriptors.
+                \item It first extracts fine-grained features with SuperPoint and broad features with DINOv2.
+                It then builds intra- and inter-image keypoint graphs, using DINOv2 to guide inter-image associations.
+                Information is propagated via attention, disentangling positional and appearance signals to improve generalization.
+                Finally, refined descriptors are optimally matched to find correspondences between keypoints.
+                OmniGlue is also trained in a supervised manner using ground truth from previous work.
+            \end{itemize}
+        }
+        \note<3>{
+            \begin{itemize}
+                \item Xfeat, CNN architecture, aims for semi-dense feature matching, efficiency.
+                \item It processes high-resolution grayscale images through six convolutional blocks that reduce
+                spatial resolution while increasing channel depth.
+                The network outputs dense descriptors, reliability, and keypoint heatmaps.
+                Keypoint detection uses a novel parallel branch, and matching employs a lightweight refinement module.
+                XFeat is trained in a supervised manner with pixel-level ground truth correspondences from the MegaDepth and COCO\_20k subset of the COCO2017 dataset.
+                Additionally, a lighter version of LightGlue (lighterglue) was trained using features from XFeat.
+                \item OmniGlue aims at generalization, for keypoints SuperPoint and DINOv2 for image descriptors.
+                \item It first extracts fine-grained features with SuperPoint and broad features with DINOv2.
+                It then builds intra- and inter-image keypoint graphs, using DINOv2 to guide inter-image associations.
+                Information is propagated via attention, disentangling positional and appearance signals to improve generalization.
+                Finally, refined descriptors are optimally matched to find correspondences between keypoints.
+                OmniGlue is also trained in a supervised manner using ground truth from previous work.
+            \end{itemize}
+        }
+        \note<4>{
+            \begin{itemize}
+                \item brute force attempt: generate many patches in uav/ugv view and try to show a clear correlation
+                between distance and number of correspondences
+                \item patches because of omniglue (too much VRAM for full images)
+            \end{itemize}
+        }
+        \note<5>{
+            \begin{itemize}
+                \item second attempt: ensure as much as possible that the extracted patch are the same
+                \item align patch angle with the aruco tag on top of the ugv and the ugv in the uav frame
+                \item take the same place in the image
+                \item take uav/ugv patches with the same width
+            \end{itemize}
+        }
+        \note<5>{
+            \begin{itemize}
+                \item promising initial results
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}
+        \begin{columns}
+            \begin{column}{.5\textwidth}
+                \begin{itemize}
+                    \item \textit{obviously wrong},
+                    \pause
+                    \item mean squared error (MSE),
+                    \pause
+                    \item structural similarity index measure (SSIM).
+                \end{itemize}
+            \end{column}%
+            \begin{column}{.5\textwidth}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=0.99\textwidth]{illustrations/defence/ssim}
+                \end{figure}
+            \end{column}%
+        \end{columns}
+        \note<1>{
+            \begin{itemize}
+                \item common areas in uav/ugv images are less than 10000 pixels$^2$,
+                any reprojected quadrilateral is crossed, stretching the quadrilaterals to a square give
+                more than 20 pixels completely black
+                \item obviously wrong to ensure next indicators works
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Test robustness to relative rotations}
+    \begin{frame}{Test robustness to relative rotations}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.83\linewidth]{illustrations/defence/angles_obviously_wrong}
+            \caption{Obviously wrong ratios.}
+        \end{figure}
+        \vspace*{-1em}% TODO border issue
+        \begin{itemize}
+            \item $0\%$ is the best, $100\%$ is the worst.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \begin{figure}[ht!]
+            \centering
+            \begin{subfigure}[t]{0.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/big_angle_0_scores_xfeat+lighterglue}
+                \caption{XFeat (ligherglue), no rotation.}
+                \label{fig:find_corr:big_angles:mse_ssim_xfeat+lg_0}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/big_angle_90_scores_xfeat+lighterglue}
+                \caption{XFeat (ligherglue), 90°.}
+                \label{fig:find_corr:big_angles:mse_ssim_xfeat+lg_90}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/big_angle_0_scores_omniglue}
+                \caption{OmniGlue, no rotation.}
+                \label{fig:find_corr:big_angles:mse_ssim_omniglue_0}
+            \end{subfigure}
+        \end{figure}
+        \begin{itemize}
+            \item For MSE, the lower, the better. For SSIM, 1 is the best, 0 is the worst.
+            \item Not robust to rotation in general
+        \end{itemize}
+    \end{frame}
+
+
+    \begin{frame}
+        \begin{figure}[ht!]
+            \centering
+            \begin{subfigure}[t]{0.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/small_angle_0_scores_xfeat+lighterglue}
+                \caption{XFeat (ligherglue), rotation}
+                \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_0}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/small_angle_5_scores_xfeat+lighterglue}
+                \caption{XFeat (ligherglue), 5°.}
+                \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_5}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/find_correspondances/small_angle_-10_scores_xfeat+lighterglue}
+                \caption{XFeat (ligherglue), -10°.}
+                \label{fig:find_corr:small_angles:mse_ssim_xfeat+lg_-10}
+            \end{subfigure}
+
+            \begin{itemize}
+                \item For MSE, the lower, the better. For SSIM, 1 is the best, 0 is the worst.
+                \item Robust to small rotation -10° - 10°.
+            \end{itemize}
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item 0 not the same: method to compute the angle not the same
+            \end{itemize}
+        }
+    \end{frame}
+%
+% ================================================
+% ================================================
+% ================================================
+%
+
+
+    \section{Simulation of real world scenario}
+    \begin{frame}[tocremainder]
+        \tableofcontents[currentsection]
+        \note<1>{
+            \begin{itemize}
+                \item now that we have a way to find correspondences between the two images uav/ugv
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Implementation}
+    \begin{frame}{Implementation}
+        \begin{itemize}
+            \item Graph is a collection of interconnected nodes
+            \pause
+            \item \textbf{Generate scouting data}: 4x7 grid of patches, oriented at 0°
+            \item Each patches in a node is extracted
+            \pause
+            \item \textbf{Filter scouting data}: keep the 10 best patches
+            \item Use median of score of features, minimal distance between patches
+            \pause
+            \item \textbf{Detect UGV location}: knowing the next node, generate correspondences
+            \item Two patches with more than 600 correspondences $\Rightarrow$ same location
+        \end{itemize}
+        \note<1>{
+            \begin{itemize}
+                \item node: name, gnss coordinate of center, radius, array of patches, features of best patches
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item oriented at 0° = east
+                \item GNSS coordinates center = pixel positions in the image, the UAV’s position and orientation, image scale
+            \end{itemize}
+        }
+        \note<3>{
+            \begin{itemize}
+                \item median of scores because there seemed to be a small correlation
+                \item minimal distance to reduce duplication
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Results using Montmorency dataset}
+    \begin{frame}{Results using Montmorency dataset}
+        \begin{adjustwidth}{-3.5em}{-1.5em}
+            \begin{table}[ht!]
+                \centering
+                \begin{tabular}{|>{\raggedright\arraybackslash}p{2.5cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+                    \hline
+                    Node                & 1  & 2  & 3 & 4  & 5    & 6  & 7    & 8 & 9 & 10   & 11 & 12 & 13   \\ \hline
+                    Detection Rate (\%) & 80 & 60 & 0 & 30 & 33.3 & 25 & 88.9 & 0 & 0 & 44.4 & 10 & 80 & 22.2 \\ \hline
+                \end{tabular}
+                \caption{Patch detection rate for each node.}
+            \end{table}%
+            \begin{table}[ht]
+                \centering
+                \begin{tabular}{|>{\raggedright\arraybackslash}p{4cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+                    \hline
+                    Node                                      & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\ \hline
+                    Number of time robot goes through node    & 3 & 2 & 2 & 2 & 2 & 1 & 2 & 1 & 3 & 1  & 1  & 1  & 1  \\ \hline
+                    Number of time robot correctly detects it & 3 & 2 & 0 & 1 & 2 & 1 & 2 & 0 & 0 & 1  & 1  & 1  & 1  \\ \hline
+                \end{tabular}
+                \caption{Node traversal and detection counts.}
+            \end{table}%
+        \end{adjustwidth}
+        \note<1>{
+            \begin{itemize}
+                \item UGV itself appears within the image frames
+                \item exclusion zone
+                \item sometimes captures marks of the UGV's wheels
+                \item only GNSS position and the orientation of the UGV
+                \item UAV position is recomputed (ArUco comes handy)
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Results using a new U2IS dataset}
+    \begin{frame}{Results using a new U2IS dataset}
+        \begin{adjustwidth}{-3.5em}{-1.5em}
+            \begin{table}[ht!]
+                \centering
+                \begin{tabular}{|l|c|c|c|c|}
+                    \hline
+                    Node                & 1  & 2  & 3 & 4 \\ \hline
+                    Detection Rate (\%) & 50 & 50 & 0 & 0 \\ \hline
+                \end{tabular}
+                \caption{Patch detection rate for each node.}
+            \end{table}%
+            \begin{table}[ht]
+                \centering
+                \begin{tabular}{|l|c|c|c|c|}
+                    \hline
+                    Node                                      & 1 & 2 & 3 & 4 \\ \hline
+                    Number of time robot goes through node    & 1 & 1 & 1 & 1 \\ \hline
+                    Number of time robot correctly detects it & 1 & 1 & 0 & 0 \\ \hline
+                \end{tabular}
+                \caption{Node traversal and detection counts.}
+            \end{table}%
+        \end{adjustwidth}
+        \note<1>{
+            \begin{itemize}
+                \item one patch was created for both the UAV and the UGV
+                \item scaling of the images
+                \item 2.8 times larger in the UGV's BEV than in the UAV's image
+                \item best solution was found to be scaling up the UAV
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}
+        \begin{adjustwidth}{-3.5em}{-1.5em}
+            \begin{table}[ht!]
+                \centering
+                \begin{tabular}{|l|c|c|c|c|c|}
+                    \hline
+                    Node                & 0   & 1  & 2  & 3 & 4    \\ \hline
+                    Detection Rate (\%) & 100 & 25 & 50 & 0 & 12.5 \\ \hline
+                \end{tabular}
+                \caption{Patch detection rate for each node.}
+            \end{table}%
+            \begin{table}[ht]
+                \centering
+                \begin{tabular}{|l|c|c|c|c|c|}
+                    \hline
+                    Node                                      & 0 & 1 & 2 & 3 & 4 \\ \hline
+                    Number of time robot goes through node    & 1 & 1 & 1 & 1 & 1 \\ \hline
+                    Number of time robot correctly detects it & 1 & 1 & 1 & 0 & 1 \\ \hline
+                \end{tabular}
+                \caption{Node traversal and detection counts.}
+            \end{table}%
+        \end{adjustwidth}
+        \note<1>{
+            \begin{itemize}
+                \item what i changed
+            \end{itemize}
+        }
+    \end{frame}
+
+    \subsection{Limitations and future works}
+    \begin{frame}{Limitations and future works}
+        \begin{itemize}
+            \item Backbone of the topological map
+            \pause
+            \item Using homography to create BEV has limitations
+            \pause
+            \item Xfeat (lighterglue) needs scale to be close
+            \pause
+            \item Better indicators
+            \pause
+            \item Better filtering of patches
+        \end{itemize}
+        \note<1>{
+            \begin{itemize}
+                \item Still requires to create the topological map
+            \end{itemize}
+        }
+        \note<2>{
+            \begin{itemize}
+                \item BEV no flat ground. but results really good
+            \end{itemize}
+        }
+        \note<3>{
+            \begin{itemize}
+                \item Xfeat (lighterglue) needs scale to be close
+            \end{itemize}
+        }
+        \note<4>{
+            \begin{itemize}
+                \item better indicators
+                \item ideal: true positives, true negatives, false positives, and false negatives
+                \item but true negatives hard
+                \item higher level indicators?
+            \end{itemize}
+        }
+        \note<5>{
+            \begin{itemize}
+                \item filtering of the patches to select a better coverage of the patches area
+                \item threshold okay but use more of the available data better
+            \end{itemize}
+        }
+    \end{frame}
+
+    \section{}
+%
+% ================================================
+% ================================================
+% ================================================
+%
+    \setbeamercolor{background canvas}{bg = dtublue}
+    \begin{frame}[plain, noframenumbering]{}
+        \usebeamerfont{title}
+        \usebeamercolor[fg]{title}
+
+% title
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[anchor=south west,
+                text width = \paperwidth,
+                xshift=0mm,
+                yshift=10mm]
+            at (current page.south west)
+                {{\usebeamerfont{subtitle}%
+            \usebeamercolor[fg]{subtitle}%
+            Thank you for your attention,} \\
+            {\textbf{\color{white}Any questions?}}};
+        \end{tikzpicture}
+    \end{frame}
+    \setbeamercolor{background canvas}{bg = white}
+%
+% ================================================
+% ================================================
+% ================================================
+%
+    \begin{frame}{Fast Color/Texture Segmentation For Outdoor Robots}
+        \begin{itemize}
+            \item k-means clusterization using descriptors based on CIE-Lab $\rightarrow$ \textit{textons},
+            \begin{align}
+                p_{i,j} &= \begin{bmatrix}
+                               W_1 \times L_c         \\
+                               W_2 \times a_c         \\
+                               W_2 \times b_c         \\
+                               W_3 \times (L_1 - L_c) \\
+                               \vdots                 \\
+                               W_3 \times (L_8 - L_c) \\
+                \end{bmatrix}
+            \end{align}
+            \item \textit{textons} representative of local color and texture features,
+            \item create histograms of the \textit{textons} in a neighborhood window.
+        \end{itemize}
+        \note<1>{
+            \begin{itemize}
+                \item k means will find k clusters of point closest in the descriptors space
+                \item $W_{i}$ are weights to change the importance of color/texture
+                \item $L$ the lightness, $a$ and $b$ for color
+                \item
+                \item fine-grained (micro-level) description of the image,
+                \item ensures that the algorithm can adapt to different environments
+                \item generating a representation tailored to the specific visual characteristics of the input.
+                \item
+                \item use the local descriptors to cluster in term of composition of descriptors
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}{Fast Color/Texture Segmentation For Outdoor Robots}
+        \begin{figure}[ht!]
+            \centering
+            \begin{subfigure}[t]{.29\textwidth}
+                \includegraphics[width=.99\textwidth]{illustrations/topological_map_creation/fast_color_raw1}
+                \caption{Raw image used as input}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{.69\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_hist1}
+                \caption{2D histogram for three given \textit{textons}. The greener, the higher the density of the \textit{texton}.}
+                \label{fig:fast_color:histograms}
+            \end{subfigure}
+        \end{figure}
+        \begin{itemize}
+            \item start to reveal structural information,
+            \item new descriptor vector using the histograms.
+        \end{itemize}
+        \note<1>{
+            \begin{itemize}
+                \item start to reveal structural information:
+                \item the first histogram shows high density over grassy areas and low density over paths
+                \item the second appears to emphasize trees
+                \item the third again highlights grassy regions.
+                \item
+                \item create new descriptor vector where each coordinate are the histograms of the k textons
+                \item k means again
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}
+        \begin{itemize}
+            \item EMD to merge clusters too close
+        \end{itemize}
+        \begin{figure}
+            \begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_before_emd}
+                \caption{The clusters before merging using the EMD. minimal distance of 0.}
+                \label{fig:fast_color:before_emd}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=0.99\textwidth]{illustrations/topological_map_creation/fast_color_emd_10}
+                \caption{Final clusters using EMD minimal distance of 10.}
+                \label{fig:fast_color:emd_10}
+            \end{subfigure}
+            \hfill
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item emd to merge clusters (in the histograms descriptor space) too close (earth mover's distance)
+                \item there are clusters that could be linked to specific areas like grass/path
+                \item but overall it is not sufficient to generate a topological map
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}{Detecting trees in order to find traversable region}
+        \begin{itemize}
+            \item supervised learning to train an Adaboost classifier with an 27 features long vector
+        \end{itemize}
+        \begin{figure}
+            \begin{subfigure}[t]{.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b50_r10000}
+                \caption{$\beta = 50$, $\text{rescale} = 10000$ (default)}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b1000_r10000}
+                \caption{$\beta = 1000$, $\text{rescale} = 10000$}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{.32\textwidth}
+                \includegraphics[width=0.99\linewidth]{illustrations/topological_map_creation/detect_tree_b1000_r30000}
+                \caption{$\beta = 1000$, $\text{rescale} = 30000$}
+            \end{subfigure}
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item other technics U-Net... no dataset...
+                \item hypothesis that a non tree region is traversable (it contains a traversable path)
+                \item GIST descriptors, k means clusters the tiles to reduce the quantity of data to label (k is chosen so that the number of clusters is about 1\% the number of tiles)
+                \item supervised learning to train an Adaboost classifier with an 27 features long vector
+                \item 27 features = 6 encoding color, 18 texture, 3 entropy
+                \item limited it seems more important to work on perspective change and determining if two images are the same place
+            \end{itemize}
+        }
+    \end{frame}
+\end{document}
