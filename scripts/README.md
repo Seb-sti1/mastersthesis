@@ -8,8 +8,8 @@ This README only discuss the testing scripts
 For scripts not depending on ros, it is possible (and easy) to use
 python with docker. A docker image is still available if needed.
 
-**For scripts depending on ros, it is recommended to use the [docker image](../docker/README.md).** Alternatively, you
-can install ROS noetic on your machine and run the scripts directly.
+**For scripts depending on ros, it is recommended to use the [docker image](../docker/README.md) provided here.**
+Alternatively, you can install ROS noetic on your machine and run the scripts directly.
 
 > [!NOTE]
 > If a script needs ROS to run, it will import the module scripts.rosutils. This will raise an ImportError if ROS is not
@@ -33,7 +33,8 @@ python -m scripts.a_script
 ## List of scripts
 
 - Bird-eye view
-    - [using_zed.py](bev/rgbd_zed.py)
+    - [rgbd_zed.py](bev/rgbd_zed.py)
+    - [rgb_warping_zed.py](bev/rgb_warping_zed.py)
 - Terrain segmentation
     - [detectree_test.py](terrain_segmentation/detectree_test.py)
     - [get_ign_map.py](terrain_segmentation/get_ign_map.py)
