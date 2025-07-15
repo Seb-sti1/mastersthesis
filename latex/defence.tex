@@ -392,7 +392,7 @@
 
     \begin{frame}
         \begin{columns}
-            \begin{column}{.5\textwidth}
+            \begin{column}{.4\textwidth}
                 \begin{itemize}
                     \item \textit{obviously wrong},
                     \pause
@@ -401,7 +401,7 @@
                     \item structural similarity index measure (SSIM).
                 \end{itemize}
             \end{column}%
-            \begin{column}{.5\textwidth}
+            \begin{column}{.6\textwidth}
                 \begin{figure}
                     \centering
                     \includegraphics[width=0.99\textwidth]{illustrations/defence/ssim}
@@ -512,7 +512,21 @@
     \begin{frame}{Implementation}
         \begin{itemize}
             \item Graph is a collection of interconnected nodes
-            \pause
+        \end{itemize}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.35\linewidth]{illustrations/system_test/montmorency_graph}
+            \caption{Topological map for the Montmorency.}
+        \end{figure}
+        \note<1>{
+            \begin{itemize}
+                \item node: name, gnss coordinate of center, radius, array of patches, features of best patches
+            \end{itemize}
+        }
+    \end{frame}
+
+    \begin{frame}{Implementation}
+        \begin{itemize}
             \item \textbf{Generate scouting data}: 4x7 grid of patches, oriented at 0°
             \item Each patches in a node is extracted
             \pause
@@ -524,16 +538,11 @@
         \end{itemize}
         \note<1>{
             \begin{itemize}
-                \item node: name, gnss coordinate of center, radius, array of patches, features of best patches
-            \end{itemize}
-        }
-        \note<2>{
-            \begin{itemize}
                 \item oriented at 0° = east
                 \item GNSS coordinates center = pixel positions in the image, the UAV’s position and orientation, image scale
             \end{itemize}
         }
-        \note<3>{
+        \note<2>{
             \begin{itemize}
                 \item median of scores because there seemed to be a small correlation
                 \item minimal distance to reduce duplication
@@ -680,6 +689,7 @@
             \end{itemize}
         }
     \end{frame}
+
 
     \section{}
 %
