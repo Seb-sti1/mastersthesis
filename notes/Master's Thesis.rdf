@@ -39,7 +39,6 @@
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_8"/>
         <link:link rdf:resource="#item_4"/>
         <link:link rdf:resource="#item_3"/>
         <dc:subject>Exploration</dc:subject>
@@ -70,18 +69,6 @@
         <prism:number>2</prism:number>
         <dc:identifier>ISSN 2377-3766</dc:identifier>
     </bib:Journal>
-    <bib:Memo rdf:about="#item_8">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;1. Initial manual fly to see goal. Camera imagery is also used to obtain initial classification of the terrain.&lt;br&gt;2. Then vision-guided flights (to a series of waypoints) chosen actively. For each waypoint 3D reconstruction and ground&lt;br&gt;robot path (to optimize total duration of the mission).&lt;br&gt;3. Repeat 2. until path is complete&lt;/p&gt;
-&lt;p&gt;- visual odometry for loc&amp;amp;nav [^3], [^4]&lt;br&gt;- [^3] also seems to mention matching of FPV (ground drone) and BEV (aerial drone) (p191)&lt;br&gt;- classifier is trained on the spot [^1]. Two models type tried, feature-based and CNN. CNN is significantly slower&lt;br&gt;without giving significant better result (surprising).&lt;br&gt;- in the 2. not exhaustive exploration just along the _global path_ from the manually generated map.&lt;br&gt;The next waypoints for the aerial drone are chosen as to minimize&lt;br&gt;$T_{\text{ground robot}, s \rightarrow b_i} + T_{\text{ground robot}, b_i \rightarrow g} + T_{extend 3d reconstructed region}$,&lt;br&gt;respectively _time of ground robot from s to next ground robot waypoint (uses 3d reconstructed area)_, the _time of&lt;br&gt;ground robot from next ground robot waypoint (uses initial partial map)_, the _time to extend the 3d reconstructed&lt;br&gt;region (in the correct direction)_.&lt;br&gt;- 7,8,9 are ref for high altitude, high resolution aerial images&lt;br&gt;- use of monocular camera to reconstruct 3D ground in real time [^2] (could be used with move_base_flex).&lt;br&gt;- use of [ANYbotics Grid Map](https://github.com/ANYbotics/grid_map) [^5]&lt;br&gt;- Terrain classification, dense 3D reconstruction and exploration algorithm run on a laptop computer not on the drone.&lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;p&gt;[^1]: https://rpg.ifi.uzh.ch/docs/ISER16_Delmerico.pdf&lt;/p&gt;
-&lt;p&gt;[^2]: https://rpg.ifi.uzh.ch/docs/ICRA14_Pizzoli.pdf&lt;/p&gt;
-&lt;p&gt;[^3]: https://rpg.ifi.uzh.ch/docs/PhD16_Forster.pdf&lt;/p&gt;
-&lt;p&gt;[^4]: https://ieeexplore.ieee.org/document/6906584&lt;/p&gt;
-&lt;p&gt;[^5]: https://www.researchgate.net/publication/284415855_A_Universal_Grid_Map_Library_Implementation_and_Use_Case_for_Rough_Terrain_Navigation&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_4">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -131,7 +118,6 @@
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_109"/>
         <link:link rdf:resource="#item_9"/>
         <dc:relation rdf:resource="https://ieeexplore.ieee.org/document/4209067/?arnumber=4209067"/>
         <dc:subject>M-estimator</dc:subject>
@@ -159,13 +145,6 @@
         <dcterms:alternative>IEEE Trans. Robot.</dcterms:alternative>
         <dc:identifier>ISSN 1552-3098</dc:identifier>
     </bib:Journal>
-    <bib:Memo rdf:about="#item_109">
-        <rdf:value>&lt;div data-citation-items=&quot;%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%2C%22type%22%3A%22paper-conference%22%2C%22abstract%22%3A%22This%20paper%20describes%20a%20new%20image-based%20approach%20to%20tracking%20the%206dof%20trajectory%20of%20a%20stereo%20camera%20pair%20using%20a%20corresponding%20reference%20image%20pairs%20instead%20of%20explicit%203D%20feature%20reconstruction%20of%20the%20scene.%20A%20dense%20minimisation%20approach%20is%20employed%20which%20directly%20uses%20all%20grey-scale%20information%20available%20within%20the%20stereo%20pair%20(or%20stereo%20region)%20leading%20to%20very%20robust%20and%20precise%20results.%20Metric%203D%20structure%20constraints%20are%20imposed%20by%20consistently%20warping%20corresponding%20stereo%20images%20to%20generate%20novel%20viewpoints%20at%20each%20stereo%20acquisition.%20An%20iterative%20non-linear%20trajectory%20estimation%20approach%20is%20formulated%20based%20on%20a%20quadrifocal%20relationship%20between%20the%20image%20intensities%20within%20adjacent%20views%20of%20the%20stereo%20pair.%20A%20robust%20M-estimation%20technique%20is%20used%20to%20reject%20outliers%20corresponding%20to%20moving%20objects%20within%20the%20scene%20or%20other%20outliers%20such%20as%20occlusions%20and%20illumination%20changes.%20The%20technique%20is%20applied%20to%20recovering%20the%20trajectory%20of%20a%20moving%20vehicle%20in%20long%20and%20difficult%20sequences%20of%20images.%22%2C%22container-title%22%3A%22Proceedings%202007%20IEEE%20International%20Conference%20on%20Robotics%20and%20Automation%22%2C%22DOI%22%3A%2210.1109%2FROBOT.2007.363762%22%2C%22event-title%22%3A%22Proceedings%202007%20IEEE%20International%20Conference%20on%20Robotics%20and%20Automation%22%2C%22note%22%3A%22ISSN%3A%201050-4729%22%2C%22page%22%3A%2240-45%22%2C%22source%22%3A%22IEEE%20Xplore%22%2C%22title%22%3A%22Accurate%20Quadrifocal%20Tracking%20for%20Robust%203D%20Visual%20Odometry%22%2C%22URL%22%3A%22https%3A%2F%2Fieeexplore.ieee.org%2Fdocument%2F4209067%2F%3Farnumber%3D4209067%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Comport%22%2C%22given%22%3A%22A.I.%22%7D%2C%7B%22family%22%3A%22Malis%22%2C%22given%22%3A%22E.%22%7D%2C%7B%22family%22%3A%22Rives%22%2C%22given%22%3A%22P.%22%7D%5D%2C%22accessed%22%3A%7B%22date-parts%22%3A%5B%5B%222025%22%2C2%2C14%5D%5D%7D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%222007%22%2C4%5D%5D%7D%7D%7D%5D&quot; data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;Using M-estimators allow to exclude outliers from the features.&lt;/p&gt;
-&lt;p&gt;This can be used with sparse features (e.g. key points) as shown in the paper or when dense method like in &lt;span class=&quot;citation&quot; data-citation=&quot;%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%7D%5D%2C%22properties%22%3A%7B%7D%7D&quot;&gt;(&lt;span class=&quot;citation-item&quot;&gt;Comport et al., 2007&lt;/span&gt;)&lt;/span&gt;.&lt;/p&gt;
-&lt;p&gt;The goal is to obtain robust behavior.&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_9">
         <z:itemType>attachment</z:itemType>
         <dc:title>PDF</dc:title>
@@ -208,7 +187,6 @@
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_74"/>
         <link:link rdf:resource="#item_13"/>
         <link:link rdf:resource="#item_12"/>
         <dc:relation rdf:resource="http://ieeexplore.ieee.org/document/1618537/"/>
@@ -233,15 +211,6 @@
             </bib:Conference>
         </bib:presentedAt>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_74">
-        <rdf:value>&lt;div data-citation-items=&quot;%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%2C%22type%22%3A%22paper-conference%22%2C%22abstract%22%3A%22This%20paper%20describes%20a%20new%20image-based%20approach%20to%20tracking%20the%206dof%20trajectory%20of%20a%20stereo%20camera%20pair%20using%20a%20corresponding%20reference%20image%20pairs%20instead%20of%20explicit%203D%20feature%20reconstruction%20of%20the%20scene.%20A%20dense%20minimisation%20approach%20is%20employed%20which%20directly%20uses%20all%20grey-scale%20information%20available%20within%20the%20stereo%20pair%20(or%20stereo%20region)%20leading%20to%20very%20robust%20and%20precise%20results.%20Metric%203D%20structure%20constraints%20are%20imposed%20by%20consistently%20warping%20corresponding%20stereo%20images%20to%20generate%20novel%20viewpoints%20at%20each%20stereo%20acquisition.%20An%20iterative%20non-linear%20trajectory%20estimation%20approach%20is%20formulated%20based%20on%20a%20quadrifocal%20relationship%20between%20the%20image%20intensities%20within%20adjacent%20views%20of%20the%20stereo%20pair.%20A%20robust%20M-estimation%20technique%20is%20used%20to%20reject%20outliers%20corresponding%20to%20moving%20objects%20within%20the%20scene%20or%20other%20outliers%20such%20as%20occlusions%20and%20illumination%20changes.%20The%20technique%20is%20applied%20to%20recovering%20the%20trajectory%20of%20a%20moving%20vehicle%20in%20long%20and%20difficult%20sequences%20of%20images.%22%2C%22container-title%22%3A%22Proceedings%202007%20IEEE%20International%20Conference%20on%20Robotics%20and%20Automation%22%2C%22DOI%22%3A%2210.1109%2FROBOT.2007.363762%22%2C%22event-title%22%3A%22Proceedings%202007%20IEEE%20International%20Conference%20on%20Robotics%20and%20Automation%22%2C%22note%22%3A%22ISSN%3A%201050-4729%22%2C%22page%22%3A%2240-45%22%2C%22source%22%3A%22IEEE%20Xplore%22%2C%22title%22%3A%22Accurate%20Quadrifocal%20Tracking%20for%20Robust%203D%20Visual%20Odometry%22%2C%22URL%22%3A%22https%3A%2F%2Fieeexplore.ieee.org%2Fdocument%2F4209067%2F%3Farnumber%3D4209067%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Comport%22%2C%22given%22%3A%22A.I.%22%7D%2C%7B%22family%22%3A%22Malis%22%2C%22given%22%3A%22E.%22%7D%2C%7B%22family%22%3A%22Rives%22%2C%22given%22%3A%22P.%22%7D%5D%2C%22accessed%22%3A%7B%22date-parts%22%3A%5B%5B%222025%22%2C2%2C14%5D%5D%7D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%222007%22%2C4%5D%5D%7D%7D%7D%2C%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FNGJ5PVX7%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FNGJ5PVX7%22%2C%22type%22%3A%22article-journal%22%2C%22abstract%22%3A%22Stereo%20vision%20is%20an%20attractive%20passive%20sensing%20technique%20for%20obtaining%20three-dimensional%20(3-D)%20measurements.%20Recent%20hardware%20advances%20have%20given%20rise%20to%20a%20new%20class%20of%20real-time%20dense%20disparity%20estimation%20algorithms.%20This%20paper%20examines%20their%20suitability%20for%20intelligent%20vehicle%20(IV)%20applications.%20In%20order%20to%20gain%20a%20better%20understanding%20of%20the%20performance%20and%20the%20computational-cost%20tradeoff%2C%20the%20authors%20created%20a%20framework%20of%20real-time%20implementations.%20This%20consists%20of%20different%20methodical%20components%20based%20on%20single%20instruction%20multiple%20data%20(SIMD)%20techniques.%20Furthermore%2C%20the%20resulting%20algorithmic%20variations%20are%20compared%20with%20other%20publicly%20available%20algorithms.%20The%20authors%20argue%20that%20existing%20publicly%20available%20stereo%20data%20sets%20are%20not%20very%20suitable%20for%20the%20IV%20domain.%20Therefore%2C%20the%20authors'%20evaluation%20of%20stereo%20algorithms%20is%20based%20on%20novel%20realistically%20looking%20simulated%20data%20as%20well%20as%20real%20data%20from%20complex%20urban%20traffic%20scenes.%20In%20order%20to%20facilitate%20future%20benchmarks%2C%20all%20data%20used%20in%20this%20paper%20is%20made%20publicly%20available.%20The%20results%20from%20this%20study%20reveal%20that%20there%20is%20a%20considerable%20influence%20of%20scene%20conditions%20on%20the%20performance%20of%20all%20tested%20algorithms.%20Approaches%20that%20aim%20for%20(global)%20search%20optimization%20are%20more%20affected%20by%20this%20than%20other%20approaches.%20The%20best%20overall%20performance%20is%20achieved%20by%20the%20proposed%20multiple-window%20algorithm%2C%20which%20uses%20local%20matching%20and%20a%20left-right%20check%20for%20a%20robust%20error%20rejection.%20Timing%20results%20show%20that%20the%20simplest%20of%20the%20proposed%20SIMD%20variants%20are%20more%20than%20twice%20as%20fast%20than%20the%20most%20complex%20one.%20Nevertheless%2C%20the%20latter%20still%20achieves%20real-time%20processing%20speeds%2C%20while%20their%20average%20accuracy%20is%20at%20least%20equal%20to%20that%20of%20publicly%20available%20non-SIMD%20algorithms%22%2C%22container-title%22%3A%22IEEE%20Transactions%20on%20Intelligent%20Transportation%20Systems%22%2C%22DOI%22%3A%2210.1109%2FTITS.2006.869625%22%2C%22ISSN%22%3A%221558-0016%22%2C%22issue%22%3A%221%22%2C%22note%22%3A%22event-title%3A%20IEEE%20Transactions%20on%20Intelligent%20Transportation%20Systems%22%2C%22page%22%3A%2238-50%22%2C%22source%22%3A%22IEEE%20Xplore%22%2C%22title%22%3A%22Real-time%20dense%20stereo%20for%20intelligent%20vehicles%22%2C%22URL%22%3A%22https%3A%2F%2Fieeexplore.ieee.org%2Fdocument%2F1603551%2F%3Farnumber%3D1603551%22%2C%22volume%22%3A%227%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Mark%22%2C%22given%22%3A%22W.%22%2C%22non-dropping-particle%22%3A%22van%20der%22%7D%2C%7B%22family%22%3A%22Gavrila%22%2C%22given%22%3A%22D.M.%22%7D%5D%2C%22accessed%22%3A%7B%22date-parts%22%3A%5B%5B%222025%22%2C2%2C17%5D%5D%7D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%222006%22%2C3%5D%5D%7D%7D%7D%5D&quot; data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;Given geometric constraints two &lt;span class=&quot;highlight&quot; data-annotation=&quot;%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2F56EYZP6B%22%2C%22pageLabel%22%3A%2242%22%2C%22position%22%3A%7B%22pageIndex%22%3A2%2C%22rects%22%3A%5B%5B239.91911688000027%2C365.74307202%2C298.7911090600003%2C374.50019741999995%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%2C%22locator%22%3A%2242%22%7D%7D&quot;&gt;“trifocal tensor”&lt;/span&gt; &lt;span class=&quot;citation&quot; data-citation=&quot;%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%2C%22locator%22%3A%2242%22%7D%5D%2C%22properties%22%3A%7B%7D%7D&quot;&gt;(&lt;span class=&quot;citation-item&quot;&gt;Comport et al., 2007, p. 42&lt;/span&gt;)&lt;/span&gt; can be computed from the two references images and left/right current images.&lt;/p&gt;
-&lt;p&gt;In case of the two ref images and the left current images, the &lt;span class=&quot;highlight&quot; data-annotation=&quot;%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2F56EYZP6B%22%2C%22pageLabel%22%3A%2242%22%2C%22position%22%3A%7B%22pageIndex%22%3A2%2C%22rects%22%3A%5B%5B365.40863176000005%2C618.2830315399998%2C557.9817047199998%2C627.0401569399999%5D%2C%5B313.19962646000005%2C606.5650214199998%2C548.2701622399991%2C615.3221468199998%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%2C%22locator%22%3A%2242%22%7D%7D&quot;&gt;“the warping from the left reference image to the left current image [is done] via a plane in the right reference image”&lt;/span&gt; &lt;span class=&quot;citation&quot; data-citation=&quot;%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FBJACI2PR%22%5D%2C%22locator%22%3A%2242%22%7D%5D%2C%22properties%22%3A%7B%7D%7D&quot;&gt;(&lt;span class=&quot;citation-item&quot;&gt;Comport et al., 2007, p. 42&lt;/span&gt;)&lt;/span&gt;. A mathematical relation describe (depending on the transformation between the ref and current) the warping in term of coordinates between the left ref and left curr images.&lt;/p&gt;
-&lt;p&gt;Similar relation can be computed using the two ref images and the right images.&lt;/p&gt;
-&lt;p&gt;These relations can be used on the pixels of 3d coordinates seen in both ref images (found using dense correspondence &lt;span class=&quot;citation&quot; data-citation=&quot;%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2FNGJ5PVX7%22%5D%7D%5D%2C%22properties%22%3A%7B%7D%7D&quot;&gt;(&lt;span class=&quot;citation-item&quot;&gt;Mark and Gavrila, 2006&lt;/span&gt;)&lt;/span&gt;) to compare luminescence (images are in grayscale) between ref and current images. This quantity needs to be minimized (describe in Section 4). &lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_13">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -302,7 +271,6 @@
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_20"/>
         <link:link rdf:resource="#item_21"/>
         <link:link rdf:resource="#item_19"/>
         <dc:subject>3D terrain reconstruction</dc:subject>
@@ -326,16 +294,6 @@
             </bib:Conference>
         </bib:presentedAt>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_20">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;- Use of a 3D TSDF to stores the &quot;distance&quot; to the obstacle (is it a weight from 1 (far in front) to 0 (surface of object) to -1 (far behind))&lt;/p&gt;
-&lt;p&gt;- Updating a cell to a new values (&quot;Weighting&quot;) is done by doing a weighted average of the previous weight and distance and new weight and distance.&lt;/p&gt;
-&lt;p&gt;- Grouping points in sensor data (&quot;Merging&quot;) is done by grouped ray-casting&lt;/p&gt;
-&lt;p&gt;- ESDF from TSDF using wave propagation&lt;/p&gt;
-&lt;p&gt;- Then ESDF is used to generate the 2D topology map&lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_21">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -423,7 +381,6 @@
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_24"/>
         <link:link rdf:resource="#item_22"/>
         <dc:subject>UGV</dc:subject>
         <dc:subject>Traversability</dc:subject>
@@ -444,41 +401,6 @@
         <dc:identifier>DOI 10.48550/arXiv.2501.18351</dc:identifier>
         <prism:number>arXiv:2501.18351</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_24">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;LBPM Local BEV plannning model = local BEV perception encoder + task-driven goal decoder&lt;/p&gt;
-&lt;h2&gt;LBPM&lt;/h2&gt;
-&lt;h3&gt;Local BEV Perception encoder&lt;/h3&gt;
-&lt;p&gt;inputs: (i) context observation $o_{t-P:t-1}$ (ii) current observation $o_t$.&lt;/p&gt;
-&lt;p&gt;- BEV transformation on the observation&lt;/p&gt;
-&lt;p&gt;- Feature extract based on LSS method. Uses EfficientNet&lt;/p&gt;
-&lt;p&gt;- Uses LSS and BEVDet to predict discrete depth distribution for each pixel&lt;/p&gt;
-&lt;p&gt;- BEV transformation (If multiple feature -&amp;gt; BEV pooling using BEVFusion)&lt;/p&gt;
-&lt;p&gt;_I'm confused about what is new compared to LSS. At least until the computation of the&lt;/p&gt;
-&lt;p&gt;BEV features (see Fig. 2), it is every similar. Also (this is one of the difference compared to LSS), I&lt;/p&gt;
-&lt;p&gt;don't understand the point of the traversability features, is it to make the system&lt;/p&gt;
-&lt;p&gt;keep in mind what was traversable?_&lt;/p&gt;
-&lt;h3&gt;Task-driven goal decoder&lt;/h3&gt;
-&lt;p&gt;based on the ViKiNG architecture&lt;/p&gt;
-&lt;p&gt;inputs: environmental context $o_{t-P}$, current observation $o_t$, goal observation $o_\omega$.&lt;/p&gt;
-&lt;h2&gt;GBPM&lt;/h2&gt;
-&lt;p&gt;Provide traversability hint and overall direction.&lt;/p&gt;
-&lt;p&gt;- Use an overhead map from satellite images&lt;/p&gt;
-&lt;p&gt;- segmentation that gradually increase as they approach impassable.&lt;/p&gt;
-&lt;p&gt;&amp;gt; GBPM uses trajectory data to learn traversability in the&lt;/p&gt;
-&lt;p&gt;&amp;gt; overhead map [...], the more easily accessible areas will&lt;/p&gt;
-&lt;p&gt;&amp;gt; be covered by a larger number of trajectories.&lt;/p&gt;
-&lt;p&gt;- This step uses the probability predictions as a map (not a thresholds regulated&lt;/p&gt;
-&lt;p&gt; &amp;nbsp;output). [U-net](https://github.com/milesial/Pytorch-UNet) is used to do the segmentation.&lt;/p&gt;
-&lt;h3&gt;Use GBPM with potential trajectories generated by LBPM&lt;/h3&gt;
-&lt;p&gt;&amp;gt; First, the LBPM generates multiple potential traversable paths, providing information including temporal distance, GPS&lt;/p&gt;
-&lt;p&gt;&amp;gt; offsets, and waypoints from the current position to the goal. The GBPM encodes the overhead map into a global&lt;/p&gt;
-&lt;p&gt;&amp;gt; probability map, projecting traversable paths of LBPM onto this map.&lt;/p&gt;
-&lt;p&gt;&amp;gt;&lt;/p&gt;
-&lt;p&gt;&amp;gt; $cost = k \times score + (1-k) \times temporal\_distance$&lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_22">
         <z:itemType>attachment</z:itemType>
         <dc:title>PDF</dc:title>
@@ -524,8 +446,6 @@
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_27"/>
-        <dcterms:isReferencedBy rdf:resource="#item_28"/>
         <link:link rdf:resource="#item_25"/>
         <dc:relation rdf:resource="https://kilthub.cmu.edu/articles/journal_contribution/Terrain_Classification_from_Aerial_Data_to_Support_Ground_Vehicle_Navigation/6561173/1"/>
         <dc:relation rdf:resource="#item_173"/>
@@ -551,42 +471,6 @@
         <dc:identifier>DOI 10.48550/arXiv.2004.04697</dc:identifier>
         <prism:number>arXiv:2004.04697</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_27">
-        <rdf:value>Comment: ICRA 2020. Video and project details can be found at http://www.cim.mcgill.ca/mrl/offroad_driving/</rdf:value>
-    </bib:Memo>
-    <bib:Memo rdf:about="#item_28">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;In this paper, we present a system for learning a navigation policy that **preferentially chooses smooth terrain** [...]. The emphasis of the paper, however, is not road classification perse, but rather to propose an approach for **online adaptive self-supervised learning** for off-road driving in rough terrain and to explore the synthesis of aerial and first-person (ground) sensing in this context.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;
-From BEV, FPS images, use CNN to predict the rougher terrain for $H$ steps (supplying an action for every step)
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;use of Value Prediction Networks, a hybrid model-based and model-free reinforcement learning architecture.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-It is model-based as it implicitly learns a dynamics model for abstract states optimized for predicting future rewards and value functions.
-&lt;/li&gt;
-&lt;li&gt;
-It is also model-free as it maps these encoded abstract states to rewards and value functions using direct experience with the environment prior to the planning phase.
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-In training terrain roughness is estimated using IMU and obstacles using short-range LiDAR.
-&lt;/li&gt;
-&lt;li&gt;
-Reward based on the difference between the prediction and the actual roughness
-&lt;/li&gt;
-&lt;li&gt;
-It is classification as type of terrain is associated with different number and the model tries to predict the correct one
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_25">
         <z:itemType>attachment</z:itemType>
         <dc:title>PDF</dc:title>
@@ -650,8 +534,6 @@ It is classification as type of terrain is associated with different number and 
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_30"/>
-        <dcterms:isReferencedBy rdf:resource="#item_41"/>
         <link:link rdf:resource="#item_31"/>
         <link:link rdf:resource="#item_32"/>
         <dc:subject>Terrain classification</dc:subject>
@@ -674,30 +556,6 @@ It is classification as type of terrain is associated with different number and 
         <dc:identifier>DOI 10.48550/arXiv.2409.18253</dc:identifier>
         <prism:number>arXiv:2409.18253</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_30">
-       <rdf:value>Comment: 7 pages, 5 figures, submitted to ICRA 2025</rdf:value>
-    </bib:Memo>
-    <bib:Memo rdf:about="#item_41">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;
-good documentation of related work
-&lt;/li&gt;
-&lt;li&gt;
-datasets created could be very useful
-&lt;/li&gt;
-&lt;li&gt;
-makes me think of the work done by Tom.
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;use of ResNet18 and a &quot;homemade&quot; MLP to predict $M_z$, $M_\omega$ and $M_p$&lt;/p&gt;
-&lt;p&gt;respectively vibration metric, bumpiness and electrical energy consumption.&lt;/p&gt;
-&lt;p&gt;BEV from UAV gives better prediction than FPS from UGV.&lt;/p&gt;
-&lt;p&gt;Using the BEV from UAV, can obtain maps (similar to occupancy grid) (see Fig5)&lt;/p&gt;
-&lt;p&gt;than can be used to choose &quot;better&quot; path.&lt;/p&gt;
-&lt;p&gt;-&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_31">
         <z:itemType>attachment</z:itemType>
         <dc:title>Preprint PDF</dc:title>
@@ -743,8 +601,6 @@ makes me think of the work done by Tom.
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_37"/>
-        <dcterms:isReferencedBy rdf:resource="#item_107"/>
         <link:link rdf:resource="#item_38"/>
         <link:link rdf:resource="#item_39"/>
         <dc:subject>Dataset</dc:subject>
@@ -762,15 +618,6 @@ makes me think of the work done by Tom.
         <dc:identifier>DOI 10.48550/arXiv.2404.18750</dc:identifier>
         <prism:number>arXiv:2404.18750</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_37">
-        <rdf:value>Comment: Accepted to the IEEE ICRA Workshop on Field Robotics 2024</rdf:value>
-    </bib:Memo>
-    <bib:Memo rdf:about="#item_107">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;Minimize using M-estimators the sum of a given function of the error (the difference between the the two feature vectors)&lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_38">
         <z:itemType>attachment</z:itemType>
         <dc:title>Preprint PDF</dc:title>
@@ -831,7 +678,6 @@ makes me think of the work done by Tom.
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_47"/>
         <link:link rdf:resource="#item_46"/>
         <link:link rdf:resource="#item_45"/>
         <dc:relation rdf:resource="urn:isbn:978-1-4244-3803-7"/>
@@ -856,30 +702,6 @@ makes me think of the work done by Tom.
             </bib:Conference>
         </bib:presentedAt>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_47">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;
-create a vector of LAB, and texture around the pixel
-&lt;/li&gt;
-&lt;li&gt;
-k-means to find 16 centroids “textons”
-&lt;/li&gt;
-&lt;li&gt;
-for each pixels do a histogram of the classification around the pixel
-&lt;/li&gt;
-&lt;li&gt;
-k-means on the histogram
-&lt;/li&gt;
-&lt;li&gt;
-EMD (using the distance between the textons) to merge clusters that are “too” close
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/Seb-sti1/mastersthesis/blob/master/scripts/fast_colortexture_seg_outdoor_robots.py&quot; rel=&quot;noopener noreferrer nofollow&quot;&gt;https://github.com/Seb-sti1/mastersthesis/blob/master/scripts/fast_colortexture_seg_outdoor_robots.py&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/tbjszhu/&quot; rel=&quot;noopener noreferrer nofollow&quot;&gt;https://github.com/tbjszhu/&lt;/a&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_46">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -945,7 +767,6 @@ EMD (using the distance between the textons) to merge clusters that are “too�
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_132"/>
         <link:link rdf:resource="#item_48"/>
         <dc:relation rdf:resource="https://ieeexplore.ieee.org/document/4651086/?arnumber=4651086"/>
         <dc:subject>UGV</dc:subject>
@@ -970,24 +791,6 @@ EMD (using the distance between the textons) to merge clusters that are “too�
             </bib:Conference>
         </bib:presentedAt>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_132">
-        <rdf:value>&lt;div data-citation-items=&quot;%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2F2IXKKLES%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2F2IXKKLES%22%2C%22type%22%3A%22paper-conference%22%2C%22abstract%22%3A%22We%20present%20a%20fast%20integrated%20approach%20for%20online%20segmentation%20of%20images%20for%20outdoor%20robots.%20A%20compact%20color%20and%20texture%20descriptor%20has%20been%20developed%20to%20describe%20local%20color%20and%20texture%20variations%20in%20an%20image.%20This%20descriptor%20is%20then%20used%20in%20a%20two-stage%20fast%20clustering%20framework%20using%20K-means%20to%20perform%20online%20segmentation%20of%20natural%20images.%20We%20present%20results%20of%20applying%20our%20descriptor%20for%20segmenting%20a%20synthetic%20image%20and%20compare%20it%20against%20other%20state-of-the-art%20descriptors.%20We%20also%20apply%20our%20segmentation%20algorithm%20to%20the%20task%20of%20detecting%20natural%20paths%20in%20outdoor%20images.%20The%20whole%20system%20has%20been%20demonstrated%20to%20work%20online%20alongside%20localization%2C%203D%20obstacle%20detection%2C%20and%20planning.%22%2C%22container-title%22%3A%222008%20IEEE%2FRSJ%20International%20Conference%20on%20Intelligent%20Robots%20and%20Systems%22%2C%22DOI%22%3A%2210.1109%2FIROS.2008.4651086%22%2C%22event-title%22%3A%222008%20IEEE%2FRSJ%20International%20Conference%20on%20Intelligent%20Robots%20and%20Systems%22%2C%22note%22%3A%22ISSN%3A%202153-0866%22%2C%22page%22%3A%224078-4085%22%2C%22source%22%3A%22IEEE%20Xplore%22%2C%22title%22%3A%22Fast%20color%2Ftexture%20segmentation%20for%20outdoor%20robots%22%2C%22URL%22%3A%22https%3A%2F%2Fieeexplore.ieee.org%2Fdocument%2F4651086%2F%3Farnumber%3D4651086%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Rufus%20Blas%22%2C%22given%22%3A%22Morten%22%7D%2C%7B%22family%22%3A%22Agrawal%22%2C%22given%22%3A%22Motilal%22%7D%2C%7B%22family%22%3A%22Sundaresan%22%2C%22given%22%3A%22Aravind%22%7D%2C%7B%22family%22%3A%22Konolige%22%2C%22given%22%3A%22Kurt%22%7D%5D%2C%22accessed%22%3A%7B%22date-parts%22%3A%5B%5B%222025%22%2C2%2C17%5D%5D%7D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%222008%22%2C9%5D%5D%7D%7D%7D%5D&quot; data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;
-CIE-Lab used
-&lt;/li&gt;
-&lt;li&gt;
-textons generated from the input image using &lt;span class=&quot;citation&quot; data-citation=&quot;%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2Flocal%2FdndPD7NB%2Fitems%2F2IXKKLES%22%5D%7D%5D%2C%22properties%22%3A%7B%7D%7D&quot;&gt;(&lt;span class=&quot;citation-item&quot;&gt;Rufus Blas et al., 2008&lt;/span&gt;)&lt;/span&gt; method
-&lt;/li&gt;
-&lt;li&gt;
-Then triangles are scored using a likelihood function
-&lt;/li&gt;
-&lt;li&gt;
-Add lidar info to enhance results
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_48">
         <z:itemType>attachment</z:itemType>
         <dc:title>PDF</dc:title>
@@ -1192,7 +995,6 @@ Add lidar info to enhance results
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_112"/>
         <link:link rdf:resource="#item_110"/>
         <dc:subject>Exploration</dc:subject>
         <dc:subject>UGV</dc:subject>
@@ -1214,9 +1016,6 @@ Add lidar info to enhance results
 arXiv:1806.02487 [cs]</dc:description>
         <bib:pages>59-71</bib:pages>
     </bib:BookSection>
-    <bib:Memo rdf:about="#item_112">
-       <rdf:value>Comment: 12 pages, 16 figures</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_110">
         <z:itemType>attachment</z:itemType>
         <dc:title>PDF</dc:title>
@@ -1259,7 +1058,6 @@ arXiv:1806.02487 [cs]</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_119"/>
         <link:link rdf:resource="#item_117"/>
         <link:link rdf:resource="#item_115"/>
         <dc:subject>Terrain classification</dc:subject>
@@ -1285,20 +1083,6 @@ arXiv:1806.02487 [cs]</dc:description>
             </bib:Conference>
         </bib:presentedAt>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_119">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;Comparison of SURF descriptor, LBP, LTP for visual outdoor terrain classification&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-Random forest gives the best results
-&lt;/li&gt;
-&lt;li&gt;
-TSURF good with small grid size and lower training time than LBP, LTP
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_117">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -1365,7 +1149,6 @@ TSURF good with small grid size and lower training time than LBP, LTP
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_122"/>
         <link:link rdf:resource="#item_118"/>
         <link:link rdf:resource="#item_116"/>
         <dc:relation rdf:resource="https://kilthub.cmu.edu/articles/journal_contribution/Terrain_Classification_from_Aerial_Data_to_Support_Ground_Vehicle_Navigation/6561173/1"/>
@@ -1391,12 +1174,6 @@ TSURF good with small grid size and lower training time than LBP, LTP
             </bib:Conference>
         </bib:presentedAt>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_122">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;p&gt;usage of LiDAR and imagery on (only) terrestrial robot and prior data (from variety of sources) to achieve robust navigation.&lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_118">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -1644,7 +1421,6 @@ TSURF good with small grid size and lower training time than LBP, LTP
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_131"/>
         <link:link rdf:resource="#item_129"/>
         <link:link rdf:resource="#item_130"/>
         <dc:subject>UAV</dc:subject>
@@ -1664,20 +1440,6 @@ TSURF good with small grid size and lower training time than LBP, LTP
         <dc:description>Conference Name: IEEE Robotics and Automation Letters</dc:description>
         <bib:pages>661-667</bib:pages>
     </bib:Article>
-    <bib:Memo rdf:about="#item_131">
-        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;h1&gt;My notes&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;
-Clever technic to generate dataset: human with 3 cameras oriented left, center, right walks on a forest trails making&amp;nbsp;sure to face the direction of the path. It generates, respectively, images with trails on the right side, center and left side
-&lt;/li&gt;
-&lt;li&gt;
-The model predict if the trail is on the right side, center or left side
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;15+ GB of training testing dataset available (images left, center and right of forest trails)&lt;/p&gt;
-&lt;p&gt;&lt;/p&gt;
-&lt;/div&gt;</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_129">
         <z:itemType>attachment</z:itemType>
         <dc:title>Full Text PDF</dc:title>
@@ -2367,7 +2129,6 @@ Publisher: Institute of Electrical and Electronics Engineers</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_161"/>
         <link:link rdf:resource="#item_159"/>
         <dc:subject>Terrain classification</dc:subject>
         <dc:subject>UGV</dc:subject>
@@ -2389,9 +2150,6 @@ Publisher: Institute of Electrical and Electronics Engineers</dc:description>
         <dc:identifier>DOI 10.48550/arXiv.2008.05711</dc:identifier>
         <prism:number>arXiv:2008.05711</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_161">
-       <rdf:value>Comment: ECCV 2020</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_159">
         <z:itemType>attachment</z:itemType>
         <dc:title>PDF</dc:title>
@@ -2428,7 +2186,6 @@ Publisher: Institute of Electrical and Electronics Engineers</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_164"/>
         <link:link rdf:resource="#item_282"/>
         <link:link rdf:resource="#item_162"/>
         <dc:subject>UGV</dc:subject>
@@ -2449,9 +2206,6 @@ Publisher: Institute of Electrical and Electronics Engineers</dc:description>
         <dcterms:dateSubmitted>2025-02-21 17:33:44</dcterms:dateSubmitted>
         <dc:description>arXiv:2202.11271 [cs]</dc:description>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_164">
-        <rdf:value>Comment: Best Systems Paper Finalist at XVII Robotics: Science and Systems (RSS 2022), New York City, USA. Project page https://sites.google.com/view/viking-release</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_282">
         <z:itemType>attachment</z:itemType>
         <dc:title>Extension</dc:title>
@@ -3175,7 +2929,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_312"/>
         <link:link rdf:resource="#item_314"/>
         <link:link rdf:resource="#item_313"/>
         <dc:subject>
@@ -3198,9 +2951,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
         <dc:identifier>DOI 10.48550/arXiv.2503.11651</dc:identifier>
         <prism:number>arXiv:2503.11651</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_312">
-        <rdf:value>Comment: CVPR 2025, Project Page: https://vgg-t.github.io/</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_314">
         <z:itemType>attachment</z:itemType>
         <dc:title>Preprint PDF</dc:title>
@@ -3532,7 +3282,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_332"/>
         <link:link rdf:resource="#item_334"/>
         <link:link rdf:resource="#item_333"/>
         <dc:title>ICP Algorithm: Theory, Practice And Its SLAM-oriented Taxonomy</dc:title>
@@ -3557,9 +3306,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
         <dcterms:alternative>ACE</dcterms:alternative>
         <dc:identifier>ISSN 2755-2721, 2755-273X</dc:identifier>
     </bib:Journal>
-    <bib:Memo rdf:about="#item_332">
-       <rdf:value>Comment: Accepted by CONF-CDS'22</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_334">
         <z:itemType>attachment</z:itemType>
         <dc:title>Preprint PDF</dc:title>
@@ -3714,7 +3460,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_338"/>
         <link:link rdf:resource="#item_340"/>
         <link:link rdf:resource="#item_339"/>
         <dc:subject>
@@ -3737,9 +3482,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
         <dc:identifier>DOI 10.48550/arXiv.2405.12979</dc:identifier>
         <prism:number>arXiv:2405.12979</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_338">
-       <rdf:value>Comment: CVPR 2024</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_340">
         <z:itemType>attachment</z:itemType>
         <dc:title>Preprint PDF</dc:title>
@@ -3803,7 +3545,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
                 </rdf:li>
             </rdf:Seq>
         </bib:authors>
-        <dcterms:isReferencedBy rdf:resource="#item_342"/>
         <link:link rdf:resource="#item_344"/>
         <link:link rdf:resource="#item_343"/>
         <dc:subject>
@@ -3826,9 +3567,6 @@ DOI: 10.1007/978-3-319-50115-4_50</dc:description>
         <dc:identifier>DOI 10.48550/arXiv.2404.19174</dc:identifier>
         <prism:number>arXiv:2404.19174</prism:number>
     </rdf:Description>
-    <bib:Memo rdf:about="#item_342">
-        <rdf:value>Comment: CVPR 2024; Source code available at www.verlab.dcc.ufmg.br/descriptors/xfeat_cvpr24</rdf:value>
-    </bib:Memo>
     <z:Attachment rdf:about="#item_344">
         <z:itemType>attachment</z:itemType>
         <dc:title>Preprint PDF</dc:title>

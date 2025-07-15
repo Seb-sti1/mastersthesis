@@ -1,3 +1,8 @@
+"""
+Create a bev image using a homography computed by finding the real world coordinates of the corners of bottom half of the
+ugv images
+"""
+
 import argparse
 from pathlib import Path
 
