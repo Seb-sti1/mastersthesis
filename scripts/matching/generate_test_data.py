@@ -120,8 +120,8 @@ def extract_patch(corners: np.ndarray, src_image: np.ndarray, side_width: int) -
     return cv2.warpPerspective(src_image, M, (side_width, side_width))
 
 
-def scale(img: np.ndarray, ratio: float) -> np.ndarray:
-    return cv2.resize(img, (0, 0), fx=ratio, fy=ratio, interpolation=cv2.INTER_AREA)
+def scale(img: np.ndarray, new_size: int) -> np.ndarray:
+    return cv2.resize(img, (new_size, new_size), interpolation=cv2.INTER_AREA)
 
 
 def generate_patch(patch_type: Literal["uav", "ugv", "ugv_bev"], vis=False):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import bisect
 import time
 from pathlib import Path
 
@@ -15,6 +16,13 @@ from scripts.utils.datasets import get_dataset_by_name, load_paths_and_files, re
 logger = logging.getLogger(__name__)
 
 hub_drone = Path(get_dataset_by_name("rosbag_u2is/hub_drone_130625/"))
+
+patches_width = 450  # pixels
+bev_scale = 200  # pixels per meter
+# fov_h, fov_v = 53.2 / 180 * np.pi, 39.8 / 180 * np.pi # spec "close focus"
+# fov_h, fov_v = 5.65 / 180 * np.pi, 4.2 / 180 * np.pi  # spec "far focus"
+# fov_h, fov_v = 50.4 / 180 * np.pi, 29.65 / 180 * np.pi  # from calibration using fov = 2 np.atan(w/2/f) (w, f in pixels)
+fov_h, fov_v = 37.78 / 180 * np.pi, 21.79 / 180 * np.pi  # from manual computation
 
 
 def create_norlab_graph() -> Graph:
@@ -53,19 +61,15 @@ def create_norlab_graph() -> Graph:
 
 def create_u2is_graph() -> Graph:
     g = Graph()
-    n1 = Node("1", np.array([2.33725, 48.59045]), 0.0001)
-    n2 = Node("2", np.array([2.3378, 48.59025]), 0.0001)
+    n1 = Node("1", np.array([2.33725, 48.59045]), 0.00003)
+    n2 = Node("2", np.array([2.3378, 48.59025]), 0.000066)
     g.add_edge(n1, n2)
-    n3 = Node("3", np.array([2.3381, 48.59015]), 0.0001)
+    n3 = Node("3", np.array([2.3381, 48.59015]), 0.00003)
     g.add_edge(n2, n3)
-    n4 = Node("4", np.array([2.3384, 48.59005]), 0.0001)
+    n4 = Node("4", np.array([2.3384, 48.59005]), 0.00003)
     g.add_edge(n3, n4)
-    n5 = Node("5", np.array([2.33894, 48.58985]), 0.0001)
+    n5 = Node("5", np.array([2.33894, 48.58985]), 0.000066)
     g.add_edge(n4, n5)
-    n6 = Node("6", np.array([2.3391, 48.5902]), 0.0001)
-    g.add_edge(n5, n6)
-    n7 = Node("7", np.array([2.33825, 48.59046]), 0.0001)
-    g.add_edge(n6, n7)
     return g
 
 
@@ -73,47 +77,61 @@ def generate_scouting_data(g: Graph, gnss: pd.DataFrame, vis: bool):
     for n in g.nodes:
         n.patches = []
 
-    scaling = 2.8
-    patches_width = 215
-
     is_running = False
     for filepath, image in tqdm(load_paths_and_files(hub_drone / "uav_rgb_gimbal")):
         uav_time = int(filepath.stem.split("_")[-1])
         search_gnss = gnss.iloc[(gnss['timestamp'] - uav_time).abs().argmin()]
         uav_coordinate = np.array([search_gnss['longitude'], search_gnss['latitude']])
+        h = float(search_gnss["altitude"].split(" ")[1])
+        yaw = search_gnss['yaw']
+        scale_h = image.shape[1] / (2 * h * np.tan(fov_h / 2))
+        scale_v = image.shape[0] / (2 * h * np.tan(fov_v / 2))
+        uav_scale = (scale_h + scale_v) / 2
+        uav_patches_width = patches_width / bev_scale * uav_scale
+
+        # logger.debug(f"h {2 * h * np.tan(fov_h / 2)}m, v {2 * h * np.tan(fov_v / 2)}m, {uav_scale} pixels/m")
+        # logger.debug(f"{bev_scale / uav_scale} ugv/uav scale")
+
+        def compute_patch_gnss(p: np.ndarray) -> np.ndarray:
+            center = - (np.mean(p, axis=0) - [1280 / 2, 720 / 2]) / (scale_v, scale_h)
+            shift = np.array([[np.cos(yaw), -np.sin(yaw)], [np.sin(yaw), np.cos(yaw)]]) @ center[::-1]
+            return np.array(shift_gnss(*uav_coordinate[::-1], *shift))[::-1]
+
         # TODO possible improvement export left/right patches
-        patches = [(p - [0, image.shape[0] // 2 - patches_width // 2]).astype(np.int32) for p in
-                   create_matrix_front_patch(patches_width,
+        patches = [(p + [0, -image.shape[0]//2 + uav_patches_width + 25//2]).astype(np.int32) for p in
+                   create_matrix_front_patch(uav_patches_width,
                                              image.shape[:2],
-                                             pattern=(1, 1),
-                                             margin=(0, 0))]
-        patches = apply_rotations(patches, [np.rad2deg(-search_gnss['yaw'])])
+                                             pattern=(2, 3),
+                                             margin=(25, 25))]
+        patches = apply_rotations(patches, [np.rad2deg(-yaw)])
         for p in patches:
-            n = g.get_current_node(uav_coordinate)
+            patch_coordinate = compute_patch_gnss(p)
+            n = g.get_current_node(patch_coordinate)
             if n is not None:
-                n.add_patch(scale(extract_patch(p, image, patches_width), scaling), uav_coordinate,
+                n.add_patch(scale(extract_patch(p, image, int(uav_patches_width)), patches_width), uav_coordinate,
                             str(filepath), np.mean(p, axis=0), patches_width, -1)
         if vis:
             background = image.copy()
             # draw exclusion zone and patches
             for p in patches:
-                n = g.get_current_node(uav_coordinate)
+                patch_coordinate = compute_patch_gnss(p)
+                n = g.get_current_node(patch_coordinate)
                 c = (0, 255, 0) if n is not None else (0, 0, 255)
                 for i, img in enumerate([image, background]):
                     if i == 0 or n is not None:
                         cv2.polylines(img, [p], isClosed=True, color=c, thickness=10)
+                        # cv2.putText(img,
+                        #             f"{n}",
+                        #             np.mean(p, axis=0).astype(np.int32) + [-200, -200],
+                        #             cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 7)
                         cv2.putText(img,
                                     f"{n}",
-                                    np.mean(p, axis=0).astype(np.int32) + [-200, -200],
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
-                        cv2.putText(img,
-                                    f"{uav_coordinate[0]:.1f}",
                                     np.mean(p, axis=0).astype(np.int32) + [-200, -100],
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                                    cv2.FONT_HERSHEY_SIMPLEX, 1.8, (255, 255, 255), 3)
                         cv2.putText(img,
-                                    f"{uav_coordinate[1]:.1f}",
+                                    f"{(patch_coordinate[0] - uav_coordinate[0]) * 1e5:.1f} {(patch_coordinate[1] - uav_coordinate[1]) * 1e5:.1f}",
                                     np.mean(p, axis=0).astype(np.int32) + [-200, 0],
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 7)
+                                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3)
             # show image
             alpha = 0.5
             image_viz = cv2.addWeighted(resize_image(image, 600), alpha,
@@ -138,26 +156,31 @@ def filter_scouting_data(g: Graph, keep_best: int, too_close_thresh: float):
     def median_score(_: str, __: np.ndarray, feats: Dict[str, np.ndarray]) -> float:
         return np.median(feats['scores'].cpu().numpy())
 
+    def remove_too_close(l):
+        correspondence_data_valid = [True for _ in range(len(l))]
+        for i, (path_i, c_i, feat_i) in enumerate(l):
+            if not correspondence_data_valid[i]:
+                continue  # if already mark as too close, ignore it
+            for j, (path_j, c_j, feat_j) in enumerate(l):
+                if not i < j:
+                    continue
+                if np.linalg.norm(c_i - c_j) < too_close_thresh:
+                    correspondence_data_valid[j] = False  # n.correspondance_data[j] too close to i
+        return [d for d, v in zip(l, correspondence_data_valid) if v]
+
     for n in g.nodes:
+        ordered_list = []
         for c, path, _, _, _, _ in tqdm(n.patches):
             image = cv2.imread(path)
             output = xfeat.detectAndCompute(image, top_k=4096)[0]
             output.update({'image_size': (image.shape[1], image.shape[0])})
-            n.correspondance_data.append((path, c, output))
+            bisect.insort(ordered_list, (path, c, output), key=lambda x: -median_score(*x))
 
-            n.correspondance_data = sorted(n.correspondance_data, key=lambda x: median_score(*x), reverse=True)
-            correspondance_data_valid = [True for _ in range(len(n.correspondance_data))]
-            for i, (path_i, c_i, feat_i) in enumerate(n.correspondance_data):
-                if not correspondance_data_valid[i]:
-                    continue  # if already mark as too close, ignore it
-                for j, (path_j, c_j, feat_j) in enumerate(n.correspondance_data):
-                    if not i < j:
-                        continue
-                    if np.linalg.norm(c_i - c_j) < too_close_thresh:
-                        correspondance_data_valid[j] = False  # n.correspondance_data[j] too close to i
-            n.correspondance_data = [d for d, v in zip(n.correspondance_data,
-                                                       correspondance_data_valid) if v]
-        n.correspondance_data = n.correspondance_data[:keep_best]
+            if len(ordered_list) > 100:
+                ordered_list = remove_too_close(ordered_list)
+        n.correspondance_data = remove_too_close(ordered_list)
+        if len(n.correspondance_data) > 10:
+            n.correspondance_data = n.correspondance_data[:keep_best]
 
 
 def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: list[Node],
@@ -166,7 +189,6 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
                         viz: bool, save_to_image: bool):
     is_running = False
     number_ugv_patch = 1
-    patches_width = 450
 
     if save_to_image:
         (default_path / "results").mkdir(exist_ok=True)
@@ -189,7 +211,7 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
             enumerate(zip(next_nodes,
                           current_nodes,
                           gnss.iterrows()))):
-        if index < 230:
+        if index < 200:
             continue
         if next_node is None:
             break
@@ -204,7 +226,7 @@ def detect_ugv_location(graph: Graph, next_nodes: list[Node], current_nodes: lis
                                             ugv_bev.shape[:2],
                                             pattern=(1, number_ugv_patch),
                                             margin=(0, np.ceil(patches_width * (np.sqrt(2) - 1) / 2)))
-        yaw_ugv = search_gnss['gps_heading'] # angle from global to ugv
+        yaw_ugv = search_gnss['gps_heading']  # angle from global to ugv
         patches = apply_rotations(patches, [np.rad2deg(-yaw_ugv)])
         extracted_patches = [extract_patch(p, ugv_bev, patches_width) for p in patches]
 
@@ -386,7 +408,7 @@ def main():
     current_nodes, next_nodes = get_path_in_node(ugv_gnss, graph)
     detect_ugv_location(graph, next_nodes, current_nodes, ugv_gnss,
                         args.keep_best, args.match_count_thresh, args.match_count_probable_thresh,
-                        True, True)
+                        viz, True)
 
 
 if __name__ == "__main__":

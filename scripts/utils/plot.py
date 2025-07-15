@@ -6,6 +6,7 @@ import threading
 import time
 from typing import Optional, Dict, Tuple, List, Union
 
+import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -80,13 +81,16 @@ def plot_scatter_2axis(x: Union[np.ndarray, List], y1: Union[np.ndarray, List],
                        ylim1: Optional[Tuple[float, float]] = None,
                        ylim2: Optional[Tuple[float, float]] = None,
                        title: str = "A plot") -> None:
+    matplotlib.rcParams.update({'font.size': 18})
     fig, ax1 = plt.subplots()
+    ax1.set_xlim((0, np.max(x) * 1.1))
     ax1.scatter(x, y1, color='b', label=ylabel1, alpha=0.7)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel1, color='b')
     if ylim1 is not None:
         ax1.set_ylim(ylim1)
     ax1.tick_params(axis='y', labelcolor='b')
+    plt.grid()
 
     ax2 = ax1.twinx()
     ax2.scatter(x, y2, color='r', label=ylabel2, alpha=0.7)
@@ -94,8 +98,9 @@ def plot_scatter_2axis(x: Union[np.ndarray, List], y1: Union[np.ndarray, List],
     if ylim1 is not None:
         ax2.set_ylim(ylim2)
     ax2.tick_params(axis='y', labelcolor='r')
-
-    plt.title(title)
+    ax2.ticklabel_format(axis='y', scilimits=[-3, 3])
+    # plt.grid()
+    # plt.title(title)
     plt.tight_layout()
     plt.show()
 
