@@ -14,7 +14,7 @@ from matplotlib.axes import Axes
 
 from scripts.utils.datasets import get_dataset_by_name
 
-default_path = Path(get_dataset_by_name("norlab_ulaval_datasets/node_dataset"))
+default_path = Path(get_dataset_by_name("rosbag_u2is/node_dataset"))
 logger = logging.getLogger(__name__)
 
 

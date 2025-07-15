@@ -90,3 +90,13 @@ def get_path_in_node(gnss: pd.DataFrame, graph: Graph) -> Tuple[List[Node], List
             next_nodes.append(current_nodes[i])
 
     return current_nodes, next_nodes
+
+
+def shift_gnss(lat: float, lon: float, delta_east_m: float, delta_north_m: float) -> Tuple[float, float]:
+    R = 6378137  # Earth's radius in meters (WGS84)
+    dLat = delta_north_m / R
+    dLon = delta_east_m / (R * np.cos(np.radians(lat)))
+
+    new_lat = lat + np.degrees(dLat)
+    new_lon = lon + np.degrees(dLon)
+    return new_lat, new_lon
