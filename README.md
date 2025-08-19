@@ -1,7 +1,7 @@
 Collaborative navigation in unstructured environments using an aerial drone and a terrestrial robot
 ===
 
-This repository contains most of the overwhelming majority of the work done during my master's
+This repository contains the overwhelming majority of the work done during my master's
 thesis.
 
 > [!IMPORTANT]

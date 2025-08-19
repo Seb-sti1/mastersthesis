@@ -2,14 +2,13 @@
 This file is for rosbag manipulations
 """
 
-from pathlib import Path
-from typing import Callable, Dict, Any, Iterator
-
 import cv2
 import numpy as np
 from cv_bridge import CvBridge
+from pathlib import Path
 from scipy.spatial.transform import Rotation
 from tqdm import tqdm
+from typing import Callable, Dict, Any, Iterator
 
 import rosbag
 
@@ -38,7 +37,7 @@ def msg2gnss(msg, t):
 
 
 def msg2alt(msg, t):
-    return msg
+    return msg.data
 
 
 def msg2gimbalStatus(msg, t):
@@ -79,7 +78,7 @@ def replay_bag(bag_file: Path, topics: Dict[str, Callable], exhaustive: bool = F
     found = {t: False for t in topics.keys()}
     last_published = {t: (None, None) for t in topics.keys()}
 
-    for topic, msg, t in tqdm(bag.read_messages(topics=topics), leave=False):
+    for topic, msg, t in tqdm(bag.read_messages(topics=topics.keys()), leave=False):
         last_published[topic] = (msg, t)
         found[topic] = True
 
