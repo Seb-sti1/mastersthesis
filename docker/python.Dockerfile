@@ -21,7 +21,9 @@ RUN apt update && \
     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 &&\
     rm ~/miniconda3/miniconda.sh &&\
     . ~/miniconda3/bin/activate &&\
-    conda init bash
+    conda init bash &&\
+    conda tos accept --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --channel https://repo.anaconda.com/pkgs/r
 
 # create env for my scripts
 RUN mkdir -p /app/mastersthesis && cd /app/mastersthesis &&\
